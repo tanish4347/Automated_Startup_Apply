@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Candidate Profile</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
+        .card { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .progress-bar { background: #eee; border-radius: 5px; height: 20px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { background: #4caf50; height: 100%; }
+        .nav a { margin-right: 15px; color: #0066cc; text-decoration: none; }
+        .missing-list { color: #d32f2f; }
+    </style>
+</head>
+<body>
+    <h1>Comprehensive Candidate Information Vault</h1>
+    <div class="nav card">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <a href="/profile/identity">Identity</a>
+        <a href="/profile/documents">Document Vault</a>
+    </div>
+
+    <div class="card">
+        <h2>Profile Completeness</h2>
+        <p>Overall: {{ scores.overall }}%</p>
+        <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.overall }}%"></div></div>
+
+        <p>Application Readiness: {{ scores.application }}%</p>
+        <p>BGV Readiness: {{ scores.bgv }}%</p>
+        <p>Onboarding Readiness: {{ scores.onboarding }}%</p>
+
+        {% if scores.missing %}
+        <h3>Missing Information</h3>
+        <ul class="missing-list">
+            {% for item in scores.missing %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>CV Import</h2>
+        <form action="/profile/import-cv" method="post" enctype="multipart/form-data">
+            <input type="file" name="cv_file" required>
+            <button type="submit">Extract to Database</button>
+        </form>
+    </div>
+</body>
+</html>

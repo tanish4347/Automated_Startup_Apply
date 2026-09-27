@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Automated Job System Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stats { display: flex; gap: 20px; margin-bottom: 20px; }
+        .stat-box { background: #e6f2ff; padding: 15px; border-radius: 5px; flex: 1; text-align: center;}
+        .stat-box h3 { margin: 0; color: #0066cc; font-size: 24px;}
+        .stat-box p { margin: 5px 0 0 0; font-size: 14px; color: #555;}
+        a { color: #0066cc; text-decoration: none; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; background: #eee;}
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Job Pipeline Dashboard</h1>
+        <a href="/profile" style="font-weight: bold;">Candidate Vault →</a>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <h3>{{ stats.remote_intern }}</h3>
+            <p>Remote Internships</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.onsite_intern }}</h3>
+            <p>Non-Remote Internships</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.remote_ft }}</h3>
+            <p>Remote Entry-Level</p>
+        </div>
+        <div class="stat-box" style="background:#d9f2d9;">
+            <h3 style="color:#2eb82e;">{{ stats.total }}</h3>
+            <p>Total Active Jobs</p>
+        </div>
+    </div>
+
+    <h2>System Actions</h2>
+    <button onclick="triggerAcquisition()">Trigger Strict Acquisition Search</button>
+    <script>
+        function triggerAcquisition() {
+            alert('Starting acquisition run...');
+            fetch('/jobs/acquire', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => { alert('Acquired ' + data.total_discovered + ' jobs. Accepted: ' + data.accepted); location.reload(); });
+        }
+        function triggerApply(jobId) {
+            fetch('/jobs/' + jobId + '/apply', { method: 'POST' })
+            .then(() => { alert('Queued'); location.reload(); });
+        }
+    </script>
+
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 2;">
+            <h2>Active Discovered Jobs</h2>
+            {% for job in jobs %}
+            <div class="card">
+                <h3><a href="/jobs/{{ job.id }}">{{ job.company }} - {{ job.role }}</a></h3>
+                <p>
+                    <span class="badge">{{ job.role_type }}</span>
+                    <span class="badge">{{ job.target_field }}</span>
+                    <span class="badge">{{ job.work_mode }}</span>
+                </p>
+                <p>Location: {{ job.location }} | Relevance: {{ job.relevance_score }}</p>
+                <button onclick="triggerApply({{ job.id }})">Apply Now</button>
+            </div>
+            {% else %}
+            <p>No active target jobs found. Run acquisition.</p>
+            {% endfor %}
+        </div>
+
+        <div style="flex: 1;">
+            <h2>Applications Queue</h2>
+            {% for app in applications %}
+            <div class="card">
+                <p><strong>Job ID:</strong> {{ app.job_id }}</p>
+                <p><strong>Status:</strong> {{ app.status }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

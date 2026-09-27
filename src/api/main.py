@@ -62,3 +62,6 @@ async def queue_application(job_id: int, db: AsyncSession = Depends(get_db)):
     await app_queue.add_job(application.id)
 
     return application
+
+from src.api.profile import router as profile_router
+app.include_router(profile_router)

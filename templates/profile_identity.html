@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Identity & Sensitive Info</title><style>body { font-family: sans-serif; padding: 20px; }</style></head>
+<body>
+    <a href="/profile">← Back to Profile</a>
+    <h1>Identity & Sensitive Information</h1>
+
+    <form action="/profile/identity" method="post">
+        <h3>Basic</h3>
+        <label>First Name:</label> <input type="text" name="first_name" value="{{ profile.first_name if profile else '' }}"><br><br>
+        <label>Last Name:</label> <input type="text" name="last_name" value="{{ profile.last_name if profile else '' }}"><br><br>
+        <label>Email:</label> <input type="email" name="email" value="{{ profile.email if profile else '' }}"><br><br>
+
+        <h3>Sensitive (Encrypted at Rest)</h3>
+        <p>Values are masked. Require explicit action to update.</p>
+        <label>PAN:</label> <input type="text" name="pan" placeholder="{{ masked_pan }}"><br><br>
+        <label>Aadhaar:</label> <input type="text" name="aadhaar" placeholder="{{ masked_aadhaar }}"><br><br>
+
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>

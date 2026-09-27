@@ -16,6 +16,20 @@ class JobCreate(BaseModel):
     requirements: Optional[str] = None
     preferred_qualifications: Optional[str] = None
     company_info: Optional[str] = None
+    is_target_role: Optional[bool] = True
+    role_type: Optional[str] = None
+    filter_reason: Optional[str] = None
+    filter_confidence: Optional[float] = None
+
+    archived: bool = False
+    search_run_id: Optional[int] = None
+    target_field: Optional[str] = None
+    seniority: Optional[str] = None
+    experience_required: Optional[str] = None
+    employment_type: Optional[str] = None
+    relevance_score: Optional[float] = None
+
+
 
 class JobResponse(JobCreate):
     id: int
