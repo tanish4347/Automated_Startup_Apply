@@ -3,18 +3,35 @@ from typing import Dict, Any
 
 class AdvancedJobClassifier:
     """
-    Classifies jobs according to strict target rules:
-    1. Remote/Hybrid/Onsite Internship -> KEEP (unless Onsite + Mumbai -> REJECT)
-    2. Remote Entry-Level Full-Time -> KEEP
-    3. Onsite/Hybrid Full-Time -> REJECT
-    4. Senior Full-Time -> REJECT
+    Classifies jobs according to strict target rules.
     """
 
-    TARGET_FIELDS = [
-        "data science", "machine learning", "ai", "genai", "data analytics",
-        "nlp", "computer vision", "research", "data engineering",
-        "ml engineering", "software engineering", "backend"
-    ]
+    # Ordered by specificity so "ML Engineering" matches before generic "Software Engineering"
+    TARGET_FIELDS_MAPPING = {
+        "data science": "Data Science",
+        "data scientist": "Data Science",
+        "machine learning": "Machine Learning",
+        "ml": "Machine Learning",
+        "ai": "AI / GenAI",
+        "genai": "AI / GenAI",
+        "data analytics": "Data Analytics",
+        "data analyst": "Data Analytics",
+        "nlp": "NLP",
+        "natural language processing": "NLP",
+        "computer vision": "Computer Vision",
+        "cv": "Computer Vision",
+        "ai research": "Research / AI Research",
+        "ml research": "Research / AI Research",
+        "research": "Research / AI Research",
+        "data engineering": "Data Engineering",
+        "data engineer": "Data Engineering",
+        "ml engineering": "ML Engineering",
+        "ml engineer": "ML Engineering",
+        "software engineering": "Software Engineering",
+        "software engineer": "Software Engineering",
+        "backend": "Software Engineering",
+        "full stack": "Software Engineering"
+    }
 
     EXCLUDED_LOCATIONS = ["mumbai"]
 
@@ -37,9 +54,15 @@ class AdvancedJobClassifier:
     ]
 
     def _determine_field(self, text: str) -> str:
-        for field in self.TARGET_FIELDS:
-            if field in text.lower():
-                return field.title()
+        text_lower = text.lower()
+        # Find the first specific mapping that matches
+        for key, standard_name in self.TARGET_FIELDS_MAPPING.items():
+            # Use word boundaries for short acronyms like ML and AI, or CV
+            if key in ["ml", "ai", "cv"]:
+                if re.search(rf"\b{key}\b", text_lower):
+                    return standard_name
+            elif key in text_lower:
+                return standard_name
         return "Other Technical"
 
     def _determine_work_mode(self, text: str, explicit_location: str) -> str:
@@ -51,7 +74,7 @@ class AdvancedJobClassifier:
         if "hybrid" in text_lower or "hybrid" in loc_lower:
             return "HYBRID"
         if "onsite" in text_lower or "on-site" in text_lower or "in office" in text_lower or loc_lower:
-            # If there's a specific city mentioned and no remote word, assume onsite/hybrid
+            # Note: Do not assume missing location means remote
             return "ONSITE"
 
         return "UNKNOWN"
@@ -69,9 +92,10 @@ class AdvancedJobClassifier:
         return any(term in text.lower() for term in self.ENTRY_LEVEL_TERMS)
 
     def _calculate_relevance(self, text: str) -> float:
-        # Basic mock relevance based on keyword density of tech skills
-        skills = ["python", "c++", "sql", "pytorch", "llms", "pandas", "fastapi"]
-        score = 0.5 # Base
+        skills = ["python", "c++", "sql", "pytorch", "scikit-learn", "xgboost",
+                  "numpy", "pandas", "fastapi", "llms", "rag", "generative ai",
+                  "agentic ai", "nlp", "computer vision", "transformers", "deep learning"]
+        score = 0.5
         matches = sum(1 for s in skills if s in text.lower())
         score += matches * 0.05
         return min(0.99, score)
@@ -79,7 +103,6 @@ class AdvancedJobClassifier:
     def evaluate(self, title: str, description: str, location: str = "", work_mode: str = "") -> Dict[str, Any]:
         full_text = f"{title} {description}".lower()
 
-        # 1. Base extractions
         target_field = self._determine_field(full_text)
         mode = work_mode if work_mode else self._determine_work_mode(full_text, location)
         is_intern = self._is_internship(full_text)
@@ -89,17 +112,12 @@ class AdvancedJobClassifier:
 
         is_mumbai = any(loc in location.lower() for loc in self.EXCLUDED_LOCATIONS) or any(loc in description.lower() for loc in self.EXCLUDED_LOCATIONS)
 
-        # 2. Logic Gates
-
-        # Gate 1: Non-technical HR/Marketing etc.
         if "hr " in title.lower() or "marketing" in title.lower() or "finance" in title.lower():
              return self._reject("Wrong field", "Non-technical role")
 
-        # Gate 2: Seniority (If it's senior, reject immediately)
         if is_senior and not is_intern:
             return self._reject("Senior/experienced", "Senior terms found in JD/Title")
 
-        # Gate 3: Internships
         if is_intern:
             if mode == "REMOTE":
                 return self._accept("REMOTE_INTERNSHIP", target_field, mode, "INTERNSHIP", relevance, "Remote internship")
@@ -108,7 +126,7 @@ class AdvancedJobClassifier:
                     return self._reject("Mumbai non-remote", "Onsite/Hybrid internship in Mumbai")
                 return self._accept("NON_REMOTE_INTERNSHIP", target_field, mode, "INTERNSHIP", relevance, "Non-remote internship")
 
-        # Gate 4: Full-Time
+        # Full-time checks
         if is_entry or not is_senior:
             if mode == "REMOTE":
                 return self._accept("REMOTE_ENTRY_LEVEL_FULL_TIME", target_field, mode, "ENTRY_LEVEL", relevance, "Remote entry level full time")
@@ -124,7 +142,7 @@ class AdvancedJobClassifier:
             "target_field": field,
             "work_mode": mode,
             "seniority": seniority,
-            "relevance_score": score,
+            "relevance_score": round(score, 2),
             "filter_reason": reason,
             "filter_confidence": 0.95
         }

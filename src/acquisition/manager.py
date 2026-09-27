@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -7,19 +7,44 @@ from src.models.job import Job, SearchRun
 from src.api.schemas import JobCreate
 from src.acquisition.adapters.yc_startup import YCStartupJobsAdapter
 from src.acquisition.adapters.linkedin import LinkedInAdapter
+from src.acquisition.adapters.remotive_live import RemotiveLiveAdapter
 from src.acquisition.filter import AdvancedJobClassifier
 
 logger = logging.getLogger(__name__)
 
 class AcquisitionManager:
-    def __init__(self):
-        self.adapters = [YCStartupJobsAdapter(), LinkedInAdapter()]
+    def __init__(self, mode: str = "mock"):
+        self.mode = mode
 
-        self.queries = [
-            "Data Science Internship", "Machine Learning Internship", "AI Internship",
-            "Remote Data Science Internship", "Mumbai onsite ML internship",
-            "Remote ML Engineer", "Full-Time Software Engineer"
-        ]
+        # Instantiate adapters with the requested mode
+        if mode == "mock":
+            self.adapters = [
+                YCStartupJobsAdapter(mode="mock"),
+                LinkedInAdapter(mode="mock")
+            ]
+            self.queries = [
+                "Remote Data Science Internship", "Mumbai onsite ML internship",
+                "Remote ML Engineer", "Full-Time Software Engineer"
+            ]
+        else:
+            self.adapters = [
+                YCStartupJobsAdapter(mode="live"),
+                LinkedInAdapter(mode="live"),
+                RemotiveLiveAdapter(mode="live")
+            ]
+            self.queries = [
+                "Data Science Intern", "Machine Learning Intern", "AI Intern",
+                "GenAI Intern", "NLP Intern", "Computer Vision Intern",
+                "AI Research Intern", "ML Research Intern", "Data Analytics Intern",
+                "Data Engineering Intern", "ML Engineering Intern",
+                "Software Engineering Intern", "Backend Engineering Intern",
+                "Full Stack Engineering Intern", "Research Assistant AI",
+                "Student Researcher ML", "Remote Data Science Internship",
+                "Remote ML Internship", "Remote AI Internship",
+                "Remote Software Engineering Internship", "Remote Junior Software Engineer",
+                "Remote New Grad Software Engineer", "Remote Entry Level Data Scientist",
+                "Remote Graduate ML Engineer"
+            ]
 
     async def _archive_old_jobs(self, db: AsyncSession):
         result = await db.execute(select(Job).where(Job.archived == False))
@@ -28,7 +53,7 @@ class AcquisitionManager:
             j.archived = True
         await db.commit()
 
-    async def run_acquisition(self, db: AsyncSession) -> SearchRun:
+    async def run_acquisition(self, db: AsyncSession) -> Dict[str, Any]:
         await self._archive_old_jobs(db)
 
         run_record = SearchRun(
@@ -36,9 +61,11 @@ class AcquisitionManager:
             queries_executed=len(self.queries) * len(self.adapters)
         )
         db.add(run_record)
-        await db.flush() # get ID
+        await db.flush()
 
         classifier = AdvancedJobClassifier()
+
+        adapter_stats = []
 
         for adapter in self.adapters:
             for query in self.queries:
@@ -69,7 +96,7 @@ class AcquisitionManager:
                             elif cat == "Senior/experienced": run_record.rej_senior += 1
                             elif cat == "Mumbai non-remote": run_record.rej_mumbai_non_remote += 1
                             else: run_record.rej_other += 1
-                            continue # Do not save rejected jobs to DB entirely per requirements of keeping active db clean
+                            continue
 
                         # Save Accepted Job
                         job_dict = job_data.model_dump()
@@ -92,5 +119,8 @@ class AcquisitionManager:
                     logger.error(f"Error fetching: {e}")
                     await db.rollback()
 
+            # Capture adapter status after its queries are done
+            adapter_stats.append(adapter.get_status())
+
         await db.refresh(run_record)
-        return run_record
+        return {"run_record": run_record, "adapter_stats": adapter_stats}
