@@ -41,7 +41,7 @@ def test_sqlite_runs_in_wal_mode_with_busy_timeout(tmp_path):
     engine = engine_from_settings(_url(tmp_path))
     with engine.connect() as conn:
         assert conn.execute(text("PRAGMA journal_mode")).scalar() == "wal"
-        assert conn.execute(text("PRAGMA busy_timeout")).scalar() == 5000
+        assert conn.execute(text("PRAGMA busy_timeout")).scalar() == 30000
 
 
 def test_backfill_links_companies_adds_sightings_and_merges_v2_duplicates(tmp_path):

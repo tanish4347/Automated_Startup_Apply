@@ -26,7 +26,7 @@ def _sqlite_pragmas(dbapi_conn, _record) -> None:
     """WAL lets the dashboard read while discovery writes; busy_timeout waits for locks instead of failing."""
     cur = dbapi_conn.cursor()
     cur.execute("PRAGMA journal_mode=WAL")
-    cur.execute("PRAGMA busy_timeout=5000")
+    cur.execute("PRAGMA busy_timeout=30000")
     cur.close()
 
 

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import abc
 import re
+import time
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -167,7 +168,10 @@ def _record_alias(session: Session, company: Company, alias: str, source: str, m
 
 
 def run_seeder(session: Session, seeder: Seeder, options: dict[str, Any] | None = None,
-               commit_every: int = 200) -> SeedStats:
+               commit_every: int = 200, commit_seconds: float = 5.0) -> SeedStats:
+    """Commits every `commit_every` seeds or `commit_seconds`, whichever comes first: seeders that
+    fetch a page per seed (inc42, portfolio details) must not hold SQLite's write lock for
+    minutes, or a concurrent `discover` fails with "database is locked"."""
     stats = SeedStats()
     reason = seeder.available()
     if reason:
@@ -175,14 +179,16 @@ def run_seeder(session: Session, seeder: Seeder, options: dict[str, Any] | None 
         return stats
     ctx = SeedContext(session=session, options=options or {})
     ctx.cache_dir.mkdir(parents=True, exist_ok=True)
+    last_commit = time.monotonic()
     for seed in seeder.seeds(ctx):
         stats.seen += 1
         outcome = write_seed(session, seed, seeder.name)
         setattr(stats, outcome, getattr(stats, outcome) + 1)
         if outcome == "created" and seed.is_india:
             stats.india_created += 1
-        if stats.seen % commit_every == 0:
+        if stats.seen % commit_every == 0 or time.monotonic() - last_commit >= commit_seconds:
             session.commit()
+            last_commit = time.monotonic()
     session.commit()
     log.info("seeder_done", seeder=seeder.name, **stats.__dict__)
     return stats
