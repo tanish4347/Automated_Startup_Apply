@@ -8,9 +8,10 @@ from typing import Any, Optional
 from sqlalchemy.orm import Session
 
 from autoapply.logging import get_logger
-from autoapply.models.job import Job, PayStatus
+from autoapply.models.job import Job, PayStatus, WorkMode
 from autoapply.models.application import Application, ApplicationStatus
 from autoapply.services.dedup import deduplicate_job
+from autoapply.sources.http_client import guess_work_mode
 
 log = get_logger(__name__)
 
@@ -42,6 +43,14 @@ def ingest_job(session: Session, data: dict[str, Any]) -> Job | None:
     except ValueError:
         pay_status = PayStatus.UNKNOWN
 
+    work_mode_str = data.get("work_mode") or "unknown"
+    if work_mode_str == "unknown":
+        work_mode_str = guess_work_mode(location)
+    try:
+        work_mode = WorkMode(work_mode_str.lower())
+    except ValueError:
+        work_mode = WorkMode.UNKNOWN
+
     job = Job(
         source=source,
         source_id=source_id,
@@ -50,6 +59,7 @@ def ingest_job(session: Session, data: dict[str, Any]) -> Job | None:
         title=title,
         company=company,
         location=location,
+        work_mode=work_mode,
         description_raw=data.get("description_raw"),
         description_text=data.get("description_text"),
         responsibilities=data.get("responsibilities"),

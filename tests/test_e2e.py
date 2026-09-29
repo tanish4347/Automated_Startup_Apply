@@ -5,7 +5,7 @@ from autoapply.models.base import engine_from_settings, get_session_factory
 from autoapply.config import get_settings
 from autoapply.models.job import Job
 from autoapply.models.application import Application, ApplicationStatus
-from autoapply.models.candidate import CandidateProfile
+from autoapply.candidate.manager import get_active_identity
 from autoapply.appliers.greenhouse import GreenhouseApplier
 
 def test_e2e_greenhouse_mock():
@@ -14,7 +14,7 @@ def test_e2e_greenhouse_mock():
     SessionLocal = get_session_factory(engine)
     
     with SessionLocal() as session:
-        profile = session.query(CandidateProfile).filter_by(is_active=1).first()
+        profile = get_active_identity(session)
         mock_html_path = 'file:///' + os.path.abspath(os.path.join(os.path.dirname(__file__), 'mock_ats.html')).replace('\\\\', '/')
         
         job = Job(

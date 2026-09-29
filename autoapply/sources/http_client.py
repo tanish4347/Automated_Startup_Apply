@@ -118,10 +118,10 @@ def html_to_text(html: str) -> str:
     if not html:
         return ""
     soup = BeautifulSoup(html, "lxml")
-    return soup.get_text(separator="\\n", strip=True)
+    return soup.get_text(separator="\n", strip=True)
 
 
-
+def guess_work_mode(text: str | None) -> str:
     """Guess work mode from a location or description string."""
     t = (text or "").lower()
     if "remote" in t:

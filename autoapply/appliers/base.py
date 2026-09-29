@@ -8,6 +8,7 @@ from typing import Any
 
 from autoapply.models.job import Job
 from autoapply.models.application import Application
+from autoapply.models.vault import VaultIdentity
 
 
 @dataclass
@@ -44,7 +45,7 @@ class BaseApplier(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def apply(self, job: Job, application: Application) -> ApplyResult:
+    def apply(self, job: Job, application: Application, profile: VaultIdentity) -> ApplyResult:
         """Attempt to apply to the job.
 
         Returns an ApplyResult with the outcome.

@@ -5,7 +5,7 @@ from autoapply.services.application_service import (
     record_failure,
     reset_stalled_applications
 )
-from autoapply.candidate.manager import get_or_create_default_profile
+from autoapply.candidate.manager import get_active_identity
 from autoapply.models.application import ApplicationStatus
 
 # Registry imports
@@ -39,7 +39,7 @@ def run_application_engine(limit: int = 10) -> None:
     successes = 0
     
     with SessionLocal() as session:
-        profile = get_or_create_default_profile(session)
+        profile = get_active_identity(session)
         
         stalled_count = reset_stalled_applications(session)
         if stalled_count > 0:

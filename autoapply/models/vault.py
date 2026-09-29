@@ -31,6 +31,62 @@ class VaultIdentity(Base):
     resumes = sa_relationship("VaultResume", back_populates="identity", cascade="all, delete-orphan")
     answers = sa_relationship("VaultAnswer", back_populates="identity", cascade="all, delete-orphan")
 
+    # ── Derived views used by the appliers ─────────────────────────────────
+    # The appliers read a flat profile; these compute it from the Vault
+    # tables so there is exactly one candidate store.
+
+    @property
+    def full_name(self) -> str | None:
+        parts = [p for p in (self.first_name, self.middle_name, self.last_name) if p]
+        return " ".join(parts) or None
+
+    @property
+    def location(self) -> str | None:
+        parts = [p for p in (self.city, self.country) if p]
+        return ", ".join(parts) or None
+
+    @property
+    def resume_path(self) -> str | None:
+        active = next((r for r in self.resumes if r.is_active), None)
+        return active.file_path if active else None
+
+    def to_profile_dict(self) -> dict:
+        """Everything the question engine may use, as JSON-able data.
+
+        Only CONFIRMED answers are included, so unreviewed CV extractions and
+        AI drafts never reach an employer form.
+        """
+        def compact(d: dict) -> dict:
+            return {k: v for k, v in d.items() if v not in (None, "")}
+
+        return {
+            "identity": compact({
+                c.name: getattr(self, c.name)
+                for c in self.__table__.columns if c.name != "id"
+            }),
+            "education": [compact({
+                "institution": e.institution, "degree": e.degree, "major": e.major,
+                "minor": e.minor, "start_date": e.start_date, "end_date": e.end_date,
+                "cgpa": e.cgpa, "scale": e.scale,
+            }) for e in self.educations],
+            "employment": [compact({
+                "company": e.company, "job_title": e.job_title,
+                "employment_type": e.employment_type, "start_date": e.start_date,
+                "end_date": e.end_date, "is_current": e.is_current,
+                "description": e.description,
+            }) for e in self.employments],
+            "projects": [compact({
+                "name": p.name, "description": p.description,
+                "technologies": p.technologies, "github_url": p.github_url,
+                "demo_url": p.demo_url,
+            }) for p in self.projects],
+            "skills": [compact({"category": s.category, "name": s.name}) for s in self.skills],
+            "answers": [
+                {"question": a.question, "answer": a.answer}
+                for a in self.answers if a.answer and a.status == "CONFIRMED"
+            ],
+        }
+
 class VaultEducation(Base):
     __tablename__ = "vault_education"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -106,4 +162,5 @@ class VaultAnswer(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     identity = sa_relationship("VaultIdentity", back_populates="answers")
+
 

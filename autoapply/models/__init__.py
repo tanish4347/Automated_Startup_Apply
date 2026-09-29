@@ -5,7 +5,6 @@ from autoapply.models.vault import (
     VaultIdentity, VaultEducation, VaultEmployment, 
     VaultProject, VaultSkill, VaultResume, VaultAnswer
 )
-from autoapply.models.candidate import CandidateProfile
 from autoapply.models.intelligence import ApplicationIntelligence
 
 __all__ = [
@@ -21,6 +20,5 @@ __all__ = [
     "VaultSkill",
     "VaultResume",
     "VaultAnswer",
-    "CandidateProfile",
     "ApplicationIntelligence"
 ]

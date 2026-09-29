@@ -1,7 +1,7 @@
 from autoapply.appliers.base import BaseApplier, ApplyResult
 from autoapply.models.job import Job
 from autoapply.models.application import Application
-from autoapply.models.candidate import CandidateProfile
+from autoapply.models.vault import VaultIdentity
 from autoapply.appliers.playwright_utils import get_browser_context, safe_fill, check_for_captcha
 from autoapply.logging import get_logger
 
@@ -19,7 +19,7 @@ class AshbyApplier(BaseApplier):
             return True
         return False
 
-    def apply(self, job: Job, application: Application, profile: CandidateProfile) -> ApplyResult:
+    def apply(self, job: Job, application: Application, profile: VaultIdentity) -> ApplyResult:
         url = job.application_url
         if not url:
             return ApplyResult(success=False, error_message='No application URL provided.')

@@ -1,7 +1,7 @@
 from autoapply.appliers.base import BaseApplier, ApplyResult
 from autoapply.models.job import Job
 from autoapply.models.application import Application
-from autoapply.models.candidate import CandidateProfile
+from autoapply.models.vault import VaultIdentity
 from autoapply.appliers.playwright_utils import get_browser_context, safe_fill, check_for_captcha
 from autoapply.appliers.question_engine import answer_custom_question
 from autoapply.logging import get_logger
@@ -20,7 +20,7 @@ class GreenhouseApplier(BaseApplier):
             return True
         return False
 
-    def apply(self, job: Job, application: Application, profile: CandidateProfile) -> ApplyResult:
+    def apply(self, job: Job, application: Application, profile: VaultIdentity) -> ApplyResult:
         url = job.application_url
         if not url:
             return ApplyResult(success=False, error_message='No application URL provided.')
@@ -78,7 +78,7 @@ class GreenhouseApplier(BaseApplier):
                         continue
                         
                     # Dynamic Question Engine
-                    if is_required and hasattr(profile, 'raw_json'):
+                    if is_required:
                         tag_name = input_el.evaluate('el => el.tagName.toLowerCase()')
                         options = []
                         if tag_name == 'select':
@@ -90,7 +90,7 @@ class GreenhouseApplier(BaseApplier):
                             question=label_text,
                             question_type=tag_name,
                             options=options,
-                            profile_data=profile.raw_json,
+                            profile_data=profile.to_profile_dict(),
                             job_description=job.description_text or job.description_raw or ''
                         )
                         
