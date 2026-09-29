@@ -1,5 +1,5 @@
 ﻿from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy import JSON, Column, String, Text, Integer, Boolean, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship as sa_relationship
 from autoapply.models.base import Base
 
@@ -23,6 +23,8 @@ class VaultIdentity(Base):
     kaggle_url = Column(String(256))
     google_scholar_url = Column(String(256))
     other_links = Column(Text)
+    source = Column(String(64))   # CV | USER ENTERED
+    status = Column(String(64))   # NEEDS REVIEW | CONFIRMED
     
     educations = sa_relationship("VaultEducation", back_populates="identity", cascade="all, delete-orphan")
     employments = sa_relationship("VaultEmployment", back_populates="identity", cascade="all, delete-orphan")
@@ -99,6 +101,8 @@ class VaultEducation(Base):
     end_date = Column(String(64))
     cgpa = Column(String(64))
     scale = Column(String(64))
+    source = Column(String(64))
+    status = Column(String(64))
     
     identity = sa_relationship("VaultIdentity", back_populates="educations")
 
@@ -113,6 +117,8 @@ class VaultEmployment(Base):
     end_date = Column(String(64))
     is_current = Column(Boolean, default=False)
     description = Column(Text)
+    source = Column(String(64))
+    status = Column(String(64))
     
     identity = sa_relationship("VaultIdentity", back_populates="employments")
 
@@ -125,6 +131,8 @@ class VaultProject(Base):
     technologies = Column(Text)
     github_url = Column(Text)
     demo_url = Column(Text)
+    source = Column(String(64))
+    status = Column(String(64))
     
     identity = sa_relationship("VaultIdentity", back_populates="projects")
 
@@ -134,6 +142,8 @@ class VaultSkill(Base):
     identity_id = Column(Integer, ForeignKey("vault_identity.id"))
     category = Column(String(128))
     name = Column(Text)
+    source = Column(String(64))
+    status = Column(String(64))
     
     identity = sa_relationship("VaultIdentity", back_populates="skills")
 
@@ -158,9 +168,31 @@ class VaultAnswer(Base):
     answer = Column(Text)
     source = Column(String(64), default="UNKNOWN")  # AUTO-FILLED FROM CV, USER ENTERED, AI GENERATED, etc.
     sensitivity = Column(String(64), default="NORMAL") # SENSITIVE, NORMAL
-    status = Column(String(64), default="NEEDS REVIEW") # CONFIRMED, NEEDS REVIEW, UNKNOWN
+    status = Column(String(64), default="NEEDS REVIEW") # CONFIRMED, NEEDS REVIEW, SKIPPED
+    # A value read from the CV for a SENSITIVE key is only ever a suggestion shown at intake: the
+    # answer itself is written by the candidate (see autoapply/candidate/sensitive.py).
+    suggested_answer = Column(Text)
+    field_type = Column(String(32))        # from docs/QUESTIONS.md
+    weight = Column(Float)                 # weighted volume from docs/QUESTIONS.md
+    intake_pass = Column(String(16))       # cv | gap | policy | story
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     identity = sa_relationship("VaultIdentity", back_populates="answers")
 
 
+
+
+class VaultPolicy(Base):
+    """Structured rules the reasoning tier reads (not prose): where the candidate can work,
+    relocation, availability window, notice period, stipend floor. User-entered only."""
+    __tablename__ = "vault_policy"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(String(64), nullable=False, unique=True)
+    value = Column(JSON)
+    source = Column(String(64), default="USER ENTERED")
+    status = Column(String(64), default="CONFIRMED")
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+
+# Registers the SENSITIVE write guard wherever the Vault models are used.
+import autoapply.candidate.sensitive  # noqa: E402,F401

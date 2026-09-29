@@ -91,6 +91,9 @@ def cmd_discover(args: argparse.Namespace) -> None:
 
 LOGIN_URLS = {
     "naukri": "https://www.naukri.com/nlogin/login",
+    "internshala": "https://internshala.com/login/user",
+    "unstop": "https://unstop.com/auth/login",
+    "instahyre": "https://www.instahyre.com/login/",
     "wellfound": "https://wellfound.com/login",
     "yc_waas": "https://www.workatastartup.com/",
 }
@@ -140,6 +143,46 @@ def cmd_ats(args: argparse.Namespace) -> None:
         print(f"\n{'platform':<16}{'companies':>10}{'india':>8}")
         for ats, (n, india) in st["by_platform"].items():
             print(f"{ats:<16}{n:>10}{india:>8}")
+
+
+def cmd_questions(args: argparse.Namespace) -> None:
+    """Harvest application-form questions from real forms (never submitting), or write the report."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    import asyncio
+    from pathlib import Path
+    from autoapply.questions import cluster, harvest, platform_forms
+    engine = engine_from_settings(settings.db.url, settings.db.echo)
+    notes_path = Path("data/questions_harvest_notes.txt")
+    with get_session_factory(engine)() as session:
+        if args.action == "harvest":
+            wanted = args.platform or ["greenhouse", "ashby", "lever", "smartrecruiters",
+                                       "internshala", "unstop", "naukri", "instahyre"]
+            notes: list[str] = []
+            for plat in wanted:
+                try:
+                    if plat in harvest.ATS_HARVEST:
+                        tokens = harvest.sample_companies(session, plat, args.cap)
+                        forms = asyncio.run(harvest.harvest_ats(plat, tokens))
+                    elif plat == "smartrecruiters":
+                        forms = platform_forms.harvest_smartrecruiters(harvest.sample_companies(session, plat, args.cap))
+                    else:
+                        forms = [platform_forms.harvest_platform(session, plat)]
+                    n = harvest.store_forms(session, forms)
+                    msg = f"{plat}: {len(forms)} forms from {len({f.company_key for f in forms})} companies, {n} fields"
+                except platform_forms.NeedsLogin as e:
+                    msg = f"{plat}: NOT HARVESTED - {e}"
+                except Exception as e:
+                    msg = f"{plat}: NOT HARVESTED - {type(e).__name__}: {e}"
+                print(msg)
+                notes.append(msg)
+            notes_path.parent.mkdir(parents=True, exist_ok=True)
+            notes_path.write_text("\n".join(notes) + "\n")
+        clusters, weights, counts, sampled = cluster.build(session)
+        notes = notes_path.read_text().splitlines() if notes_path.exists() else []
+        Path("docs").mkdir(exist_ok=True)
+        Path("docs/QUESTIONS.md").write_text(cluster.render(clusters, weights, counts, sampled, notes))
+        print(f"\n{len(clusters)} clusters ({sum(1 for c in clusters if c.reasons)} to review) -> docs/QUESTIONS.md")
 
 
 def cmd_universe(args: argparse.Namespace) -> None:
@@ -197,6 +240,12 @@ def main() -> None:
     disc.add_argument("--force", action="store_true", help="--browser: ignore the per-source cadence")
     disc.add_argument("--headed", action="store_true", help="--browser: show the browser windows")
 
+    qs = sub.add_parser("questions", help="Harvest real application-form questions (never submits) / write docs/QUESTIONS.md")
+    qs.add_argument("action", choices=["harvest", "report"])
+    qs.add_argument("--platform", action="append",
+                    help="harvest only these: greenhouse ashby lever smartrecruiters internshala unstop naukri instahyre")
+    qs.add_argument("--cap", type=int, default=150, help="max distinct companies per ATS platform")
+
     uni = sub.add_parser("universe", help="Company universe: seed it or report on it")
     uni.add_argument("action", choices=["seed", "stats", "merges"])
     uni.add_argument("--source", action="append",
@@ -204,7 +253,7 @@ def main() -> None:
     uni.add_argument("--limit", type=int, default=100, help="merges: rows to show")
 
     bl = sub.add_parser("browser-login", help="Open a platform's browser profile to sign in / pass a challenge by hand")
-    bl.add_argument("platform", help="naukri | wellfound | yc_waas")
+    bl.add_argument("platform", help="naukri | wellfound | yc_waas | internshala | unstop | instahyre")
     
     # apply
     apply_p = sub.add_parser("apply", help="Run the application engine")
@@ -231,6 +280,7 @@ def main() -> None:
         "ats": cmd_ats,
         "browser-login": cmd_browser_login,
         "universe": cmd_universe,
+        "questions": cmd_questions,
     }
     commands[args.command](args)
 

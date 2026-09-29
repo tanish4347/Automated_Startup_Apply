@@ -167,6 +167,20 @@ class BrowserSession:
                 return headers
         return None
 
+    def read_only(self) -> None:
+        """Abort every request that is not GET/HEAD/OPTIONS before it leaves the browser. Used when
+        opening application forms: no click can submit anything, whatever the page does."""
+        self.blocked: list[str] = []
+
+        def guard(route) -> None:
+            if route.request.method in ("GET", "HEAD", "OPTIONS"):
+                route.continue_()
+            else:
+                self.blocked.append(f"{route.request.method} {route.request.url[:160]}")
+                route.abort()
+
+        self._ctx.route("**/*", guard)
+
     def check(self, status: int | None = None) -> None:
         reason = detect_challenge(status=status, title=self.page.title(), html=self.page.content())
         if reason:

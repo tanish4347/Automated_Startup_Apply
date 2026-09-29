@@ -4,10 +4,11 @@ from autoapply.models.application import Application
 from autoapply.models.company import Company, CompanyAlias, JobSighting
 from autoapply.models.vault import (
     VaultIdentity, VaultEducation, VaultEmployment, 
-    VaultProject, VaultSkill, VaultResume, VaultAnswer
+    VaultProject, VaultSkill, VaultResume, VaultAnswer, VaultPolicy
 )
 from autoapply.models.intelligence import ApplicationIntelligence
 from autoapply.models.source_run import SourceRun
+from autoapply.models.form_question import FormQuestion
 
 __all__ = [
     "Base",
@@ -25,6 +26,8 @@ __all__ = [
     "VaultSkill",
     "VaultResume",
     "VaultAnswer",
+    "VaultPolicy",
     "ApplicationIntelligence",
     "SourceRun",
+    "FormQuestion",
 ]

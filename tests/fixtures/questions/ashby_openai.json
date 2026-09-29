@@ -1,0 +1,238 @@
+{
+ "data": {
+  "jobPosting": {
+   "id": "923eebc8-5591-4057-892f-5825de1a5460",
+   "title": "HR Business Partner, EMEA",
+   "applicationForm": {
+    "sections": [
+     {
+      "title": null,
+      "fieldEntries": [
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7__systemfield_name",
+        "field": {
+         "id": "3812da33-9d6b-412f-998f-1c037b86308e",
+         "path": "_systemfield_name",
+         "humanReadablePath": "Name",
+         "title": "Legal Name",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "String",
+         "__autoSerializationID": "StringField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_1247be43-60aa-4ce5-b09b-756883ea4b7e",
+        "field": {
+         "id": "5d427024-05ba-4e64-954f-80618df5873e",
+         "path": "1247be43-60aa-4ce5-b09b-756883ea4b7e",
+         "humanReadablePath": "",
+         "title": "Preferred Name (if applicable)",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "String",
+         "__autoSerializationID": "StringField"
+        },
+        "isRequired": false
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7__systemfield_email",
+        "field": {
+         "id": "0d46f094-574a-4f02-b915-9fc5482308fe",
+         "path": "_systemfield_email",
+         "humanReadablePath": "Email",
+         "title": "Email",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Email",
+         "__autoSerializationID": "EmailField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7__systemfield_resume",
+        "field": {
+         "id": "13688b5b-e14c-4412-b205-2591d2f43fc1",
+         "path": "_systemfield_resume",
+         "humanReadablePath": "Resume",
+         "title": "Resume",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "File",
+         "__autoSerializationID": "FileField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_e76a06bc-7ce2-4ae9-aa97-968465510b0b",
+        "field": {
+         "id": "e76a06bc-7ce2-4ae9-aa97-968465510b0b",
+         "path": "e76a06bc-7ce2-4ae9-aa97-968465510b0b",
+         "humanReadablePath": "",
+         "title": "Phone Number",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Phone",
+         "__autoSerializationID": "PhoneField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7__systemfield_location",
+        "field": {
+         "id": "50630315-6ea0-4977-a96e-65ce7f689179",
+         "path": "_systemfield_location",
+         "humanReadablePath": "Location",
+         "title": "Where are you currently located?",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Location",
+         "locationTypes": [
+          "Country",
+          "Region",
+          "City"
+         ],
+         "__autoSerializationID": "LocationField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_c8ec7f95-c722-4c39-a370-9f239b0f98ad",
+        "field": {
+         "id": "c8ec7f95-c722-4c39-a370-9f239b0f98ad",
+         "path": "c8ec7f95-c722-4c39-a370-9f239b0f98ad",
+         "humanReadablePath": "",
+         "title": "When can you start a new role?",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Date",
+         "__autoSerializationID": "DateField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_e090103c-b5e2-4a67-85ff-830808bd2b50",
+        "field": {
+         "id": "92d63724-f674-4b39-8569-be15f97efdef",
+         "path": "e090103c-b5e2-4a67-85ff-830808bd2b50",
+         "humanReadablePath": "",
+         "title": "Are you authorized to work in the country where the job is located?",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Boolean",
+         "__autoSerializationID": "BooleanField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_f8ce4288-1093-4a63-a206-142bb9ff1970",
+        "field": {
+         "id": "f8ce4288-1093-4a63-a206-142bb9ff1970",
+         "path": "f8ce4288-1093-4a63-a206-142bb9ff1970",
+         "humanReadablePath": "",
+         "title": "Will you now or in the future require sponsorship for employment visa status in this country?",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Boolean",
+         "__autoSerializationID": "BooleanField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_e139366d-3b59-4215-a2eb-19a7484a0985",
+        "field": {
+         "id": "e139366d-3b59-4215-a2eb-19a7484a0985",
+         "path": "e139366d-3b59-4215-a2eb-19a7484a0985",
+         "humanReadablePath": "",
+         "title": "Are you able to work from our Paris office three days per week?",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Boolean",
+         "__autoSerializationID": "BooleanField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_ca06f703-1f1f-45ec-bc82-b9046334bf83",
+        "field": {
+         "id": "ca06f703-1f1f-45ec-bc82-b9046334bf83",
+         "path": "ca06f703-1f1f-45ec-bc82-b9046334bf83",
+         "humanReadablePath": "",
+         "title": "Additional Information",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "LongText",
+         "__autoSerializationID": "LongTextField"
+        },
+        "isRequired": false
+       }
+      ]
+     },
+     {
+      "title": null,
+      "fieldEntries": [
+       {
+        "id": "9fd6c4ab-b79a-4139-b749-1a75de30e1a7_7fe82de7-a1d7-4d8a-95a5-e5cc9adc84ea",
+        "field": {
+         "id": "c99abc11-6518-49e9-b432-94e2b6df969e",
+         "path": "7fe82de7-a1d7-4d8a-95a5-e5cc9adc84ea",
+         "humanReadablePath": "",
+         "title": "I hereby certify that I have not knowingly withheld any information that might adversely affect my chances for employment and that the answers given by me are true and correct to the best of my knowledge. I further certify that I, the undersigned applicant, have personally completed this application. I understand that, to the extent permitted by applicable law, any omission or misstatement of material fact on this application or on any document used to secure employment shall be grounds for rejection of this application or for immediate discharge if I am employed, regardless of the time elapsed before discovery.\u00a0",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "MultiValueSelect",
+         "selectableValues": [
+          {
+           "label": "I confirm I have read the above.",
+           "value": "I confirm I have read the above.",
+           "isArchived": false
+          }
+         ],
+         "__autoSerializationID": "MultiValueSelectField"
+        },
+        "isRequired": true
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

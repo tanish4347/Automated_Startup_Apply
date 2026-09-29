@@ -1,0 +1,85 @@
+{
+ "data": {
+  "jobPosting": {
+   "id": "f3376204-1c2d-42a8-bf4a-1a0eec2fbc3c",
+   "title": "Solution Specialist",
+   "applicationForm": {
+    "sections": [
+     {
+      "title": "Application details",
+      "fieldEntries": [
+       {
+        "id": "2be2a10a-4fe1-425f-8a04-ad7d5f66f49a__systemfield_name",
+        "field": {
+         "id": "97d49011-062e-462d-b6f6-df80f9fac19f",
+         "path": "_systemfield_name",
+         "humanReadablePath": "Name",
+         "title": "Name",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "String",
+         "__autoSerializationID": "StringField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "2be2a10a-4fe1-425f-8a04-ad7d5f66f49a__systemfield_email",
+        "field": {
+         "id": "355e3054-5014-4c56-a990-1bfeca97fab8",
+         "path": "_systemfield_email",
+         "humanReadablePath": "Email",
+         "title": "Email",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Email",
+         "__autoSerializationID": "EmailField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "2be2a10a-4fe1-425f-8a04-ad7d5f66f49a_1c2fb6f3-dae2-45c1-934a-01cc434fc0a6",
+        "field": {
+         "id": "b70749f2-b063-476b-b564-c00fdb7d0a3e",
+         "path": "1c2fb6f3-dae2-45c1-934a-01cc434fc0a6",
+         "humanReadablePath": "",
+         "title": "Phone number",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "Phone",
+         "__autoSerializationID": "PhoneField"
+        },
+        "isRequired": true
+       },
+       {
+        "id": "2be2a10a-4fe1-425f-8a04-ad7d5f66f49a__systemfield_resume",
+        "field": {
+         "id": "dfdbcf2b-bf57-41ec-9dc6-65b73742109d",
+         "path": "_systemfield_resume",
+         "humanReadablePath": "Resume",
+         "title": "Resume",
+         "isNullable": false,
+         "isPrivate": false,
+         "isDeactivated": false,
+         "isMany": false,
+         "metadata": {},
+         "type": "File",
+         "__autoSerializationID": "FileField"
+        },
+        "isRequired": true
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}
