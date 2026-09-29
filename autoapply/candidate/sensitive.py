@@ -44,8 +44,12 @@ class SensitiveWriteError(PermissionError):
     """Something other than the candidate tried to write a SENSITIVE field."""
 
 
-class ParkApplication(Exception):
-    """A SENSITIVE answer is missing at apply time: the applier parks the form for the candidate."""
+class ParkApplication(BaseException):
+    """A SENSITIVE answer is missing at apply time: the applier parks the form for the candidate.
+
+    A BaseException on purpose (like KeyboardInterrupt): appliers wrap their whole flow in
+    `except Exception` and would otherwise turn a park into an ordinary failure. Only the apply
+    orchestrator catches it."""
 
 
 def is_sensitive_key(canonical_key: str | None) -> bool:

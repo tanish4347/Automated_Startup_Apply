@@ -13,7 +13,26 @@ def answer_custom_question(question: str, question_type: str, options: list[str]
     """
     Uses Gemini to answer dynamic questions.
     Returns the string answer, or None if unknown/factual information is missing.
+
+    SENSITIVE questions (work authorisation, sponsorship, demographics, grades, graduation date,
+    stipend, notice period, start date: autoapply/candidate/sensitive.py) never reach the model:
+    the candidate's own confirmed answer is returned verbatim from profile_data["sensitive"], or
+    ParkApplication is raised and the applier parks the form. The model never sees those answers.
     """
+    from autoapply.candidate.sensitive import ParkApplication, is_sensitive_key
+    from autoapply.questions.cluster import rule_key
+    from autoapply.questions.harvest import normalize_label
+
+    profile_data = dict(profile_data)
+    sensitive = profile_data.pop("sensitive", {}) or {}
+    hit = rule_key(normalize_label(question))
+    if hit and is_sensitive_key(hit[0]):
+        key = hit[0]
+        for k in (key, key.split(".")[0]):
+            if sensitive.get(k):
+                return sensitive[k]
+        raise ParkApplication(f"{key}: no confirmed answer from the candidate for {question[:80]!r}")
+
     api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
         log.warning("no_gemini_key_for_questions", question=question[:30])

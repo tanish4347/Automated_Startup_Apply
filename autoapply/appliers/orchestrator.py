@@ -17,6 +17,7 @@ from autoapply.appliers.smartrecruiters import SmartRecruitersApplier
 
 from autoapply.config import get_settings
 from autoapply.models.base import engine_from_settings, get_session_factory
+from autoapply.candidate.sensitive import ParkApplication
 from autoapply.logging import get_logger
 import time
 
@@ -81,6 +82,11 @@ def run_application_engine(limit: int = 10) -> None:
                 else:
                     record_failure(session, app, result.error_message or 'Unknown failure')
                     log.info('application_failed', app_id=app.id, error=result.error_message)
+            except ParkApplication as e:
+                log.info('application_parked', app_id=app.id, reason=str(e))
+                app.error_message = str(e)
+                transition_status(session, app, ApplicationStatus.PARKED)
+                session.commit()
             except Exception as e:
                 log.exception('application_exception', app_id=app.id, error=str(e))
                 record_failure(session, app, f'Internal exception: {e}')

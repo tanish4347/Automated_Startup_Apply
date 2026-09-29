@@ -66,10 +66,11 @@ class VaultIdentity(Base):
                 c.name: getattr(self, c.name)
                 for c in self.__table__.columns if c.name != "id"
             }),
+            # Grades and graduation dates are SENSITIVE: never shown to a model (it could reword or
+            # infer them); they reach forms only verbatim via "sensitive" below.
             "education": [compact({
                 "institution": e.institution, "degree": e.degree, "major": e.major,
-                "minor": e.minor, "start_date": e.start_date, "end_date": e.end_date,
-                "cgpa": e.cgpa, "scale": e.scale,
+                "minor": e.minor, "start_date": e.start_date,
             }) for e in self.educations],
             "employment": [compact({
                 "company": e.company, "job_title": e.job_title,
@@ -85,8 +86,13 @@ class VaultIdentity(Base):
             "skills": [compact({"category": s.category, "name": s.name}) for s in self.skills],
             "answers": [
                 {"question": a.question, "answer": a.answer}
-                for a in self.answers if a.answer and a.status == "CONFIRMED"
+                for a in self.answers if a.answer and a.status == "CONFIRMED" and a.sensitivity != "SENSITIVE"
             ],
+            # canonical_key -> the candidate's own confirmed answer, for verbatim use only.
+            "sensitive": {
+                a.canonical_key: a.answer for a in self.answers
+                if a.sensitivity == "SENSITIVE" and a.answer and a.status == "CONFIRMED" and a.source == "USER ENTERED"
+            },
         }
 
 class VaultEducation(Base):

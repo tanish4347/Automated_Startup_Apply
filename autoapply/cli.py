@@ -145,6 +145,41 @@ def cmd_ats(args: argparse.Namespace) -> None:
             print(f"{ats:<16}{n:>10}{india:>8}")
 
 
+def cmd_vault(args: argparse.Namespace) -> None:
+    """The candidate Vault: seed the question catalog, import a CV, report coverage."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    from autoapply.candidate.catalog import seed_catalog
+    from autoapply.candidate.intake import coverage
+    engine = engine_from_settings(settings.db.url, settings.db.echo)
+    with get_session_factory(engine)() as session:
+        if args.action == "seed":
+            st = seed_catalog(session)
+            print(f"Catalog from docs/QUESTIONS.md: {st['seeded']} new, {st['kept']} kept, {st['sensitive']} SENSITIVE")
+        elif args.action == "import-cv":
+            if not args.path:
+                sys.exit("usage: autoapply vault import-cv PATH")
+            from autoapply.candidate.cv_parser import import_cv
+            seed_catalog(session)
+            st = import_cv(session, args.path)
+            print("Imported from CV: " + ", ".join(f"{k}={v}" for k, v in st.items()) +
+                  "\nEverything is NEEDS REVIEW: confirm it at /intake (autoapply dashboard).")
+        cov = coverage(session)
+        pct = 100 * cov["answered"] / cov["total"] if cov["total"] else 0
+        print(f"\nVault: {cov['answered']} of {cov['total']} questions confirmed ({pct:.0f}%); "
+              f"{cov['prefilled']} pre-filled from the CV, waiting for you to confirm")
+        print(f"\n{'category':<14}{'confirmed':>10}{'total':>7}")
+        for cat, (done, total) in cov["by_category"].items():
+            print(f"{cat:<14}{done:>10}{total:>7}")
+        print(f"\nPolicy rules set: {', '.join(cov['policy_set']) or 'none'}")
+        if cov["policy_missing"]:
+            print(f"Policy rules missing: {', '.join(cov['policy_missing'])}")
+        if cov["blank_sensitive"]:
+            print(f"\nSENSITIVE and still blank ({len(cov['blank_sensitive'])}): applications that ask these are parked")
+            for key in cov["blank_sensitive"]:
+                print(f"  - {key}")
+
+
 def cmd_questions(args: argparse.Namespace) -> None:
     """Harvest application-form questions from real forms (never submitting), or write the report."""
     settings = get_settings()
@@ -240,6 +275,10 @@ def main() -> None:
     disc.add_argument("--force", action="store_true", help="--browser: ignore the per-source cadence")
     disc.add_argument("--headed", action="store_true", help="--browser: show the browser windows")
 
+    va = sub.add_parser("vault", help="Candidate Vault: seed the question catalog, import a CV, coverage status")
+    va.add_argument("action", choices=["status", "seed", "import-cv"])
+    va.add_argument("path", nargs="?", help="import-cv: the resume file (PDF or text)")
+
     qs = sub.add_parser("questions", help="Harvest real application-form questions (never submits) / write docs/QUESTIONS.md")
     qs.add_argument("action", choices=["harvest", "report"])
     qs.add_argument("--platform", action="append",
@@ -281,6 +320,7 @@ def main() -> None:
         "browser-login": cmd_browser_login,
         "universe": cmd_universe,
         "questions": cmd_questions,
+        "vault": cmd_vault,
     }
     commands[args.command](args)
 

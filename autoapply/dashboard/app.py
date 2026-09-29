@@ -78,6 +78,36 @@ def create_app(settings=None):
     app = FastAPI(title="AutoApply", version="3.0")
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+    # The candidate editing their own data: these POSTs are the only dashboard writes that count as
+    # user input, so only they may set SENSITIVE fields (autoapply/candidate/sensitive.py).
+    # Deliberately not every POST: /queue/start and friends must never inherit this permission.
+    USER_INPUT_PREFIXES = ("/profile", "/vault", "/intake", "/resumes")
+
+    @app.middleware("http")
+    async def candidate_input(request: Request, call_next):
+        from autoapply.candidate.sensitive import user_input
+        if request.method == "POST" and request.url.path.startswith(USER_INPUT_PREFIXES):
+            with user_input():
+                return await call_next(request)
+        return await call_next(request)
+
+    # ── INTAKE ─────────────────────────────────────────────────────────────
+    @app.get("/intake", response_class=HTMLResponse)
+    def intake_page(request: Request):
+        return templates.TemplateResponse(request, "intake.html", {"page": "intake"})
+
+    @app.get("/intake/api/state")
+    def intake_state(db: Session = Depends(get_db)):
+        from autoapply.candidate.intake import state
+        return state(db)
+
+    @app.post("/intake/api/answer")
+    async def intake_answer(request: Request, db: Session = Depends(get_db)):
+        from autoapply.candidate.intake import apply, progress, build_cards
+        body = await request.json()
+        apply(db, body["card"], body.get("action", "confirm"), body.get("values") or {})
+        return {"ok": True, "progress": progress(build_cards(db))}
+
     # ── DASHBOARD ──────────────────────────────────────────────────────────
     @app.get("/", response_class=HTMLResponse)
     def root(request: Request, db: Session = Depends(get_db)):

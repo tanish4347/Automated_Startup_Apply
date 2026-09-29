@@ -23,8 +23,11 @@ _TRANSITIONS: dict[ApplicationStatus, set[ApplicationStatus]] = {
     ApplicationStatus.IN_PROGRESS: {
         ApplicationStatus.SUBMITTED,
         ApplicationStatus.FAILED,
+        ApplicationStatus.PARKED,
         ApplicationStatus.CLOSED,
     },
+    # Parked until the candidate enters the missing SENSITIVE answer, then re-queued.
+    ApplicationStatus.PARKED: {ApplicationStatus.QUEUED, ApplicationStatus.CLOSED},
     ApplicationStatus.SUBMITTED: {
         ApplicationStatus.ASSESSMENT,
         ApplicationStatus.INTERVIEW,

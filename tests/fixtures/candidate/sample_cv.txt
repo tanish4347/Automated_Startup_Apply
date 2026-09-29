@@ -1,0 +1,23 @@
+Asha Rao
++91-9000000001 | asha.rao@example.edu | linkedin.com/in/asha-rao | github.com/asharao
+Education
+Indian Institute of Technology, Bombay 8.41/10
+B.Tech., Computer Science and Engineering | Minor in Economics 2023 – 2027
+Delhi Public School AIR 4321 | 94.2%
+JEE Advanced | XII(CBSE) Apr 2021 – May 2023
+Internships
+Software Engineering Intern | Backend May 2025 – Jul 2025
+Example Payments Pvt. Ltd.
+• Built a rate limiter for the payouts API handling 2k requests per second
+• Cut p95 latency of the ledger service by 38% with batched writes
+Research Intern Jan 2026 – Present
+Department of Computer Science | IIT Bombay
+• Evaluating retrieval-augmented generation for code search
+Projects
+Tiny Search Engine | Rust, Tantivy | GitHub Aug 2025 – Oct 2025
+• Indexed 1M pages with BM25 ranking and a web UI
+Skills and Expertise
+Languages: Python, Rust, SQL
+ML: PyTorch, Transformers, RAG
+Awards and Achievements
+• Finalist, Example Hackathon 2025

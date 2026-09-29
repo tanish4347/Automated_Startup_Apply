@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Intake{% endblock %}
+{% block page_title %}Intake{% endblock %}
+{% block content %}
+<style>
+#intake{max-width:760px;margin:0 auto}
+.passes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.pass{background:#fff;border:1px solid #e5e8f0;border-radius:8px;padding:10px 12px;font-size:12px;color:#666}
+.pass b{display:block;font-size:13px;color:#222;margin-bottom:2px}
+.pass.on{border-color:#6c8ff8;box-shadow:0 0 0 2px #e3e9fe}
+.bar{height:8px;background:#e8ebf3;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;width:100%;background:#6c8ff8;transform-origin:left;transform:scaleX(0);transition:transform .2s}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:#777;margin-bottom:16px}
+.qcard{background:#fff;border:1px solid #e5e8f0;border-radius:10px;padding:24px}
+.qcard .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-right:6px;background:#f0f2fa;color:#555}
+.qcard .tag.sens{background:#fee2e2;color:#b91c1c}
+.qcard .tag.done{background:#d1fae5;color:#166534}
+.qcard .tag.skip{background:#fef3c7;color:#92400e}
+.qcard h2{font-size:18px;font-weight:600;margin:12px 0 6px;line-height:1.35}
+.qcard .note{font-size:12px;color:#6b7280;margin-bottom:14px}
+.qcard label{display:block;font-size:12px;font-weight:600;color:#555;margin:12px 0 4px}
+.qcard input[type=text],.qcard input[type=number],.qcard input[type=date],.qcard textarea{width:100%;padding:9px 11px;border:1px solid #d5d9e6;border-radius:6px;font:inherit;font-size:14px}
+.qcard textarea{min-height:110px;resize:vertical}
+.qcard textarea.long{min-height:240px}
+.bool{display:flex;gap:8px}
+.bool button{flex:0 0 auto}
+.bool button.sel{background:#6c8ff8;color:#fff;border-color:#6c8ff8}
+.keys{font-size:12px;color:#888;margin-top:14px;display:flex;gap:16px;flex-wrap:wrap}
+kbd{background:#f0f2fa;border:1px solid #dde0ea;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px;font-family:inherit}
+.actions{display:flex;gap:8px;margin-top:18px}
+.empty{text-align:center;padding:40px;color:#666}
+</style>
+
+<div id="intake">
+  <div class="passes" id="passes"></div>
+  <div class="bar"><i id="barfill"></i></div>
+  <div class="meta"><span id="count"></span><span id="eta"></span></div>
+  <div class="qcard" id="card"><div class="empty">Loading…</div></div>
+  <div class="keys">
+    <span><kbd>Enter</kbd> confirm (<kbd>Ctrl</kbd>+<kbd>Enter</kbd> in long text)</span>
+    <span><kbd>←</kbd> <kbd>→</kbd> move</span>
+    <span><kbd>Esc</kbd> skip</span>
+  </div>
+</div>
+
+<script>
+let S = {cards: [], progress: null}, i = 0;
+
+async function load() {
+  const r = await fetch('/intake/api/state');
+  S = await r.json();
+  i = S.progress.resume_at;        // resume where you left off
+  render();
+}
+
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderProgress() {
+  const p = S.progress;
+  document.getElementById('barfill').style.transform = `scaleX(${p.total ? p.done / p.total : 0})`;
+  document.getElementById('count').textContent = `${p.done} of ${p.total} confirmed · ${p.remaining} left`;
+  const mins = p.passes.reduce((a, x) => a + x.minutes_left, 0);
+  document.getElementById('eta').textContent = `≈ ${Math.ceil(mins)} min left in total`;
+  const cur = S.cards[i] ? S.cards[i].intake_pass : null;
+  document.getElementById('passes').innerHTML = p.passes.map((x, n) =>
+    `<div class="pass ${x.pass === cur ? 'on' : ''}"><b>${'abcd'[n]}) ${esc(x.title)}</b>` +
+    `${x.remaining} of ${x.total} left · ≈${Math.ceil(x.minutes_left)} min</div>`).join('');
+}
+
+function inputHtml(inp, k) {
+  const id = 'in' + k, v = inp.value;
+  const sugg = inp.suggestion ? ` placeholder="CV: ${esc(inp.suggestion)}"` : '';
+  if (inp.type === 'textarea')
+    return `<label for="${id}">${esc(inp.label)}</label><textarea id="${id}" data-name="${inp.name}" class="${S.cards[i].intake_pass === 'story' ? 'long' : ''}"${sugg}>${esc(v)}</textarea>`;
+  if (inp.type === 'bool') {
+    const on = v === true || v === 'true';
+    return `<label>${esc(inp.label)}</label><div class="bool" data-name="${inp.name}" data-value="${on}">` +
+      `<button type="button" class="btn btn-secondary ${on ? 'sel' : ''}" data-v="true">Yes</button>` +
+      `<button type="button" class="btn btn-secondary ${!on ? 'sel' : ''}" data-v="false">No</button></div>`;
+  }
+  const t = inp.type === 'number' ? 'number' : inp.type === 'date' ? 'date' : 'text';
+  const val = Array.isArray(v) ? v.join(', ') : v;
+  return `<label for="${id}">${esc(inp.label)}</label><input id="${id}" type="${t}" data-name="${inp.name}" value="${esc(val)}"${sugg}>`;
+}
+
+function render() {
+  renderProgress();
+  const box = document.getElementById('card'), c = S.cards[i];
+  if (!c) { box.innerHTML = '<div class="empty">Nothing here yet. Run <code>autoapply vault seed</code> and <code>autoapply vault import-cv</code>.</div>'; return; }
+  const tags = [`<span class="tag">${esc(c.category || c.kind)}</span>`];
+  if (c.sensitive) tags.push('<span class="tag sens">sensitive: only you enter this</span>');
+  if (c.status === 'CONFIRMED') tags.push('<span class="tag done">confirmed</span>');
+  if (c.status === 'SKIPPED') tags.push('<span class="tag skip">skipped</span>');
+  box.innerHTML = `<div>${tags.join('')}<span class="tag">${i + 1} / ${S.cards.length}</span></div>` +
+    `<h2>${esc(c.question)}</h2>` + (c.note ? `<div class="note">${esc(c.note)}</div>` : '') +
+    c.inputs.map(inputHtml).join('') +
+    `<div class="actions"><button class="btn btn-primary" id="ok">Confirm</button>` +
+    `<button class="btn btn-secondary" id="skip">Skip</button></div>`;
+  box.querySelectorAll('.bool button').forEach(b => b.onclick = () => {
+    const g = b.parentElement; g.dataset.value = b.dataset.v;
+    g.querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+  });
+  document.getElementById('ok').onclick = () => send('confirm');
+  document.getElementById('skip').onclick = () => send('skip');
+  const first = box.querySelector('input,textarea');
+  if (first) first.focus();
+}
+
+function values() {
+  const out = {};
+  document.querySelectorAll('#card [data-name]').forEach(el => {
+    out[el.dataset.name] = el.classList.contains('bool') ? el.dataset.value === 'true' : el.value;
+  });
+  return out;
+}
+
+async function send(action) {
+  const c = S.cards[i];
+  if (!c) return;
+  const r = await fetch('/intake/api/answer', {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({card: c.id, action, values: values()})});
+  if (!r.ok) { alert('Could not save: ' + await r.text()); return; }
+  const res = await r.json();
+  const st = await (await fetch('/intake/api/state')).json();   // statuses and values as stored
+  S.cards = st.cards; S.progress = res.progress;
+  move(1);
+}
+
+function move(d) { i = Math.max(0, Math.min(S.cards.length - 1, i + d)); render(); }
+
+document.addEventListener('keydown', e => {
+  const el = document.activeElement, typing = el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT');
+  if (e.key === 'Escape') { e.preventDefault(); send('skip'); return; }
+  if (e.key === 'Enter') {
+    if (el && el.tagName === 'TEXTAREA' && !(e.ctrlKey || e.metaKey)) return;  // newline in long text
+    e.preventDefault(); send('confirm'); return;
+  }
+  const atEdge = !typing || el.value === '' || (e.key === 'ArrowLeft' && el.selectionStart === 0) ||
+                 (e.key === 'ArrowRight' && el.selectionEnd === el.value.length);
+  if (e.key === 'ArrowRight' && (atEdge || e.altKey)) { e.preventDefault(); move(1); }
+  if (e.key === 'ArrowLeft' && (atEdge || e.altKey)) { e.preventDefault(); move(-1); }
+});
+
+load();
+</script>
+{% endblock %}

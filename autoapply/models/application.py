@@ -23,6 +23,7 @@ class ApplicationStatus(str, enum.Enum):
     REJECTED = "rejected"
     OFFER = "offer"
     FAILED = "failed"
+    PARKED = "parked"   # a SENSITIVE answer is missing: waits for the candidate, never guessed
     CLOSED = "closed"
 
 
