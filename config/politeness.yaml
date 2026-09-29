@@ -1,0 +1,49 @@
+# Per-source pacing and daily request budgets. Loaded by autoapply.politeness.
+#
+# daily_requests  hard cap per UTC day, summed over source_runs.requests (all runs that day)
+# min_delay_s / max_delay_s   random pause before every request (uniform)
+# long_pause_every / long_pause_s   an extra, longer pause every N requests (0 = never)
+# cadence_hours   browser sources only: minimum gap between runs of `discover --browser`
+# run_timeout_min browser sources only: the run is killed after this long (a hang never blocks)
+
+defaults:
+  daily_requests: 2000
+  min_delay_s: 1.0
+  max_delay_s: 3.0
+  long_pause_every: 0
+  long_pause_s: [20, 60]
+  cadence_hours: 0
+  run_timeout_min: 30
+
+sources:
+  # Logged-out guest HTML only. Never authenticated; see sources/linkedin.py.
+  linkedin:
+    daily_requests: 100
+    min_delay_s: 6.0
+    max_delay_s: 20.0
+    long_pause_every: 10
+    long_pause_s: [60, 180]
+
+  # Aggressive is fine here (your call): large budget, short pauses.
+  naukri:
+    daily_requests: 3000
+    min_delay_s: 1.5
+    max_delay_s: 4.0
+    long_pause_every: 50
+    long_pause_s: [15, 45]
+    cadence_hours: 6
+    run_timeout_min: 45
+
+  wellfound:
+    daily_requests: 300
+    min_delay_s: 4.0
+    max_delay_s: 10.0
+    long_pause_every: 15
+    long_pause_s: [30, 90]
+    cadence_hours: 12
+
+  yc_waas:
+    daily_requests: 200
+    min_delay_s: 4.0
+    max_delay_s: 10.0
+    cadence_hours: 12

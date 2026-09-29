@@ -136,7 +136,66 @@ class SourceToggles(BaseModel):
     remotive: bool = True
     arbeitnow: bool = True
     linkedin: bool = True
-    career_pages: bool = True
+    ats_boards: bool = True   # boards resolved by `autoapply ats resolve`
+    unstop: bool = True
+    internshala: bool = True
+    instahyre: bool = True
+    himalayas: bool = True
+    adzuna: bool = True   # skipped (with a log line) unless ADZUNA_APP_ID/ADZUNA_APP_KEY are set
+    # Browser tier: run only by `autoapply discover --browser`.
+    naukri: bool = True
+    wellfound: bool = True
+    yc_waas: bool = True
+
+
+class UnstopSearch(BaseModel):
+    opportunities: list[str] = ["internships"]   # internships | jobs
+    job_types: list[str] = []      # wfh | in_office | hybrid; empty = all
+    search_terms: list[str] = []   # empty = every open listing (~700 internships)
+    per_page: int = 100
+    max_pages: int = 20
+
+
+class InternshalaSearch(BaseModel):
+    categories: list[str] = ["computer-science-internship"]  # URL slugs under /internships/
+    max_pages: int = 20
+    fetch_details: bool = True     # detail pages only for jobs that pass the filter; cached on disk
+
+
+class InstahyreSearch(BaseModel):
+    experience_levels: list[str] = ["internship"]   # internship | entry_level | associate | ...
+    max_pages: int = 10            # 35 jobs per page
+
+
+class HimalayasSearch(BaseModel):
+    employment_types: list[str] = ["Intern"]   # /jobs/api/search?employment_type=
+    max_pages: int = 80            # 20 jobs per page
+    feed_pages: int = 0            # extra pages of the unfiltered cursor feed (94k jobs); 0 = off
+
+
+class NaukriSearch(BaseModel):
+    # Each search: keyword plus optional experience (years), wfhType (2 remote, 3 hybrid, 0 office),
+    # cityTypeGid (134 = Mumbai).
+    searches: list[dict[str, Any]] = [{"keyword": "internship"}]
+    max_pages: int = 10            # 20 jobs per page
+    fetch_details: bool = True     # opens the job page for jobs that pass the filter; cached
+
+
+class WellfoundSearch(BaseModel):
+    roles: list[str] = ["software-engineer"]
+    locations: list[str] = ["remote"]   # "remote" or a Wellfound location slug (india, mumbai, ...)
+    max_pages: int = 3
+
+
+class YcWaasSearch(BaseModel):
+    paths: list[str] = ["/jobs"]
+
+
+class AdzunaSearch(BaseModel):
+    queries: list[str] = ["intern"]
+    results_per_page: int = 50
+    max_pages: int = 5
+    max_days_old: int = 30
 
 
 class LocationPolicy(BaseModel):
@@ -150,14 +209,19 @@ class SearchConfig(BaseModel):
     remoteok_tags: list[str] = []
     linkedin: LinkedInSearch = LinkedInSearch()
     sources: SourceToggles = SourceToggles()
-    career_pages_file: str = "career_pages.json"
+    unstop: UnstopSearch = UnstopSearch()
+    internshala: InternshalaSearch = InternshalaSearch()
+    instahyre: InstahyreSearch = InstahyreSearch()
+    himalayas: HimalayasSearch = HimalayasSearch()
+    adzuna: AdzunaSearch = AdzunaSearch()
+    naukri: NaukriSearch = NaukriSearch()
+    wellfound: WellfoundSearch = WellfoundSearch()
+    yc_waas: YcWaasSearch = YcWaasSearch()
+    ats_boards_max_companies: int = 500
     location_policy: LocationPolicy = LocationPolicy()
     target_keywords: list[str]
     exclude_title_keywords: list[str] = []
 
-    @property
-    def career_pages_path(self) -> Path:
-        return PROJECT_ROOT / self.career_pages_file
 
 
 SEARCH_CONFIG_PATH = PROJECT_ROOT / "config" / "search.yaml"

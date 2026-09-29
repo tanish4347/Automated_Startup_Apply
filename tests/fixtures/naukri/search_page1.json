@@ -1,0 +1,604 @@
+{
+ "noOfJobs": 852,
+ "clusters": {},
+ "jobDetails": [
+  {
+   "title": "Intern - AI",
+   "logoPath": "https://img.naukimg.com/logo_images/groups/v1/297712.gif",
+   "logoPathV3": "https://img.naukimg.com/logo_images/groups/v1/297712.gif",
+   "jobId": "070825502040",
+   "jobType": "internship",
+   "currency": "INR",
+   "footerPlaceholderLabel": "Starts in 1-3 months",
+   "footerPlaceholderColor": "green",
+   "companyName": "Valeo",
+   "isSaved": false,
+   "placeholders": [
+    {
+     "type": "duration",
+     "label": "No fixed duration"
+    },
+    {
+     "type": "salary",
+     "label": "Unpaid"
+    },
+    {
+     "type": "location",
+     "label": "Chennai"
+    }
+   ],
+   "companyId": 2927066,
+   "jdURL": "/job-listings-intern-ai-valeo-india-pvt-ltd-chennai-0-to-1-years-070825502040",
+   "staticUrl": "valeo-jobs-careers-164977",
+   "ambitionBoxData": {
+    "Url": "https://www.ambitionbox.com/reviews/valeo-reviews?utm_campaign=srp_ratings&utm_medium=desktop&utm_source=naukri",
+    "ReviewsCount": 1559,
+    "AggregateRating": "3.9",
+    "Title": "Valeo Reviews by Employees"
+   },
+   "jobDescription": "Valeo India Pvt Ltd is looking for Intern - AI to join our dynamic team and embark on a rewarding career journey",
+   "showMultipleApply": false,
+   "groupId": 297712,
+   "isTopGroup": 0,
+   "createdDate": 0,
+   "mode": "crawled",
+   "board": "1",
+   "salaryDetail": {
+    "minimumSalary": 0,
+    "maximumSalary": 0,
+    "currency": "INR",
+    "hideSalary": true,
+    "variablePercentage": 0.0,
+    "minSalaryPerMonth": 0,
+    "maxSalaryPerMonth": 0,
+    "ctcBreakup": {}
+   },
+   "companyApplyJob": true,
+   "walkinJob": false,
+   "questionnaireIdPresent": false,
+   "todaysJob": false,
+   "jobAgentEligle": false,
+   "segmentedQuestions": false,
+   "saved": false
+  },
+  {
+   "title": "Internship Trainee - AI Engg",
+   "logoPath": "https://img.naukimg.com/logo_images/groups/v1/340662.gif",
+   "logoPathV3": "https://img.naukimg.com/logo_images/groups/v1/340662.gif",
+   "jobId": "250826500280",
+   "jobType": "internship",
+   "currency": "INR",
+   "footerPlaceholderLabel": "Starts in 3-6 months",
+   "footerPlaceholderColor": "green",
+   "companyName": "Crisil",
+   "isSaved": false,
+   "placeholders": [
+    {
+     "type": "duration",
+     "label": "6 months duration"
+    },
+    {
+     "type": "salary",
+     "label": "Unpaid"
+    },
+    {
+     "type": "location",
+     "label": "Pune"
+    }
+   ],
+   "companyId": 1269626,
+   "jdURL": "/job-listings-internship-trainee-ai-engg-crisil-pune-0-to-1-years-250826500280",
+   "staticUrl": "crisil-jobs-careers-4114",
+   "ambitionBoxData": {
+    "Url": "https://www.ambitionbox.com/reviews/crisil-reviews?utm_campaign=srp_ratings&utm_medium=desktop&utm_source=naukri",
+    "ReviewsCount": 2091,
+    "AggregateRating": "3.5",
+    "Title": "Crisil Reviews by Employees"
+   },
+   "jobDescription": "<ul> <li> Collaborate closely with AI engineers on live projects to develop and implement AI solutions. </li> <li> Assist in designing, developing, and testing AI models and algorithms. </li> <li> Work on data analysis and machine learning tasks to drive business growth. </li> <li> Participate in code reviews and contribute to improving the overall quality of the codebase. </li> <li> Stay updated with industry trends and advancements in AI technology. </li> <li> Contribute to the development of innovative AI-powered products and services. </li> </ul>\n\n Disclaimer: This job posting has been aggregated from external source. Role details, content, and availability are subject to change. Applicants are advised to confirm the latest information directly on the company website before applying.",
+   "showMultipleApply": false,
+   "groupId": 340662,
+   "isTopGroup": 0,
+   "createdDate": 0,
+   "mode": "crawled",
+   "board": "1",
+   "salaryDetail": {
+    "minimumSalary": 0,
+    "maximumSalary": 0,
+    "currency": "INR",
+    "hideSalary": true,
+    "variablePercentage": 0.0,
+    "minSalaryPerMonth": 0,
+    "maxSalaryPerMonth": 0,
+    "ctcBreakup": {}
+   },
+   "companyApplyJob": true,
+   "walkinJob": false,
+   "questionnaireIdPresent": false,
+   "todaysJob": false,
+   "jobAgentEligle": false,
+   "segmentedQuestions": false,
+   "saved": false
+  },
+  {
+   "title": "Data Science Trainee | Data Analyst Trainee | Paid Program",
+   "logoPath": "https://img.naukimg.com/logo_images/groups/v1/3718566.gif",
+   "logoPathV3": "https://img.naukimg.com/logo_images/groups/v1/3718566.gif",
+   "jobId": "170926501657",
+   "jobType": "internship",
+   "currency": "INR",
+   "footerPlaceholderLabel": "Starts in 1-3 months",
+   "footerPlaceholderColor": "green",
+   "companyName": "Nucot",
+   "isSaved": false,
+   "placeholders": [
+    {
+     "type": "duration",
+     "label": "No fixed duration"
+    },
+    {
+     "type": "salary",
+     "label": "Unpaid"
+    },
+    {
+     "type": "location",
+     "label": "Bengaluru"
+    }
+   ],
+   "companyId": 4557060,
+   "jdURL": "/job-listings-data-science-trainee-data-analyst-trainee-paid-program-nucot-bengaluru-0-to-5-years-170926501657",
+   "staticUrl": "nucot-jobs-careers-4557060",
+   "ambitionBoxData": {
+    "Url": "https://www.ambitionbox.com/reviews/nucot-reviews?utm_campaign=srp_ratings&utm_medium=desktop&utm_source=naukri",
+    "ReviewsCount": 136,
+    "AggregateRating": "4.2",
+    "Title": "Nucot Reviews by Employees"
+   },
+   "jobDescription": "<div> <p> Data Science </p> <p> We are looking for candidates who are passionate about building a career in Data Science, Machine Learning, Artificial Intelligence, and Data Analytics. This is a paid training program designed to equip fresh graduates and career transition candidates with practical, industry-relevant skills through expert-led sessions, hands-on projects, and real-world case studies. </p> <p> Upon successful completion of the training program, eligible candidates will receive placement assistance based on their performance, skill development, interview readiness, and employer hiring requirements. </p> <p> This is a paid training program and not a direct job opportunity. Candidates who successfully complete the program will receive placement assistance based on their performance, technical skills, interview readiness, and employer hiring requirements. </p> Training Program Includes <ul> <li> Python Programming</li> <li> Data Analysis and Visualization</li> <li> SQL and Database Management</li> <li> Machine Learning Fundamentals</li> <li> Artificial Intelligence Concepts</li> <li> Power BI and Dashboard Development</li> <li> Real-Time Projects and Case Studies</li> <li> Career Readiness and Interview Preparation</li> </ul> During the Training, You Will <ul> <li> Analyse and interpret datasets. </li> <li> Perform data cleaning and preprocessing. </li> <li> Create reports and interactive dashboards. </li> <li> Build and understand basic machine learning models. </li> <li> Work on real-time project assignments and case studies. </li> <li> Develop practical problem-solving skills using industry tools. </li> </ul> Eligibility <ul> <li> BE/BTech, BCA, MCA, BSc, MSc, BCom, MCom, MBA, or equivalent qualification. </li> <li> Fresh graduates and career transition candidates are encouraged to apply. </li> <li> Basic knowledge of programming or data analytics is preferred but not mandatory. </li> </ul> Program Features <ul> <li> Industry-focused paid training program. </li> <li> Instructor-led practical learning. </li> <li> Hands-on project experience. </li> <li> Mentorship from experienced industry professionals. </li> <li> Resume building and LinkedIn profile optimisation. </li> <li> Mock technical and HR interview preparation. </li> <li> Placement assistance after successful completion of the training program, subject to candidate performance and employer requirements. </li> </ul> Desired Skills <ul> <li> Analytical thinking. </li> <li> Problem-solving ability. </li> <li> Interest in Data Science, AI, and Machine Learning. </li> <li> Good communication and teamwork skills. </li> <li> Willingness to learn and continuously improve. </li> </ul> <p> <strong> Location:</strong> Bangalore</p> <p> <strong> Program Type:</strong> Paid Data Science Training Program</p> <p> <strong> Mode:</strong> Offline & Online Training</p> <p> <strong> Placement Support:</strong> Available after successful completion of the training program, subject to candidate performance and employer hiring criteria. </p> </div>\n\nDisclaimer: This job posting has been aggregated from external source. Role details, content, and availability are subject to change. Applicants are advised to confirm the latest information directly on the company website before applying.",
+   "showMultipleApply": false,
+   "groupId": 3718566,
+   "isTopGroup": 0,
+   "createdDate": 0,
+   "mode": "crawled",
+   "board": "1",
+   "salaryDetail": {
+    "minimumSalary": 0,
+    "maximumSalary": 0,
+    "currency": "INR",
+    "hideSalary": true,
+    "variablePercentage": 0.0,
+    "minSalaryPerMonth": 0,
+    "maxSalaryPerMonth": 0,
+    "ctcBreakup": {}
+   },
+   "companyApplyJob": true,
+   "walkinJob": false,
+   "questionnaireIdPresent": false,
+   "todaysJob": false,
+   "jobAgentEligle": false,
+   "segmentedQuestions": false,
+   "saved": false
+  }
+ ],
+ "fatFooter": [
+  {
+   "tab": "Bangalore",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Bangalore",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-bangalore"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Bangalore",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-bangalore"
+    },
+    {
+     "text": "Machine Learning Jobs In Bangalore",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-bangalore"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Bangalore",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-bangalore"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Bangalore",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-bangalore"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Bangalore",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-bangalore"
+    }
+   ]
+  },
+  {
+   "tab": "Delhi NCR",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-delhi-ncr"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-delhi-ncr"
+    },
+    {
+     "text": "Machine Learning Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-delhi-ncr"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-delhi-ncr"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-delhi-ncr"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Delhi NCR",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-delhi-ncr"
+    }
+   ]
+  },
+  {
+   "tab": "Hyderabad Secunderabad",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-hyderabad-secunderabad"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-hyderabad-secunderabad"
+    },
+    {
+     "text": "Machine Learning Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-hyderabad-secunderabad"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-hyderabad-secunderabad"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-hyderabad-secunderabad"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Hyderabad Secunderabad",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-hyderabad-secunderabad"
+    }
+   ]
+  },
+  {
+   "tab": "Mumbai",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Mumbai",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-mumbai"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Mumbai",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-mumbai"
+    },
+    {
+     "text": "Machine Learning Jobs In Mumbai",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-mumbai"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Mumbai",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-mumbai"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Mumbai",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-mumbai"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Mumbai",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-mumbai"
+    }
+   ]
+  },
+  {
+   "tab": "Chennai",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Chennai",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-chennai"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Chennai",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-chennai"
+    },
+    {
+     "text": "Machine Learning Jobs In Chennai",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-chennai"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Chennai",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-chennai"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Chennai",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-chennai"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Chennai",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-chennai"
+    }
+   ]
+  },
+  {
+   "tab": "Pune",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Pune",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-pune"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Pune",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-pune"
+    },
+    {
+     "text": "Machine Learning Jobs In Pune",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-pune"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Pune",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-pune"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Pune",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-pune"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Pune",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-pune"
+    }
+   ]
+  },
+  {
+   "tab": "Kolkata",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Kolkata",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-kolkata"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Kolkata",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-kolkata"
+    },
+    {
+     "text": "Machine Learning Jobs In Kolkata",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-kolkata"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Kolkata",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-kolkata"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Kolkata",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-kolkata"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Kolkata",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-kolkata"
+    }
+   ]
+  },
+  {
+   "tab": "Ahmedabad",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-ahmedabad"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-ahmedabad"
+    },
+    {
+     "text": "Machine Learning Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-ahmedabad"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-ahmedabad"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-ahmedabad"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Ahmedabad",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-ahmedabad"
+    }
+   ]
+  },
+  {
+   "tab": "Gurgaon",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Gurgaon",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-gurgaon"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Gurgaon",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-gurgaon"
+    },
+    {
+     "text": "Machine Learning Jobs In Gurgaon",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-gurgaon"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Gurgaon",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-gurgaon"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Gurgaon",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-gurgaon"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Gurgaon",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-gurgaon"
+    }
+   ]
+  },
+  {
+   "tab": "Noida",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs In Noida",
+     "url": "https://www.naukri.com/deep-learning-jobs-in-noida"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs In Noida",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs-in-noida"
+    },
+    {
+     "text": "Machine Learning Jobs In Noida",
+     "url": "https://www.naukri.com/machine-learning-jobs-in-noida"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs In Noida",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs-in-noida"
+    },
+    {
+     "text": "Azure Machine Learning Jobs In Noida",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs-in-noida"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs In Noida",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs-in-noida"
+    }
+   ]
+  },
+  {
+   "tab": "All Jobs",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Deep Learning Jobs",
+     "url": "https://www.naukri.com/deep-learning-jobs"
+    },
+    {
+     "text": "Machine Learning Engineer Intern Jobs",
+     "url": "https://www.naukri.com/machine-learning-engineer-intern-jobs"
+    },
+    {
+     "text": "Machine Learning Jobs",
+     "url": "https://www.naukri.com/machine-learning-jobs"
+    },
+    {
+     "text": "Freelance Machine Learning Jobs",
+     "url": "https://www.naukri.com/freelance-machine-learning-jobs"
+    },
+    {
+     "text": "Azure Machine Learning Jobs",
+     "url": "https://www.naukri.com/azure-machine-learning-jobs"
+    },
+    {
+     "text": "Fresher Machine Learning Jobs",
+     "url": "https://www.naukri.com/fresher-machine-learning-jobs"
+    }
+   ]
+  },
+  {
+   "tab": "Top Companies",
+   "highlight": false,
+   "urlSet": [
+    {
+     "text": "Crisil",
+     "url": "https://www.naukri.com/crisil-overview-340662"
+    },
+    {
+     "text": "Tower Research Capital",
+     "url": "https://www.naukri.com/tower-research-capital-overview-949064"
+    },
+    {
+     "text": "Baker Hughes",
+     "url": "https://www.naukri.com/baker-hughes-overview-120160"
+    },
+    {
+     "text": "Paytm",
+     "url": "https://www.naukri.com/paytm-overview-144830"
+    },
+    {
+     "text": "AMERICAN EXPRESS",
+     "url": "https://www.naukri.com/american-express-overview-82242"
+    },
+    {
+     "text": "Kaleris",
+     "url": "https://www.naukri.com/kaleris-overview-51062"
+    },
+    {
+     "text": "Electronic Arts",
+     "url": "https://www.naukri.com/electronic-arts-overview-1037488"
+    },
+    {
+     "text": "Angel One",
+     "url": "https://www.naukri.com/angel-one-overview-144498"
+    },
+    {
+     "text": "Ample Technologies",
+     "url": "https://www.naukri.com/ample-technologies-overview-144042"
+    },
+    {
+     "text": "AU Small Finance Bank",
+     "url": "https://www.naukri.com/au-small-finance-bank-overview-2965830"
+    }
+   ]
+  }
+ ],
+ "suggesterModel": {
+  "qparams": {
+   "pFarea": 18
+  }
+ },
+ "seo": {
+  "title": "Machine Learning Intern Jobs - 852 Machine Learning Intern Job Vacancies In September 2026 - Naukri.com",
+  "descp": "852 Machine Learning Intern Jobs Available On Naukri.com. Explore Machine Learning Intern Job Vacancies In Your Desired Locations Now!"
+ },
+ "bellyFilters": {
+  "positions": [
+   7,
+   10,
+   16
+  ],
+  "order": [
+   "salaryRange",
+   "citiesGid",
+   "topGroupId"
+  ]
+ },
+ "sid": "17907123219311154",
+ "isLoggedIn": false,
+ "variantName": "algo4",
+ "clusterOrder": [
+  "functionalAreaGid",
+  "glbl_RoleCat",
+  "salaryRange",
+  "stipend",
+  "internshipDuration",
+  "industryTypeGid",
+  "wfhType",
+  "citiesGid",
+  "business_size",
+  "roleGid",
+  "ugCourseGid",
+  "employement",
+  "topCompanyId",
+  "topGroupId",
+  "freshness"
+ ],
+ "internshipSRP": true,
+ "showAgentPickedTag": false
+}

@@ -24,6 +24,7 @@ dependencies = [
     "lxml>=4.9",
     "aiofiles>=23.0",
     "google-genai>=1.0",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]

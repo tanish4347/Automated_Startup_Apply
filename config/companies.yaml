@@ -1,0 +1,286 @@
+# Companies to track that no seeder finds. Add by hand; `autoapply universe seed --source manual`.
+# Each entry: a name, or {name, website, india: true|false, about, priority: true}.
+# priority: true marks it high priority (resolved and crawled first).
+
+- {name: Sarvam AI, website: https://www.sarvam.ai, india: true, priority: true}
+- {name: Krutrim, website: https://www.olakrutrim.com, india: true, priority: true}
+
+# ── Migrated from career_pages.json (276 entries, 2 duplicates dropped) ─────────────────
+# ats_token / ats_type are the old hand-written board tokens and hints: the resolver tries the
+# token first and verifies it; nothing here is trusted without a check. india: from the old
+# INDIA_SEED list. priority: low marks the old OFF_TARGET_SEED list (non-software industries
+# and unidentifiable tokens from a US ATS scrape): kept, never deleted, resolved last.
+- {name: "OpenAI", ats_token: "openai"}
+- {name: "Anthropic", ats_token: "anthropic"}
+- {name: "Vercel", ats_token: "vercel"}
+- {name: "Notion", ats_token: "notion"}
+- {name: "Figma", ats_token: "figma"}
+- {name: "Stripe", ats_token: "stripe"}
+- {name: "Airbnb", ats_token: "airbnb"}
+- {name: "Scale AI", ats_token: "scale"}
+- {name: "Retool", ats_token: "retool"}
+- {name: "Rippling", ats_token: "rippling"}
+- {name: "Plaid", ats_token: "plaid"}
+- {name: "Brex", ats_token: "brex"}
+- {name: "Ramp", ats_token: "ramp"}
+- {name: "Mercury", ats_token: "mercury"}
+- {name: "Supabase", ats_token: "supabase"}
+- {name: "Hugging Face", ats_token: "huggingface"}
+- {name: "Cohere", ats_token: "cohere"}
+- {name: "Pinecone", ats_token: "pinecone"}
+- {name: "Weights & Biases", ats_token: "weightsbiases"}
+- {name: "Replicate", ats_token: "replicate"}
+- {name: "Mistral", ats_token: "mistral"}
+- {name: "Razorpay", ats_token: "razorpay", india: true, priority: "high"}
+- {name: "CRED", ats_token: "cred", india: true, priority: "high"}
+- {name: "Groww", ats_token: "groww", india: true, priority: "high"}
+- {name: "Zerodha", ats_token: "zerodha", india: true, priority: "high"}
+- {name: "Meesho", ats_token: "meesho", india: true, priority: "high"}
+- {name: "Swiggy", ats_token: "swiggy", india: true, priority: "high"}
+- {name: "Zepto", ats_token: "zepto", india: true, priority: "high"}
+- {name: "Postman", ats_token: "postman", india: true, priority: "high"}
+- {name: "BrowserStack", ats_token: "browserstack", india: true, priority: "high"}
+- {name: "PostHog", ats_token: "posthog"}
+- {name: "Linear", ats_token: "linear"}
+- {name: "Ashby", ats_token: "ashby"}
+- {name: "Lever", ats_token: "lever"}
+- {name: "Greenhouse", ats_token: "greenhouse"}
+- {name: "Databricks", ats_token: "databricks"}
+- {name: "Snowflake", ats_token: "snowflake"}
+- {name: "Palantir", ats_token: "palantir"}
+- {name: "Anduril", ats_token: "anduril"}
+- {name: "Cloudflare", ats_token: "cloudflare"}
+- {name: "CrowdStrike", ats_token: "crowdstrike"}
+- {name: "Datadog", ats_token: "datadog"}
+- {name: "GitLab", ats_token: "gitlab"}
+- {name: "HashiCorp", ats_token: "hashicorp"}
+- {name: "MongoDB", ats_token: "mongodb"}
+- {name: "Twilio", ats_token: "twilio"}
+- {name: "Zscaler", ats_token: "zscaler"}
+- {name: "Okta", ats_token: "okta"}
+- {name: "Canva", ats_token: "canva"}
+- {name: "Miro", ats_token: "miro"}
+- {name: "Airtable", ats_token: "airtable"}
+- {name: "Gusto", ats_token: "gusto"}
+- {name: "Navan", ats_token: "navan"}
+- {name: "Deel", ats_token: "deel"}
+- {name: "Glean", ats_token: "glean"}
+- {name: "Perplexity", ats_token: "perplexity"}
+- {name: "Midjourney", ats_token: "midjourney"}
+- {name: "Runway", ats_token: "runway"}
+- {name: "Synthesia", ats_token: "synthesia"}
+- {name: "Together AI", ats_token: "togetherai"}
+- {name: "Character.ai", ats_token: "characterai"}
+- {name: "Inflection", ats_token: "inflection"}
+- {name: "Adept", ats_token: "adept"}
+- {name: "Jasper", ats_token: "jasper"}
+- {name: "Copy.ai", ats_token: "copyai"}
+- {name: "Mutiny", ats_token: "mutiny"}
+- {name: "Lattice", ats_token: "lattice"}
+- {name: "Webflow", ats_token: "webflow"}
+- {name: "Zapier", ats_token: "zapier"}
+- {name: "ClickUp", ats_token: "clickup"}
+- {name: "Monday.com", ats_token: "monday"}
+- {name: "Asana", ats_token: "asana"}
+- {name: "Smartsheet", ats_token: "smartsheet"}
+- {name: "Atlassian", ats_token: "atlassian"}
+- {name: "Epic Games", ats_token: "epicgames"}
+- {name: "Roblox", ats_token: "roblox"}
+- {name: "Unity", ats_token: "unity"}
+- {name: "Discord", ats_token: "discord"}
+- {name: "Reddit", ats_token: "reddit"}
+- {name: "Pinterest", ats_token: "pinterest"}
+- {name: "Snap", ats_token: "snap"}
+- {name: "ByteDance", ats_token: "bytedance"}
+- {name: "Coinbase", ats_token: "coinbase"}
+- {name: "Kraken", ats_token: "kraken"}
+- {name: "Gemini", ats_token: "gemini"}
+- {name: "Binance", ats_token: "binance"}
+- {name: "Robinhood", ats_token: "robinhood"}
+- {name: "Affirm", ats_token: "affirm"}
+- {name: "Klarna", ats_token: "klarna"}
+- {name: "Chime", ats_token: "chime"}
+- {name: "Revolut", ats_token: "revolut"}
+- {name: "Monzo", ats_token: "monzo"}
+- {name: "N26", ats_token: "n26"}
+- {name: "Nubank", ats_token: "nubank"}
+- {name: "dbt Labs", ats_token: "dbtlabs"}
+- {name: "Fivetran", ats_token: "fivetran"}
+- {name: "Airbyte", ats_token: "airbyte"}
+- {name: "Confluent", ats_token: "confluent"}
+- {name: "Y Combinator", ats_token: "ycombinator"}
+- {name: "Andela", ats_token: "andela"}
+- {name: "Turing", ats_token: "turing"}
+- {name: "Braintrust", ats_token: "braintrust"}
+- {name: "Toptal", ats_token: "toptal"}
+- {name: "Upwork", ats_token: "upwork"}
+- {name: "Fiverr", ats_token: "fiverr"}
+- {name: "Automattic", ats_token: "automattic"}
+- {name: "Doist", ats_token: "doist"}
+- {name: "Buffer", ats_token: "buffer"}
+- {name: "Ghost", ats_token: "ghost"}
+- {name: "Basecamp", ats_token: "basecamp"}
+- {name: "Gumroad", ats_token: "gumroad"}
+- {name: "ConvertKit", ats_token: "convertkit"}
+- {name: "DuckDuckGo", ats_token: "duckduckgo"}
+- {name: "Canonical", ats_token: "canonical"}
+- {name: "Red Hat", ats_token: "redhat"}
+- {name: "SUSE", ats_token: "suse"}
+- {name: "Elastic", ats_token: "elastic"}
+- {name: "Grafana", ats_token: "grafana"}
+- {name: "InfluxData", ats_token: "influxdata"}
+- {name: "Cockroach Labs", ats_token: "cockroachlabs"}
+- {name: "PlanetScale", ats_token: "planetscale"}
+- {name: "Neon", ats_token: "neon"}
+- {name: "Vanta", ats_token: "vanta"}
+- {name: "Drata", ats_token: "drata"}
+- {name: "Secureframe", ats_token: "secureframe"}
+- {name: "Wiz", ats_token: "wiz"}
+- {name: "Orca Security", ats_token: "orca"}
+- {name: "Lacework", ats_token: "lacework"}
+- {name: "Snyk", ats_token: "snyk"}
+- {name: "Checkmarx", ats_token: "checkmarx"}
+- {name: "Veracode", ats_token: "veracode"}
+- {name: "Sonatype", ats_token: "sonatype"}
+- {name: "Gohighlevel", ats_token: "gohighlevel"}
+- {name: "Instabase", ats_token: "instabase"}
+- {name: "Moveworks", ats_token: "moveworks"}
+- {name: "Gong", ats_token: "gong"}
+- {name: "Outreach", ats_token: "outreach"}
+- {name: "Salesloft", ats_token: "salesloft"}
+- {name: "Seismic", ats_token: "seismic"}
+- {name: "Highspot", ats_token: "highspot"}
+- {name: "Apollo", ats_token: "apollo"}
+- {name: "ZoomInfo", ats_token: "zoominfo"}
+- {name: "Clearbit", ats_token: "clearbit"}
+- {name: "Seamless", ats_token: "seamless"}
+- {name: "Lusha", ats_token: "lusha"}
+- {name: "Cognism", ats_token: "cognism"}
+- {name: "LeadIQ", ats_token: "leadiq"}
+- {name: "Demandbase", ats_token: "demandbase"}
+- {name: "Terminus", ats_token: "terminus"}
+- {name: "6sense", ats_token: "6sense"}
+- {name: "TechTarget", ats_token: "techtarget"}
+- {name: "G2", ats_token: "g2"}
+- {name: "TrustRadius", ats_token: "trustradius"}
+- {name: "Capterra", ats_token: "capterra"}
+- {name: "Software Advice", ats_token: "softwareadvice"}
+- {name: "Zomato", india: true, priority: "high"}
+- {name: "Flipkart", india: true, priority: "high"}
+- {name: "Paytm", india: true, priority: "high"}
+- {name: "Freshworks", india: true, priority: "high"}
+- {name: "Chargebee", india: true, priority: "high"}
+- {name: "Zoho", india: true, priority: "high"}
+- {name: "Dream11", india: true, priority: "high"}
+- {name: "ShareChat", india: true, priority: "high"}
+- {name: "Upstox", india: true, priority: "high"}
+- {name: "Ola", india: true, priority: "high"}
+- {name: "Unacademy", india: true, priority: "high"}
+- {name: "PhonePe", india: true, priority: "high"}
+- {name: "Blinkit", india: true, priority: "high"}
+- {name: "Dunzo", india: true, priority: "high"}
+- {name: "Curefit", india: true, priority: "high"}
+- {name: "Urban Company", india: true, priority: "high"}
+- {name: "Lenskart", india: true, priority: "high"}
+- {name: "PolicyBazaar", india: true, priority: "high"}
+- {name: "Nykaa", india: true, priority: "high"}
+- {name: "Udaan", india: true, priority: "high"}
+- {name: "Cars24", india: true, priority: "high"}
+- {name: "Dailyhunt", india: true, priority: "high"}
+- {name: "Licious", india: true, priority: "high"}
+- {name: "PharmEasy", india: true, priority: "high"}
+- {name: "Pine Labs", india: true, priority: "high"}
+- {name: "BharatPe", india: true, priority: "high"}
+- {name: "Spinny", india: true, priority: "high"}
+- {name: "NoBroker", india: true, priority: "high"}
+- {name: "Acko", india: true, priority: "high"}
+- {name: "Darwinbox", india: true, priority: "high"}
+- {name: "Lead School", india: true, priority: "high"}
+- {name: "Fractal Analytics", india: true, priority: "high"}
+- {name: "Mu Sigma", india: true, priority: "high"}
+- {name: "Tredence", india: true, priority: "high"}
+- {name: "Tiger Analytics", india: true, priority: "high"}
+- {name: "Observe.AI", india: true, priority: "high"}
+- {name: "Mindtickle", india: true, priority: "high"}
+- {name: "Zenoti", india: true, priority: "high"}
+- {name: "Gupshup", india: true, priority: "high"}
+- {name: "Embed", ats_token: "embed", ats_type: "greenhouse"}
+- {name: "Spacex", ats_token: "spacex", ats_type: "greenhouse", priority: "low"}
+- {name: "Andurilindustries", ats_token: "andurilindustries", ats_type: "greenhouse", priority: "low"}
+- {name: "Sep", ats_token: "sep", ats_type: "lever", priority: "low"}
+- {name: "Anavationllc", ats_token: "anavationllc", ats_type: "lever", priority: "low"}
+- {name: "Xcimer", ats_token: "xcimer", ats_type: "lever", priority: "low"}
+- {name: "Shieldai", ats_token: "shieldai", ats_type: "lever", priority: "low"}
+- {name: "Immuta", ats_token: "immuta", ats_type: "lever"}
+- {name: "Neighbor", ats_token: "neighbor", ats_type: "lever", priority: "low"}
+- {name: "Hermeus", ats_token: "hermeus", ats_type: "lever", priority: "low"}
+- {name: "Belvederetrading", ats_token: "belvederetrading", ats_type: "lever", priority: "low"}
+- {name: "Standtogether", ats_token: "standtogether", ats_type: "lever", priority: "low"}
+- {name: "Protective", ats_token: "protective", ats_type: "lever", priority: "low"}
+- {name: "Evr", ats_token: "evr", ats_type: "lever", priority: "low"}
+- {name: "Cesiumastro", ats_token: "CesiumAstro", ats_type: "lever", priority: "low"}
+- {name: "Flint", ats_token: "flint", ats_type: "ashby", priority: "low"}
+- {name: "Bedrock-robotics", ats_token: "bedrock-robotics", ats_type: "ashby"}
+- {name: "Qumulo", ats_token: "qumulo", ats_type: "ashby"}
+- {name: "Grow-therapy", ats_token: "grow-therapy", ats_type: "ashby"}
+- {name: "Decagon", ats_token: "decagon", ats_type: "ashby"}
+- {name: "Gecko-robotics", ats_token: "gecko-robotics", ats_type: "ashby"}
+- {name: "Talos-trading", ats_token: "Talos-Trading", ats_type: "ashby", priority: "low"}
+- {name: "Superhuman%20platform%20inc", ats_token: "Superhuman%20Platform%20Inc", ats_type: "ashby"}
+- {name: "Opengov", ats_token: "opengov", ats_type: "ashby"}
+- {name: "Withpace", ats_token: "withpace", ats_type: "ashby", priority: "low"}
+- {name: "Megazone", ats_token: "megazone", ats_type: "ashby"}
+- {name: "Ibotta", ats_token: "ibotta", ats_type: "ashby"}
+- {name: "Saronic", ats_token: "saronic", ats_type: "ashby", priority: "low"}
+- {name: "Semgrep", ats_token: "semgrep", ats_type: "ashby"}
+- {name: "Oneapp", ats_token: "oneapp", ats_type: "ashby", priority: "low"}
+- {name: "Revel", ats_token: "revel", ats_type: "ashby", priority: "low"}
+- {name: "Rivianvw.tech", ats_token: "rivianvw.tech", ats_type: "ashby", priority: "low"}
+- {name: "Incident", ats_token: "incident", ats_type: "ashby"}
+- {name: "Primer", ats_token: "primer", ats_type: "ashby"}
+- {name: "The-exploration-company", ats_token: "the-exploration-company", ats_type: "ashby", priority: "low"}
+- {name: "Hadrian-automation", ats_token: "hadrian-automation", ats_type: "ashby", priority: "low"}
+- {name: "Whatnot", ats_token: "whatnot", ats_type: "ashby"}
+- {name: "Sierra", ats_token: "Sierra", ats_type: "ashby"}
+- {name: "Northwoodspace", ats_token: "NorthwoodSpace", ats_type: "ashby", priority: "low"}
+- {name: "Persona.ai", ats_token: "persona.ai", ats_type: "ashby"}
+- {name: "Telus-digital", ats_token: "telus-digital", ats_type: "ashby", priority: "low"}
+- {name: "Zip", ats_token: "zip", ats_type: "ashby", priority: "low"}
+- {name: "Voleon", ats_token: "voleon", ats_type: "ashby", priority: "low"}
+- {name: "Melius", ats_token: "melius", ats_type: "ashby", priority: "low"}
+- {name: "Heliux", ats_token: "heliux", ats_type: "ashby", priority: "low"}
+- {name: "Cyvl", ats_token: "cyvl", ats_type: "ashby", priority: "low"}
+- {name: "Barnes", ats_token: "barnes", ats_type: "ashby", priority: "low"}
+- {name: "Allen-control-systems", ats_token: "allen-control-systems", ats_type: "ashby", priority: "low"}
+- {name: "Skydio", ats_token: "skydio", ats_type: "ashby"}
+- {name: "Antares", ats_token: "Antares", ats_type: "ashby", priority: "low"}
+- {name: "Apex-technology-inc", ats_token: "apex-technology-inc", ats_type: "ashby", priority: "low"}
+- {name: "Cogna", ats_token: "cogna", ats_type: "workable", priority: "low"}
+- {name: "Raveaerospace", ats_token: "raveaerospace", ats_type: "workable", priority: "low"}
+- {name: "Enfos-inc", ats_token: "enfos-inc", ats_type: "workable", priority: "low"}
+- {name: "Perryhomes", ats_token: "perryhomes", ats_type: "workable", priority: "low"}
+- {name: "Twgai", ats_token: "twgai", ats_type: "workable", priority: "low"}
+- {name: "Tmeic-corporation-americas", ats_token: "tmeic-corporation-americas", ats_type: "workable", priority: "low"}
+- {name: "Capula-investment-management-ltd", ats_token: "capula-investment-management-ltd", ats_type: "workable", priority: "low"}
+- {name: "Abbvie", ats_token: "AbbVie", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Wellmarkinc", ats_token: "WellmarkInc", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Westerndigital", ats_token: "WesternDigital", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Ttp1", ats_token: "TTP1", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Pilotcompany", ats_token: "PilotCompany", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Skyward1", ats_token: "Skyward1", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Boschgroup", ats_token: "BoschGroup", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Resultant", ats_token: "Resultant", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Wabashvalleypoweralliance", ats_token: "WabashValleyPowerAlliance", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Llnl", ats_token: "LLNL", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Infinitequant", ats_token: "InfiniteQuant", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Solidigm", ats_token: "Solidigm", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Quadrillion-labs", ats_token: "quadrillion-labs", ats_type: "ashby"}
+- {name: "Netic", ats_token: "netic", ats_type: "ashby"}
+- {name: "Circleback", ats_token: "circleback", ats_type: "ashby"}
+- {name: "Pylon-labs", ats_token: "pylon-labs", ats_type: "ashby"}
+- {name: "Ctgt", ats_token: "ctgt", ats_type: "ashby"}
+- {name: "Anthelioncap", ats_token: "anthelioncap", ats_type: "ashby", priority: "low"}
+- {name: "Rystad-energy", ats_token: "rystad-energy", ats_type: "workable", priority: "low"}
+- {name: "Rrsgroup", ats_token: "RRSGroup", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Averydennison", ats_token: "AveryDennison", ats_type: "smartrecruiters", priority: "low"}
+- {name: "Wabtec", ats_token: "Wabtec", ats_type: "smartrecruiters", priority: "low"}

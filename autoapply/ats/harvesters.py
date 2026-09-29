@@ -428,6 +428,101 @@ async def workday(f: AsyncFetcher, t: Target) -> list[SourceResult]:
     return out
 
 
+# ── Personio ───────────────────────────────────────────────────────────────
+# Public XML feed https://{sub}.jobs.personio.de/xml (also .com); job page /job/{id}.
+# <jobDescriptions><jobDescription><name/><value/></jobDescription>...</jobDescriptions> carries
+# the text when the company fills it in (Personio's own board leaves it empty).
+
+def _xml_text(block: str, tag: str) -> str | None:
+    m = re.search(rf"<{tag}>(.*?)</{tag}>", block, re.S)
+    return htmllib.unescape(m.group(1).strip()) if m else None
+
+
+def parse_personio(xml: str, t: Target, host: str) -> list[SourceResult]:
+    out = []
+    for block in re.findall(r"<position>(.*?)</position>", xml, re.S):
+        pid = _xml_text(block, "id")
+        offices = [_xml_text(block, "office")] + re.findall(r"<office>(.*?)</office>", _xml_text(block, "additionalOffices") or "")
+        sections = re.findall(r"<jobDescription>\s*<name>(.*?)</name>\s*<value>(.*?)</value>", block, re.S)
+        raw = "".join(f"<h3>{htmllib.unescape(n)}</h3>{htmllib.unescape(v)}" for n, v in sections)
+        raw = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", raw, flags=re.S)
+        url = f"https://{host}/job/{pid}"
+        out.append(_result(
+            t, title=_xml_text(block, "name") or "", source_id=pid, source_url=url, application_url=url,
+            location=", ".join(dict.fromkeys(o for o in offices if o)) or None,
+            employment_type=" ".join(x for x in (_xml_text(block, "employmentType"), _xml_text(block, "schedule")) if x) or None,
+            description_raw=raw or None, description_text=text_of(raw) or None,
+            posted_date=parse_dt(_xml_text(block, "createdAt")),
+        ))
+    return out
+
+
+async def personio(f: AsyncFetcher, t: Target) -> list[SourceResult]:
+    for host in (f"{t.token}.jobs.personio.de", f"{t.token}.jobs.personio.com"):
+        resp = await f.get(f"https://{host}/xml")
+        if resp is not None and resp.status_code == 200 and "<workzag-jobs" in resp.text:
+            return parse_personio(resp.text, t, host)
+    raise HarvestError("personio feed not readable")
+
+
+# ── Teamtailor ─────────────────────────────────────────────────────────────
+# RSS https://{sub}.teamtailor.com/jobs.rss (token may also be a custom careers host), with
+# remoteStatus and <tt:locations>.
+
+def parse_teamtailor(rss: str, t: Target) -> list[SourceResult]:
+    out = []
+    for item in re.findall(r"<item>(.*?)</item>", rss, re.S):
+        desc = _xml_text(item, "description") or ""
+        cities = re.findall(r"<tt:city>(.*?)</tt:city>", item)
+        countries = re.findall(r"<tt:country>(.*?)</tt:country>", item)
+        remote = (_xml_text(item, "remoteStatus") or "").lower()
+        link = _xml_text(item, "link")
+        out.append(_result(
+            t, title=_xml_text(item, "title") or "", source_id=_xml_text(item, "guid") or link,
+            source_url=link, application_url=link,
+            location=", ".join(dict.fromkeys(f"{c}, {k}" for c, k in zip(cities, countries))) or None,
+            work_mode={"fully": "remote", "remote": "remote", "hybrid": "hybrid", "none": "onsite"}.get(remote, "unknown"),
+            description_raw=desc or None, description_text=text_of(desc) or None,
+            posted_date=_rss_date(_xml_text(item, "pubDate")),
+        ))
+    return out
+
+
+def _rss_date(value: str | None) -> datetime | None:
+    from email.utils import parsedate_to_datetime
+    try:
+        return parsedate_to_datetime(value) if value else None
+    except (TypeError, ValueError):
+        return None
+
+
+async def teamtailor(f: AsyncFetcher, t: Target) -> list[SourceResult]:
+    host = t.token if "." in t.token else f"{t.token}.teamtailor.com"
+    resp = await f.get(f"https://{host}/jobs.rss")
+    if resp is None or resp.status_code != 200 or "<rss" not in resp.text[:500]:
+        raise HarvestError("teamtailor feed not readable")
+    return parse_teamtailor(resp.text, t)
+
+
+# ── Breezy HR ──────────────────────────────────────────────────────────────
+# JSON list https://{sub}.breezy.hr/json (no descriptions; the job page is {url}).
+
+async def breezy(f: AsyncFetcher, t: Target) -> list[SourceResult]:
+    data = await f.get_json(f"https://{t.token}.breezy.hr/json")
+    if not isinstance(data, list):
+        raise HarvestError("breezy board not readable")
+    out = []
+    for j in data:
+        loc = j.get("location") or {}
+        out.append(_result(
+            t, title=j.get("name", ""), source_id=j.get("id"), source_url=j.get("url"), application_url=j.get("url"),
+            location=loc.get("name"), work_mode="remote" if loc.get("is_remote") else "unknown",
+            employment_type=(j.get("type") or {}).get("name"), compensation_text=j.get("salary") or None,
+            posted_date=parse_dt(j.get("published_date")),
+        ))
+    return out
+
+
 HarvestFn = Callable[[AsyncFetcher, Target], Awaitable[list[SourceResult]]]
 
 # Darwinbox (browser-based) and custom pages are registered in autoapply/ats/browser.py and
@@ -436,4 +531,5 @@ HTTP_HARVESTERS: dict[str, HarvestFn] = {
     "greenhouse": greenhouse, "lever": lever, "ashby": ashby, "workable": workable,
     "smartrecruiters": smartrecruiters, "recruitee": recruitee, "keka": keka,
     "zoho_recruit": zoho_recruit, "freshteam": freshteam, "mynexthire": mynexthire, "workday": workday,
+    "personio": personio, "teamtailor": teamtailor, "breezy": breezy,
 }

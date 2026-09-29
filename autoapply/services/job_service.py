@@ -106,20 +106,26 @@ def ingest_job(session: Session, data: dict[str, Any]) -> Job | None:
 
     company_row = get_or_create_company(
         session, company, discovered_via=source, ats_type=data.get("ats_platform"),
+        meta=data.get("company_meta"),
     )
     dedup_hash, existing_job = deduplicate_job(session, title, company, location, work_mode.value)
+    expired = bool(data.get("expired"))
+    now = datetime.now(timezone.utc)
 
     if existing_job:
         changed = _merge_into(existing_job, {**data, "work_mode": work_mode.value}, company_row)
         record_sighting(session, existing_job, source, data.get("source_url") or data.get("application_url"))
-        existing_job.last_seen = datetime.now(timezone.utc)
+        existing_job.last_seen = now
+        if expired and existing_job.closed_at is None:
+            existing_job.closed_at, existing_job.is_active = now, 0
+            changed.append("closed_at")
         session.commit()
         if changed:
             log.info("job_merged", job_id=existing_job.id, source=source, filled=changed)
         return existing_job
 
     cls_status = data.get("classification_status", "AUTO_REJECT")
-    is_active = 1 if cls_status in ["AUTO_ACCEPT", "REVIEW"] else 0
+    is_active = 1 if cls_status in ["AUTO_ACCEPT", "REVIEW"] and not expired else 0
 
     job = Job(
         source=source,
@@ -165,7 +171,8 @@ def ingest_job(session: Session, data: dict[str, Any]) -> Job | None:
         raw_data=data.get("raw_data"),
         dedup_hash=dedup_hash,
         tags=data.get("tags"),
-        is_active=is_active
+        is_active=is_active,
+        closed_at=now if expired else None,
     )
     session.add(job)
     session.flush()

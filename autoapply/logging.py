@@ -28,6 +28,9 @@ def setup_logging(level: str = "INFO", log_file: str | None = None) -> None:
         handlers=handlers,
         force=True,
     )
+    # httpx logs every request's full URL at INFO, query string included, which would write
+    # API keys (Adzuna's app_key) to the log file.
+    logging.getLogger("httpx").setLevel(max(log_level, logging.WARNING))
 
     structlog.configure(
         processors=[

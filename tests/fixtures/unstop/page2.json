@@ -1,0 +1,228 @@
+{
+ "data": {
+  "current_page": 2,
+  "data": [
+   {
+    "id": 1761882,
+    "public_url": "internships/data-science-intern-microsoft-1761882",
+    "title": "Data Science Intern",
+    "organization_id": 883,
+    "type": "jobs",
+    "subtype": "internships",
+    "regn_open": 0,
+    "updated_at": "2026-09-29T22:00:59+05:30",
+    "region": "online",
+    "visibility": "public",
+    "details": "<p><strong>Microsoft is hiring for the role of Data Science Intern!</strong></p>\n<p><strong>Responsibilities of the Intern:</strong></p>\n<ul type=\"disc\">\n<li>Formulate approaches to solve problems using well defined algorithms and data sources</li>\n<li>Incorporate an understanding of product functionality and customer perspective to provide context for those problems.</li>\n<li>Use data exploration techniques to discover new questions or opportunities within your problem area and propose applicability and limitations of the data.</li>\n<li>Interpret the results of their analysis, validate their approach, and learn to monitor, analyze, and iterate to continuously improve.</li>\n<li>Engage with peer stakeholders to produce clear, compelling, actionable insights that influence product and service improvements that will impact millions of customers.</li>\n<li>Participate in the peer review process and act on feedback while learning innovative methods, algorithms, and tools to increase the impact and applicability of your results.</li>\n</ul>\n<p><strong>Requirements:</strong></p>\n<ul>\n<li>Required Qualifications:</li>\n<li>Currently pursuing a Doctorate Degree in Data Science, Mathematics, Statistics, Econometrics, Economics, Operations Research, Computer Science, or related field.</li>\n<li>Must have at least one additional quarter/semester of school remaining following the completion of the internship.</li>\n<li>Preferred Qualifications:</li>\n<li>Currently pursuing a Master's in Data Science, Mathematics, Statistics, Econometrics, Economics, Operations Research, Computer Science, or related field.</li>\n</ul>",
+    "short_id": "JFuhsLx",
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6aba250783aa0_unnamed__2_.png",
+    "organisation": {
+     "id": 883,
+     "name": "Microsoft",
+     "public_url": "c/microsoft-recruiter-career-interview-selection-process-job-profile-articles-videos-883",
+     "logoUrl": "https://d8it4huxumps7.cloudfront.net/images/partners/partners75/5e7ae953a54bd_unnamed__2_.png",
+     "logoUrl2": "https://d8it4huxumps7.cloudfront.net/images/partners/partners125/5e7ae953a54bd_unnamed__2_.png",
+     "show_evaluator_login_link": false,
+     "official_email_domains": null,
+     "tier": null
+    },
+    "seo_url": "https://unstop.com/internships/data-science-intern-microsoft-1761882",
+    "status": "LIVE",
+    "tags": [],
+    "thumb": null,
+    "isPaid": false,
+    "festival": null,
+    "prizes": [],
+    "address_with_country_logo": {
+     "address": "",
+     "city": "",
+     "state": "",
+     "country": ""
+    },
+    "short_url": "https://unstop.com/o/JFuhsLx",
+    "workfunction": [
+     {
+      "id": 1905,
+      "name": "Data Science",
+      "description": "",
+      "created_at": "2026-02-06T23:31:46+05:30",
+      "updated_at": "2026-02-06T23:31:46+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 1905,
+       "id": 6305872,
+       "ai_generated": true
+      }
+     }
+    ],
+    "assignedTag": {
+     "tag": null
+    },
+    "opportunity_config": {
+     "id": 1457376,
+     "opportunity_id": 1761882,
+     "banner_config": "{\"color\":\"color-bg6\",\"text\":\"Data Science Intern\",\"type\":2,\"banner_data\":[3]}",
+     "show_registrations_count": 0,
+     "show_impressions": 0,
+     "show_team_size": 1,
+     "show_region": 1
+    },
+    "payment_services": [],
+    "filters": [
+     {
+      "id": 422,
+      "name": "Engineering Students",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "engineering",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/engineering.svg"
+     },
+     {
+      "id": 424,
+      "name": "Postgraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "postgraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/postgraduate.svg"
+     },
+     {
+      "id": 426,
+      "name": "Undergraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "undergraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/undergraduate.svg"
+     },
+     {
+      "id": 4025,
+      "name": "Arts, Commerce, Sciences & Others",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": null,
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/.svg"
+     }
+    ],
+    "required_skills": [
+     {
+      "id": 645929,
+      "skill": "Data Interpretation",
+      "skill_name": "Data Interpretation",
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 645929,
+       "id": 6305867,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 647415,
+      "skill": "Statistical Modeling",
+      "skill_name": "Statistical Modeling",
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 647415,
+       "id": 6305868,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 645939,
+      "skill": "Data Science Tools",
+      "skill_name": "Data Science Tools",
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 645939,
+       "id": 6305869,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 646619,
+      "skill": "Machine Learning Concepts",
+      "skill_name": "Machine Learning Concepts",
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 646619,
+       "id": 6305870,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 645946,
+      "skill": "Data-Driven Decision Making",
+      "skill_name": "Data-Driven Decision Making",
+      "pivot": {
+       "entity_id": 1761882,
+       "subject_id": 645946,
+       "id": 6305871,
+       "ai_generated": true
+      }
+     }
+    ],
+    "locations": [
+     {
+      "id": 1854592,
+      "city": "Abrama",
+      "state": "Gujarat",
+      "country": "India",
+      "addressable_id": 1761882,
+      "addressable_type": "App\\Model\\Opportunity"
+     }
+    ],
+    "jobDetail": {
+     "entity_id": 1761882,
+     "currency": "fa-rupee",
+     "locations": [
+      "Abrama"
+     ],
+     "type": "in_office",
+     "show_salary": 0,
+     "min_experience": null,
+     "max_experience": null,
+     "timing": "full_time",
+     "paid_unpaid": "paid",
+     "pay_in": "monthly",
+     "not_disclosed": false
+    },
+    "end_date": "2026-10-10T00:00:00+05:30",
+    "approved_date": "2026-09-28 13:58:11 GMT+0530",
+    "viewsCount": 2990,
+    "registerCount": 0,
+    "regnRequirements": {
+     "opportunity_id": 1761882,
+     "start_regn_dt": "2026-09-26T00:00:00+05:30",
+     "end_regn_dt": "2026-09-28T23:54:00+05:30",
+     "show_deadline": 1,
+     "min_team_size": 1,
+     "max_team_size": 1,
+     "work_location_type": "country",
+     "eligibility": "{\"sector\":[\"students\"],\"engineering\":[\"allCourses\",{\"course\":\"btech\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mtech\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"integrated\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"engOthers\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"bca\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mca\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"mca1\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mcm\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"phdEng\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"diploma\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":0}],\"bSchools\":[],\"arts\":[{\"course\":\"msc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bsc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ms\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bs\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"artsOthers\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3}],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[\"all\"],\"schoolFilteredClasses\":[\"all\"],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null,\"fresherEligibility\":null}",
+     "reg_status": "FINISHED",
+     "remainingDaysArray": {
+      "durations": null,
+      "text": "Ended"
+     },
+     "remain_days": "Ended",
+     "remaining_time": -90182
+    }
+   }
+  ],
+  "first_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&oppstatus=closed&per_page=100&page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&oppstatus=closed&per_page=100&page=1",
+  "links": [],
+  "next_page_url": null,
+  "path": "https://unstop.com/api/public/opportunity/search-result?",
+  "per_page": 100,
+  "prev_page_url": null,
+  "to": 56,
+  "total": 57
+ }
+}

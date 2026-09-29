@@ -1,0 +1,25 @@
+# Settings per universe seeder (autoapply/discovery/). `enabled: false` turns one off.
+# Run order: own_data, manual, portfolios, yc, inc42, startup_india, github.
+
+own_data: {}
+
+manual: {}            # entries live in config/companies.yaml
+
+portfolios:
+  only: []            # VC names from portfolios.yaml to run; empty = all enabled
+
+yc:
+  statuses: [Active, Public]
+
+inc42:
+  max_pages: 1500     # new company pages per run; the rest are picked up by later runs
+  requests_per_second: 3
+  industries: []      # e.g. [Enterprisetech, Fintech, Edtech]; empty = all
+
+startup_india:
+  max_pages: 50
+
+github:
+  min_repos: 3
+  max_orgs: 1500
+  # cities: [Bangalore, Mumbai, ...]   default: 14 Indian cities + "India"

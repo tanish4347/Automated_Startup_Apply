@@ -1,0 +1,152 @@
+[
+ {
+  "id": 827,
+  "name": "Razorpay",
+  "slug": "razorpay",
+  "former_names": [],
+  "website": "https://razorpay.com",
+  "all_locations": "Bengaluru, KA, India",
+  "one_liner": "India's only full-stack financial solutions company for businesses.",
+  "team_size": 2700,
+  "industry": "Fintech",
+  "subindustry": "Fintech -> Payments",
+  "launched_at": 1416309883,
+  "tags": [
+   "Banking as a Service",
+   "Fintech",
+   "Payments",
+   "India"
+  ],
+  "tags_highlighted": [],
+  "top_company": true,
+  "isHiring": true,
+  "nonprofit": false,
+  "batch": "Winter 2015",
+  "status": "Active",
+  "industries": [
+   "Fintech",
+   "Payments"
+  ],
+  "regions": [
+   "India",
+   "South Asia",
+   "Remote",
+   "Partly Remote"
+  ],
+  "stage": "Growth",
+  "url": "https://www.ycombinator.com/companies/razorpay",
+  "api": "https://yc-oss.github.io/api/batches/winter-2015/razorpay.json"
+ },
+ {
+  "id": 651,
+  "name": "Aptible",
+  "slug": "aptible",
+  "former_names": [],
+  "website": "https://www.aptible.com",
+  "all_locations": "New York City, NY, USA; Toronto, ON, Canada; New York, NY, USA; Philadelphia, PA, USA; Boston, MA, USA; Indianapolis, IN, USA; Remote",
+  "one_liner": "The No Infrastructure Platform as a Service",
+  "team_size": 25,
+  "industry": "B2B",
+  "subindustry": "B2B -> Infrastructure",
+  "launched_at": 1398907581,
+  "tags": [
+   "Developer Tools",
+   "DevSecOps",
+   "DevOps",
+   "Web Development",
+   "Cloud Computing"
+  ],
+  "tags_highlighted": [],
+  "top_company": false,
+  "isHiring": false,
+  "nonprofit": false,
+  "batch": "Summer 2014",
+  "status": "Acquired",
+  "industries": [
+   "B2B",
+   "Infrastructure"
+  ],
+  "regions": [
+   "United States of America",
+   "Canada",
+   "America / Canada",
+   "Remote",
+   "Fully Remote"
+  ],
+  "stage": "Growth",
+  "url": "https://www.ycombinator.com/companies/aptible",
+  "api": "https://yc-oss.github.io/api/batches/summer-2014/aptible.json"
+ },
+ {
+  "id": 420,
+  "name": "Markupwand",
+  "slug": "markupwand",
+  "former_names": [],
+  "website": "http://markupwand.com",
+  "all_locations": "Bengaluru, KA, India",
+  "one_liner": "Convert Design files to working websites automagically",
+  "team_size": 3,
+  "industry": "B2B",
+  "subindustry": "B2B -> Engineering, Product and Design",
+  "launched_at": 1336096770,
+  "tags": [
+   "Developer Tools"
+  ],
+  "tags_highlighted": [],
+  "top_company": false,
+  "isHiring": false,
+  "nonprofit": false,
+  "batch": "Summer 2012",
+  "status": "Inactive",
+  "industries": [
+   "B2B",
+   "Engineering, Product and Design"
+  ],
+  "regions": [
+   "India",
+   "South Asia"
+  ],
+  "stage": "Early",
+  "url": "https://www.ycombinator.com/companies/markupwand",
+  "api": "https://yc-oss.github.io/api/batches/summer-2012/markupwand.json"
+ },
+ {
+  "id": 5,
+  "name": "CircuitHub",
+  "slug": "circuithub",
+  "former_names": [],
+  "website": "https://circuithub.com",
+  "all_locations": "London, England, United Kingdom",
+  "one_liner": "On-Demand Electronics Manufacturing",
+  "team_size": 58,
+  "industry": "Industrials",
+  "subindustry": "Industrials -> Manufacturing and Robotics",
+  "launched_at": 1322045523,
+  "tags": [
+   "Hard Tech",
+   "Hardware",
+   "Robotics",
+   "Manufacturing",
+   "Automation"
+  ],
+  "tags_highlighted": [],
+  "top_company": false,
+  "isHiring": true,
+  "nonprofit": false,
+  "batch": "Winter 2012",
+  "status": "Active",
+  "industries": [
+   "Industrials",
+   "Manufacturing and Robotics"
+  ],
+  "regions": [
+   "United Kingdom",
+   "Europe",
+   "Remote",
+   "Partly Remote"
+  ],
+  "stage": "Early",
+  "url": "https://www.ycombinator.com/companies/circuithub",
+  "api": "https://yc-oss.github.io/api/batches/winter-2012/circuithub.json"
+ }
+]

@@ -28,11 +28,15 @@ class HttpClient:
         max_retries: int = 3,
         timeout: float = 30.0,
         headers: dict[str, str] | None = None,
+        transport: httpx.BaseTransport | None = None,
+        event_hooks: dict[str, list] | None = None,
     ):
         self.min_interval = 1.0 / max(requests_per_second, 0.01)
         self.max_retries = max_retries
         self.timeout = timeout
         self._extra_headers = headers or {}
+        self._transport = transport  # tests pass an httpx.MockTransport
+        self._event_hooks = event_hooks
         self._last_request: float = 0.0
         self._client: httpx.Client | None = None
 
@@ -41,6 +45,8 @@ class HttpClient:
             self._client = httpx.Client(
                 timeout=self.timeout,
                 follow_redirects=True,
+                transport=self._transport,
+                event_hooks=self._event_hooks,
                 headers={
                     "User-Agent": random.choice(_USER_AGENTS),
                     "Accept": "application/json, text/html, */*;q=0.8",

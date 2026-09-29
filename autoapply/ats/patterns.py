@@ -37,6 +37,17 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("mynexthire", re.compile(r"\b" + _SUB + r"\.mynexthire\.com\b", re.I)),
     ("workday", re.compile(r"\b" + _SUB + r"\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?" + _SLUG, re.I)),
     ("turbohire", re.compile(r"\b" + _SUB + r"\.turbohire\.co\b", re.I)),
+    ("keka", re.compile(r"\b" + _SUB + r"\.kekahire\.com\b", re.I)),
+    ("bamboohr", re.compile(r"\b" + _SUB + r"\.bamboohr\.com\b", re.I)),
+    ("jazzhr", re.compile(r"\b" + _SUB + r"\.applytojob\.com\b", re.I)),
+    ("personio", re.compile(r"\b" + _SUB + r"\.jobs\.personio\.(?:de|com)\b", re.I)),
+    ("teamtailor", re.compile(r"\b" + _SUB + r"\.teamtailor\.com\b", re.I)),
+    ("breezy", re.compile(r"\b" + _SUB + r"\.breezy\.hr\b", re.I)),
+    ("pinpoint", re.compile(r"\b" + _SUB + r"\.pinpointhq\.com\b", re.I)),
+    ("recruiterflow", re.compile(r"recruiterflow\.com/" + _SLUG + r"/jobs", re.I)),
+    ("skillate", re.compile(r"\b" + _SUB + r"\.skillate\.com\b", re.I)),
+    ("springrecruit", re.compile(r"\b" + _SUB + r"\.springrecruit\.com\b", re.I)),
+    ("hirepro", re.compile(r"\b" + _SUB + r"\.hirepro\.in\b", re.I)),
     ("google_form", re.compile(r"(https?://(?:docs\.google\.com/forms/d/(?:e/)?[A-Za-z0-9_-]+|forms\.gle/[A-Za-z0-9]+))", re.I)),
 ]
 
@@ -53,6 +64,16 @@ _NOT_TOKENS = {
     "freshteam": {"www", "api", "developers", "support", "assets", "help"},
     "mynexthire": {"www", "api", "app", "help"},
     "turbohire": {"www", "api", "app", "help"},
+    "bamboohr": {"www", "api", "app", "help", "partners", "marketplace", "status", "documentation"},
+    "jazzhr": {"www", "app", "help"},
+    "personio": {"www", "api", "support"},
+    "teamtailor": {"www", "app", "api", "support", "assets", "docs", "status", "partner"},
+    "breezy": {"www", "app", "api", "help", "developer"},
+    "pinpoint": {"www", "app", "api", "help", "developers"},
+    "recruiterflow": {"www", "app", "api", "blog"},
+    "skillate": {"www", "app", "api"},
+    "springrecruit": {"www", "app", "api"},
+    "hirepro": {"www", "app", "api"},
     "workday": set(),
     "zoho_recruit": {"www.zohorecruit.com", "www.zohorecruit.in"},
     "google_form": set(),
@@ -62,7 +83,13 @@ _NOT_TOKENS = {
 HARVESTABLE = {
     "greenhouse", "lever", "ashby", "workable", "smartrecruiters", "recruitee", "keka",
     "zoho_recruit", "darwinbox", "freshteam", "mynexthire", "workday",
+    "personio", "teamtailor", "breezy",
 }
+# Detected and recorded, but no verified public jobs endpoint yet: their jobs go to the generic
+# careers-page crawler. BambooHR's /careers/list and JazzHR's /apply are reachable but no board
+# with open jobs was found to verify a parser against (2026-09-30).
+DETECT_ONLY = {"turbohire", "bamboohr", "jazzhr", "pinpoint", "recruiterflow", "skillate", "springrecruit",
+               "hirepro", "google_form"}
 
 
 @dataclass(frozen=True)
@@ -127,5 +154,15 @@ def board_url(ats_type: str, token: str) -> str | None:
         "freshteam": f"https://{token}.freshteam.com/jobs",
         "mynexthire": f"https://{token}.mynexthire.com/employer/jobs",
         "turbohire": f"https://{token}.turbohire.co/",
+        "bamboohr": f"https://{token}.bamboohr.com/careers",
+        "jazzhr": f"https://{token}.applytojob.com/apply",
+        "personio": f"https://{token}.jobs.personio.com/",
+        "teamtailor": f"https://{token}.teamtailor.com/jobs",
+        "breezy": f"https://{token}.breezy.hr/",
+        "pinpoint": f"https://{token}.pinpointhq.com/",
+        "recruiterflow": f"https://recruiterflow.com/{token}/jobs",
+        "skillate": f"https://{token}.skillate.com/",
+        "springrecruit": f"https://{token}.springrecruit.com/",
+        "hirepro": f"https://{token}.hirepro.in/",
         "google_form": token,
     }.get(ats_type)

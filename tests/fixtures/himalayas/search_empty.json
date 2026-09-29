@@ -1,0 +1,8 @@
+{
+ "comments": "21/08/2026: Cursor pagination is now available and is the preferred way to page through the feed. Pass the nextCursor value from each response back as ?cursor=. It is faster than offset and will never return the same job twice. The offset parameter is deprecated and will be removed in a future release. 13/03/2026: The API has been updated to include the companySlug field in the response.",
+ "updatedAt": 1790709992,
+ "offset": 19960,
+ "limit": 20,
+ "totalCount": 1214,
+ "jobs": []
+}

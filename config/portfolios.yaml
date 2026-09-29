@@ -1,0 +1,107 @@
+# VC portfolio pages for the universe seeder (autoapply/discovery/portfolios.py).
+#
+# name, url            required
+# india                true = India-focused fund: its companies are marked is_india.
+#                      false = global/mixed fund: is_india is left for other seeders to decide.
+# strategy             auto | jsonld | internal | links | regex (see portfolios.py)
+# name_selector        "css", "css@attr", "@attr" or "slug"; name_regex: group 1 of the label
+# follow_details       open each VC detail page to find the company website (max_details cap)
+# enabled / note       disabled entries say why
+#
+# Surveyed 2026-09-30. URLs moved since the prompt: Peak XV -> /our-companies, Blume ->
+# /startups, Chiratae -> /companies, Matrix Partners India is now Z47 (one entry).
+
+- name: Peak XV
+  url: https://www.peakxv.com/our-companies/
+  india: false            # India + SEA + global (Supabase, Tabby)
+  strategy: internal
+  name_selector: "img@alt"
+
+- name: Accel
+  url: https://www.accel.com/companies
+  india: false            # global list; no region field in the page data
+  strategy: regex
+  regex: '"_id":"company-[^"]+"(?:(?!"_id":"company-).)*?\},"name":"(?P<name>[^"]+)"(?:(?!"_id":"company-).)*?"websiteUrl":"(?P<website>[^"]*)"'
+
+- name: Blume Ventures
+  url: https://blume.vc/startups
+  strategy: regex
+  regex: 'href="(?P<detail>https://blume\.vc/(?P<name>[a-z0-9-]+))"><figure'
+
+- name: Elevation Capital
+  url: https://www.elevationcapital.com/portfolio
+  strategy: internal
+
+- name: Z47 (formerly Matrix Partners India)
+  url: https://www.z47.com/portfolio
+  strategy: internal
+  name_selector: ".gallery-subheading"
+
+- name: Nexus Venture Partners
+  url: https://www.nexusvp.com/companies
+  india: false            # India + US
+  strategy: internal
+  name_selector: slug     # every card's label is "Open company page"
+
+- name: Lightspeed
+  url: https://lsvp.com/companies/
+  india: false            # global list; no India filter on the page
+  strategy: internal
+  internal_pattern: "^/company/[^/?#]+/?$"
+  name_selector: slug
+  max_details: 0          # 600+ detail pages for mostly non-Indian companies: names only
+
+- name: Kalaari Capital
+  url: https://kalaari.com/portfolio
+  strategy: internal
+
+- name: Chiratae Ventures
+  url: https://www.chiratae.com/companies/
+  strategy: links
+  exclude_domains: [linkedin.com]
+
+- name: 3one4 Capital
+  url: https://www.3one4capital.com/portfolio
+  strategy: internal
+
+- name: India Quotient
+  url: https://www.indiaquotient.in/portfolio
+  strategy: links
+
+- name: Better Capital
+  url: https://bettercapital.vc/portfolio
+  strategy: links
+
+- name: 100X.VC
+  url: https://www.100x.vc/
+  enabled: false
+  note: portfolio pages 404 and the site renders its list client-side only; needs the browser tier
+
+- name: Antler
+  url: https://www.antler.co/portfolio
+  india: false            # global cohort list
+  strategy: links
+
+- name: Titan Capital
+  url: https://titancapital.vc/portfolio
+  strategy: internal
+
+- name: Surge (Peak XV)
+  url: https://surge.peakxv.com/companies
+  india: false            # India + SEA
+  strategy: auto
+
+- name: Prime Venture Partners
+  url: https://www.primevp.in/portfolio
+  strategy: links
+
+- name: Stellaris Venture Partners
+  url: https://www.stellarisvp.com/portfolio
+  strategy: jsonld
+
+- name: Together Fund
+  url: https://www.together.fund/portfolio
+  india: false            # India-founded, often US-incorporated
+  strategy: internal
+
+# Y Combinator (India) is the `yc` seeder in universe.yaml, not a portfolio page.

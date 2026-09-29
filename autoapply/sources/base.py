@@ -39,6 +39,11 @@ class SourceResult:
     posting_snapshot: str | None = None
     raw_data: dict[str, Any] | None = None
     tags: list[str] | None = None
+    # The source says the posting no longer takes applications (e.g. Unstop regn_open=0).
+    expired: bool = False
+    # What the source knows about the employer, fed to get_or_create_company(). Keys (all
+    # optional): domain, careers_url, about, is_india, india_cities.
+    company_meta: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dict for ingestion."""
@@ -52,7 +57,23 @@ class BaseSource(abc.ABC):
     Each concrete source adapter must implement:
     - name: property returning the source identifier
     - discover: method that yields SourceResult objects
+
+    The orchestrator sets `budget` (autoapply.politeness.Budget) before a run; sources that make
+    budgeted requests call budget.take() before each one. A source reports how its run went in
+    `run_info` ({"status": "ok" | "degraded" | "failed", "error": ...}).
     """
+
+    tier = "http"   # http | browser
+    budget = None
+
+    @property
+    def run_info(self) -> dict[str, Any]:
+        if "_run_info" not in self.__dict__:
+            self._run_info = {"status": "ok"}
+        return self._run_info
+
+    def reset_run_info(self) -> None:
+        self._run_info = {"status": "ok"}
 
     @property
     @abc.abstractmethod

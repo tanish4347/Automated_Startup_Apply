@@ -72,10 +72,46 @@ def cmd_discover(args: argparse.Namespace) -> None:
     """Run job discovery orchestrator."""
     settings = get_settings()
     setup_logging(settings.log_level, settings.log_file)
+    if args.browser:
+        from autoapply.sources.orchestrator import run_browser_discovery
+        print("Starting browser discovery (each source in its own process)...")
+        outcomes = run_browser_discovery(only=args.source, force=args.force, headless=not args.headed)
+        print("\nBrowser discovery complete.\n")
+        for name, outcome in outcomes.items():
+            print(f"  {name:<12} {outcome}")
+        return
     from autoapply.sources.orchestrator import run_discovery
     print("Starting discovery...")
-    run_discovery()
-    print("Discovery complete.")
+    stats = run_discovery(only=args.source)
+    print("\nDiscovery complete.\n")
+    print(f"{'source':<14}{'fetched':>9}{'new':>7}{'merged':>8}{'accepted':>10}{'failed':>8}")
+    for name, c in stats.items():
+        print(f"{name:<14}{c['fetched']:>9}{c['new']:>7}{c['merged']:>8}{c['accepted']:>10}{c['failed']:>8}")
+
+
+LOGIN_URLS = {
+    "naukri": "https://www.naukri.com/nlogin/login",
+    "wellfound": "https://wellfound.com/login",
+    "yc_waas": "https://www.workatastartup.com/",
+}
+
+
+def cmd_browser_login(args: argparse.Namespace) -> None:
+    """Open the platform's persistent browser profile, headed, for a one-time manual login or
+    challenge. Everything is done by hand; the profile keeps the cookies for later runs."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    from autoapply.sources.browser import BrowserSession, assert_platform_allowed
+    assert_platform_allowed(args.platform)
+    if args.platform not in LOGIN_URLS:
+        sys.exit(f"Unknown platform {args.platform!r}. Choose from: {', '.join(LOGIN_URLS)}")
+    with BrowserSession(args.platform, headless=False) as s:
+        s.page.goto(LOGIN_URLS[args.platform], wait_until="domcontentloaded")
+        print(f"A browser window is open on {LOGIN_URLS[args.platform]}.\n"
+              "Sign in and/or solve any challenge by hand, browse to the job search once, "
+              "then close the window to save the profile.")
+        s.page.wait_for_event("close", timeout=0)
+    print(f"Saved. Profile: {s.profile_dir}\nCalls the site made: {s.calls_path}")
 
 
 def cmd_apply(args: argparse.Namespace) -> None:
@@ -88,19 +124,51 @@ def cmd_apply(args: argparse.Namespace) -> None:
     print("Application engine complete.")
 
 
-def cmd_companies_import(args: argparse.Namespace) -> None:
-    """Load career_pages.json (or --file) into the companies table."""
+def cmd_ats(args: argparse.Namespace) -> None:
+    """Resolve companies' ATS (slow cadence, separate from job fetching), or report on it."""
     settings = get_settings()
     setup_logging(settings.log_level, settings.log_file)
-    from pathlib import Path
-    from autoapply.config import load_search_config
-    from autoapply.services.company_service import import_career_pages
-
-    path = Path(args.file) if args.file else load_search_config().career_pages_path
+    from autoapply.discovery.ats_resolver import ats_stats, run_resolver
     engine = engine_from_settings(settings.db.url, settings.db.echo)
     with get_session_factory(engine)() as session:
-        stats = import_career_pages(session, path)
-    print(f"Imported {path}: " + ", ".join(f"{k}={v}" for k, v in stats.items()))
+        if args.action == "resolve":
+            stats = run_resolver(session, args.limit, allow_probe=not args.no_probe, names=args.company)
+            print("Resolved this run: " + ", ".join(f"{k}={v}" for k, v in stats.items()))
+        st = ats_stats(session)
+        print(f"\nCompanies: {st['companies']}  resolved: {st['resolved']} (India: {st['resolved_india']})  "
+              f"never tried: {st['never_tried']}  backing off: {st['failing']}  generic crawl: {st['generic_crawl']}")
+        print(f"\n{'platform':<16}{'companies':>10}{'india':>8}")
+        for ats, (n, india) in st["by_platform"].items():
+            print(f"{ats:<16}{n:>10}{india:>8}")
+
+
+def cmd_universe(args: argparse.Namespace) -> None:
+    """Seed the company universe, or report on it."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    from autoapply.discovery.universe import run_universe, universe_stats
+    from autoapply.models.company import CompanyAlias, Company
+    engine = engine_from_settings(settings.db.url, settings.db.echo)
+    with get_session_factory(engine)() as session:
+        if args.action == "seed":
+            results = run_universe(session, only=args.source)
+            print(f"\n{'seeder':<14}{'seen':>8}{'created':>9}{'merged':>8}{'existing':>10}{'india+':>8}")
+            for name, st in results.items():
+                print(f"{name:<14}{st.seen:>8}{st.created:>9}{st.merged:>8}{st.existing:>10}{st.india_created:>8}")
+            print()
+        if args.action in ("seed", "stats"):
+            st = universe_stats(session)
+            print(f"Companies: {st['total']}  India: {st['india']}  with website: {st['with_website']}  "
+                  f"ATS resolved: {st['ats_resolved']}  merge aliases: {st['aliases']}")
+            print(f"\n{'seed_source':<16}{'companies':>10}{'india':>8}")
+            for src, n in st["by_seed_source"].items():
+                print(f"{src:<16}{n:>10}{st['india_by_seed_source'].get(src, 0):>8}")
+        if args.action == "merges":
+            rows = (session.query(CompanyAlias, Company).join(Company, CompanyAlias.company_id == Company.id)
+                    .order_by(CompanyAlias.id.desc()).limit(args.limit).all())
+            for alias, company in rows:
+                print(f"{alias.match_type:<7} {alias.alias!r:<40} -> {company.name!r:<40} "
+                      f"[{alias.seed_source}] {alias.evidence or ''}")
 
 
 def main() -> None:
@@ -121,16 +189,33 @@ def main() -> None:
     sub.add_parser("dashboard", help="Start the dashboard")
 
     # discover
-    sub.add_parser("discover", help="Run job discovery sources")
+    disc = sub.add_parser("discover", help="Run job discovery sources")
+    disc.add_argument("--source", action="append",
+                      help="Run only this source (repeatable), e.g. --source unstop --source internshala")
+    disc.add_argument("--browser", action="store_true",
+                      help="Run the browser tier (naukri, wellfound, yc_waas) instead of the HTTP sources")
+    disc.add_argument("--force", action="store_true", help="--browser: ignore the per-source cadence")
+    disc.add_argument("--headed", action="store_true", help="--browser: show the browser windows")
+
+    uni = sub.add_parser("universe", help="Company universe: seed it or report on it")
+    uni.add_argument("action", choices=["seed", "stats", "merges"])
+    uni.add_argument("--source", action="append",
+                     help="seed: run only this seeder (repeatable): own_data manual portfolios yc inc42 startup_india github")
+    uni.add_argument("--limit", type=int, default=100, help="merges: rows to show")
+
+    bl = sub.add_parser("browser-login", help="Open a platform's browser profile to sign in / pass a challenge by hand")
+    bl.add_argument("platform", help="naukri | wellfound | yc_waas")
     
     # apply
     apply_p = sub.add_parser("apply", help="Run the application engine")
     apply_p.add_parser = apply_p
     apply_p.add_argument("--limit", type=int, default=10, help="Number of applications to attempt")
 
-    # companies-import
-    ci = sub.add_parser("companies-import", help="Load career_pages.json into the companies table")
-    ci.add_argument("--file", help="Path to a career_pages.json-style file (default: from config/search.yaml)")
+    ats = sub.add_parser("ats", help="ATS resolution: identify each company's ATS once, cache it")
+    ats.add_argument("action", choices=["resolve", "stats"])
+    ats.add_argument("--limit", type=int, default=200, help="resolve: companies to attempt this run")
+    ats.add_argument("--company", action="append", help="resolve: just these companies (name, SQL LIKE)")
+    ats.add_argument("--no-probe", action="store_true", help="resolve: skip guessing ATS API slugs")
 
     args = parser.parse_args()
     if not args.command:
@@ -143,7 +228,9 @@ def main() -> None:
         "dashboard": cmd_dashboard,
         "discover": cmd_discover,
         "apply": cmd_apply,
-        "companies-import": cmd_companies_import,
+        "ats": cmd_ats,
+        "browser-login": cmd_browser_login,
+        "universe": cmd_universe,
     }
     commands[args.command](args)
 

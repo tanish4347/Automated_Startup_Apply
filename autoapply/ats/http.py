@@ -24,7 +24,8 @@ class AsyncFetcher:
     """Shared AsyncClient. At most `per_host` requests in flight per host; 429/5xx/timeouts are
     retried with exponential backoff + jitter (honouring Retry-After)."""
 
-    def __init__(self, per_host: int = 4, timeout: float = 20.0, max_retries: int = 3):
+    def __init__(self, per_host: int = 4, timeout: float = 20.0, max_retries: int = 3,
+                 transport: httpx.AsyncBaseTransport | None = None):
         self.per_host = per_host
         self.max_retries = max_retries
         self._host_limits: dict[str, asyncio.Semaphore] = defaultdict(lambda: asyncio.Semaphore(self.per_host))
@@ -33,6 +34,7 @@ class AsyncFetcher:
             headers={"User-Agent": USER_AGENT, "Accept-Language": "en-US,en;q=0.9",
                      "Accept": "application/json, text/html;q=0.9, */*;q=0.8"},
             limits=httpx.Limits(max_connections=64, max_keepalive_connections=32),
+            transport=transport,  # tests pass an httpx.MockTransport
         )
         self.requests = 0
         self.failures = 0

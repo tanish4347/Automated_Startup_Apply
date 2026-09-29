@@ -1,0 +1,97 @@
+{
+ "comments": "21/08/2026: Cursor pagination is now available and is the preferred way to page through the feed. Pass the nextCursor value from each response back as ?cursor=. It is faster than offset and will never return the same job twice. The offset parameter is deprecated and will be removed in a future release. 13/03/2026: The API has been updated to include the companySlug field in the response.",
+ "updatedAt": 1790562396,
+ "offset": 0,
+ "limit": 20,
+ "totalCount": 1214,
+ "jobs": [
+  {
+   "title": "Implementation Advisor Apprentice",
+   "excerpt": "About HighLevel:HighLevel is an AI-powered business operating system that gives agencies, entrepreneurs and SMBs the infrastructure to build, automate and scale.",
+   "companyName": "HighLevel",
+   "companySlug": "highlevel",
+   "companyLogo": "https://cdn-images.himalayas.app/en0qex9edeqfo3uqtxi3l25uudv0",
+   "employmentType": "Intern",
+   "minSalary": 32000,
+   "maxSalary": 32000,
+   "salaryPeriod": "monthly",
+   "seniority": [
+    "Entry-level"
+   ],
+   "currency": "INR",
+   "locationRestrictions": [
+    "India"
+   ],
+   "timezoneRestrictions": [
+    5.5
+   ],
+   "categories": [
+    "Implementation-Specialist",
+    "Implementation-Advisor",
+    "Customer-Success-Specialist",
+    "Onboarding-Specialist",
+    "Implementation-Consultant",
+    "Implementation-Associate",
+    "Junior-Implementation-Specialist",
+    "Entry-Level-Implementation-Specialist",
+    "Implementation-Analyst-Junior"
+   ],
+   "parentCategories": [
+    "Customer Service"
+   ],
+   "description": "<h3>About <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a>:</h3><p><a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> is an AI-powered business operating system that gives agencies, entrepreneurs and SMBs the infrastructure to build, automate and scale. Today, <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> supports SMBs across 150+ countries, fueling community-driven growth rooted in real customer outcomes.</p><p>To date, businesses operating on <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> have generated over $7 billion in ecosystem value, demonstrating the impact of shared infrastructure at scale. By centralizing conversations, automation and intelligence into one system, we help businesses move faster, reduce complexity and execute efficiently.</p><p>Behind the platform, <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> powers more than 4 billion API hits and 2.5 billion message events daily. With 250 terabytes of distributed data, 250+ microservices and over 1 million domain names supported, our architecture is built for performance, resilience and long-term scalability.</p><h3>Our People</h3><p>With over 2,000 team members across 10+ countries, <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> operates as a global, remote-first organisation built for speed and ownership. We value initiative, clarity and execution, creating space for ambitious people to build systems that support millions of businesses worldwide. Here, innovation thrives, ideas are celebrated and people come first, no matter where they call home.</p><h3>Our Impact</h3><p>Every month, <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> enables more than 1.5 billion messages, 200 million leads and 20 million conversations for the more than 1 million businesses we support. Behind those numbers are real people building independence, expanding opportunity and creating measurable impact. We’re proud to be a part of that.</p><p>Learn more about us on our YouTube Channel or Blog Posts.</p><h3>About the Role:</h3><ul><div><div>\n<div>\n<p>We are looking for an Implementation Advisor Apprentice to join our team for a structured 6-month apprenticeship. This full-time programme is designed for someone looking to build a strong foundation in software implementation, customer success, and technology-driven business growth. </p>\n<p>Apprentices will be training to become an advisor. They will work on real customer initiatives alongside experienced advisors, gaining hands-on experience in customer onboarding, implementation, business process management, software best practices, and change management. <br><br><strong>Programme Details</strong></p>\n</div>\n<li>Work Type: Apprenticeship</li>\n<li>Department: Customer Success</li>\n<li>Sub-Department: Implementation Services</li>\n<li>Duration: 6 months</li>\n<li>Monthly Stipend: INR 32,000</li>\n<li>Location: Remote – India</li>\n<li>Programme Start: October 2026</li>\n<h3>Responsibilities</h3>\n<li>Understand customer requirements, business needs, and pain points.</li>\n<li>Support customer onboarding and implementation activities.</li>\n<li>Assist in creating implementation and transition plans.</li>\n<li>Support advisors in ensuring successful product adoption and customer outcomes.</li>\n<li>Maintain clear documentation and communicate next steps to customers.</li>\n<li>Assist with webinars, workshops, and customer education sessions.</li>\n<li>Collaborate with internal teams to address customer requirements and implementation needs.</li>\n<li>Stay updated on <a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> product features and releases.</li>\n<li>Support customers with basic implementation-related issues.</li>\n<li>Build strong customer relationships and contribute to long-term customer success.</li>\n<li>Continuously identify opportunities to improve the onboarding and implementation experience.</li>\n<h3>Requirements</h3>\n<li>Recent graduate in Business Administration, Commerce, Information Technology, or a related field.</li>\n<li>Strong communication and interpersonal skills.</li>\n<li>Basic technical understanding and willingness to learn SaaS products.</li>\n<li>Strong problem-solving and analytical skills.</li>\n<li>Ability to learn new tools, processes, and workflows quickly.</li>\n<li>Ability to work independently and collaboratively in a remote environment.</li>\n<h3>Nice to Have</h3>\n<li>Internship or project experience in SaaS, customer success, technical support, implementation, or consulting.</li>\n<li>Familiarity with CRM or SaaS platforms.</li>\n<li>Basic understanding of business processes and software workflows.</li>\n</div></div></ul><div>\n<h3>\n<a href=\"https://himalayas.app/companies/highlevel\">HighLevel</a> India Apprenticeship Policy:</h3>\n<p>This Apprenticeship Policy is issued pursuant to and in compliance with the Apprentices Act, 1961 (as amended), the Apprenticeship Rules, 1992, the National Employability Enhancement Mission (NEEM) Guidelines (if applicable), and the National Apprenticeship Promotion Scheme (NAPS) Guidelines notified by the Ministry of Skill Development and Entrepreneurship.</p>\n<h3>EEO Statement:</h3>\n<p>The company is an Equal Opportunity Employer. As an employer subject to affirmative action regulations, we invite you to voluntarily provide the following demographic information. This information is used solely for compliance with government recordkeeping, reporting, and other legal requirements. Providing this information is voluntary, and refusal to do so will not affect your application status. This data will be kept separate from your application and will not be used in the hiring decision.<br><br>We encourage you to review our Privacy Policy before submitting your application</p>\n</div><p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+   "pubDate": 1790550002,
+   "expiryDate": 1795734001,
+   "applicationLink": "https://himalayas.app/companies/highlevel/jobs/implementation-advisor-apprentice",
+   "guid": "https://himalayas.app/companies/highlevel/jobs/implementation-advisor-apprentice"
+  },
+  {
+   "title": "Intern, Marketing & Communications, Design-Remote",
+   "excerpt": "OverviewSince our founding in 1924, we've cut cardiovascular disease deaths in half, but there is still so much more to do.",
+   "companyName": "American Heart Association",
+   "companySlug": "american-heart-association",
+   "companyLogo": "https://cdn-images.himalayas.app/wxcklivo2rrpuseb324uvy1pkt0c",
+   "employmentType": "Intern",
+   "minSalary": 23,
+   "maxSalary": 23,
+   "salaryPeriod": "hourly",
+   "seniority": [
+    "Entry-level"
+   ],
+   "currency": "USD",
+   "locationRestrictions": [
+    "United States"
+   ],
+   "timezoneRestrictions": [
+    -10,
+    -9,
+    -8,
+    -7,
+    -6,
+    -5,
+    14
+   ],
+   "categories": [
+    "Marketing-Intern",
+    "Communications-Intern",
+    "Graphic-Design-Intern",
+    "Marketing-and-Communications-Intern",
+    "Design-Intern",
+    "Marketing-Design-Intern",
+    "Remote-Communication-Intern",
+    "Visual-Design-Intern",
+    "Digital-Design-Intern",
+    "Marketing",
+    "Design"
+   ],
+   "parentCategories": [
+    "Marketing"
+   ],
+   "description": "<h3>Overview</h3><p>Since our founding in 1924, we've cut cardiovascular disease deaths in half, but there is still so much more to do. To overcome today’s biggest health challenges and accelerate this progress, we need passionate individuals like you. Join our movement, be part of the progress, and help ensure a healthier future for all. You matter, and so does the impact you can make with us.</p><p>Voices for Healthy Kids, an initiative of the <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a>, is seeking a creative, detail‑oriented intern to support our communications and marketing team. This intern will help with design-based work, update and refresh outreach materials, and ensure brand consistency across digital and print assets. It’s a hands-on opportunity to build design and communications skills while supporting national advocacy efforts to improve child and family health.</p><p>The <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a>’s Internship Program provides college students an opportunity for hands-on experience in various facets for individuals interested in gaining work experience with a non-profit, voluntary health organization. </p><p>The Association offers many resources to help you maintain work-life harmonization through your changing needs and life situations.  To help you be successful, you will have access to Heart U, our award-winning corporate university, as well as training and support locally and through our National Center.#TheAHALife is more than a company culture; it is our way of life. It embodies our commitment to work-life harmonization and is guided by our core values where our employees can thrive both personally and professionally. Discover why you will Be Seen. Be Heard. Be Valued at the <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a> by following us on LinkedIn, Instagram, Facebook, X, and at heart.jobs.</p><h3>Internship Overview:</h3><ul>\n<li>Time Commitment: 20 hours per week</li>\n<li>Internship Duration:  1/25/27-5/7/27<strong>​</strong>\n</li>\n<li>Location: Remote </li>\n<li>Salary: $23.00 per hour</li>\n</ul><h3>Internship Outcomes:</h3><p>Individuals participating in the internship program are provided with an opportunity to:</p><ul>\n<li>Gain important and practical job skills to be successful in a non-profit environment.</li>\n<li>Opportunity to explore a career-path with a reputable voluntary health/service organization.</li>\n<li>Complete an internship that enriches your academic and professional resume as well as enriching your personal life by making a difference in the lives of others.</li>\n</ul><h3>Responsibilities</h3><ul>\n<li>Review, update, and refresh existing communications materials to ensure clarity, accuracy, and consistency across print and digital assets.</li>\n<li>Design new content—such as one-pagers, social graphics, slide templates, and toolkits—supporting Voices for Healthy Kids advocacy and outreach efforts.</li>\n<li>Ensure all materials align with Voices for Healthy Kids brand guidelines, including visual identity, tone, and messaging.</li>\n<li>Support layout and design work, applying established templates and brand standards to new and existing materials.</li>\n<li>Fact-check language, data points, and citations to ensure materials are accurate, up to date, and grounded in research.</li>\n<li>Collaborate with the communications and marketing team to refine content and support timely project updates.</li>\n</ul><h3>Qualifications</h3><ul>\n<li><strong>College seniors and graduate students pursuing a degree in public policy, communications, public relations, public health, journalism or related fields.</strong></li>\n<li><strong>Experience in public policy and/or an interest in non-profit and health care communications is strongly preferred.</strong></li>\n<li><strong>Strong communication, writing, editing, and proofreading skills with exceptional attention to detail.</strong></li>\n<li>Ability to independently manage projects from start to finish, including planning, execution, and follow-through.</li>\n<li>Interest in translating complex information into clear, easy-to-understand content for different audiences.</li>\n<li>Proficiency in Canva and other tools used to create clear, engaging communications materials. </li>\n<li>Must be familiar with software including Outlook, Word, Excel, PowerPoint.</li>\n<li><strong>Required Equipment: Reliable Wi-Fi connection.</strong></li>\n<li><strong>Minimum availability of 20 hrs/wk, M-F between the hours of 9am-5pm.</strong></li>\n<li><strong>Must be legally authorized to work in the United States for any employer without sponsorship, now or in the future. For any roles working remotely, the work must also be performed inside the United States, not in a foreign country.</strong></li>\n</ul><h3>Compensation &amp; Benefits</h3><p><strong>The job application window is expected to close: October 23, 2026.</strong></p><p>The <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a> invests in its people.  Visit Rewards &amp; Benefits to see more details.</p><ul>\n<li>\n<strong>Compensation and Performance</strong> – Attracting talented, committed interns means offering competitive compensation, ongoing professional development and training, and an environment in which to work and grow. And we do.</li>\n<li>\n<strong>Professional Development – </strong>You can join one of our many Employee Resource Groups (ERG) or be a mentor/mentee in our professional mentoring program.  Heart U is the Association’s national online university, with more than 100,000 resources designed to meet your needs and busy schedule.</li>\n<li>\n<strong>Healthcare Benefits</strong> – You will have the opportunity to participate in our Teladoc General Medical and Behavioral Health programs.  We also provide access to our Employee Assistance Program (EAP) at no cost as a confidential program designed to assist employees and family members with personal issues that affect their relationships at home or at work.</li>\n</ul><p><strong>Apply Today:</strong>So, are you ready to intern for the largest voluntary health organization dedicated to fighting heart disease, stroke, and other cardiovascular diseases?</p><p>The <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a>’s 2028 Goal: Building on over 100 years of trusted leadership in cardiovascular and brain health, by 2028 the Association will drive breakthroughs and implement proven solutions in science, policy, and care for healthier people and communities. The greatest discoveries in health must reach everyone where they are.</p><p><strong>At <a href=\"https://himalayas.app/companies/american-heart-association\">American Heart Association</a> | American Stroke Association, our mission is to be a relentless force for a world of longer, healthier lives, regardless of race, ethnicity, gender, gender identity, religion, age, language, sexual orientation, national origin and physical or cognitive abilities.</strong></p><p><strong>This position not a match with your skills?  </strong>Click here to see other opportunities.</p><p>In accordance with local and state laws where applicable, qualified applicants with arrest or conviction records will be considered for employment.</p><p>EOE/Protected Veterans/Persons with Disabilities</p>#AHAWAYUP,<p>Originally posted on <a href=\"https://himalayas.app\">Himalayas</a></p>",
+   "pubDate": 1790562396,
+   "expiryDate": 1795746396,
+   "applicationLink": "https://himalayas.app/companies/american-heart-association/jobs/intern-marketing-communications-design-remote",
+   "guid": "https://himalayas.app/companies/american-heart-association/jobs/intern-marketing-communications-design-remote"
+  }
+ ]
+}

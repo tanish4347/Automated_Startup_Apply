@@ -21,14 +21,89 @@ linkedin:
   max_pages: 2
 
 sources:
+  unstop: true
+  internshala: true
+  instahyre: true
+  himalayas: true
+  adzuna: true        # skipped unless ADZUNA_APP_ID / ADZUNA_APP_KEY are set (.env)
   remoteok: true
   remotive: true
   arbeitnow: true
   linkedin: true
-  career_pages: true
+  ats_boards: true     # companies' own ATS boards, as resolved by `autoapply ats resolve`
+  # Browser tier (autoapply discover --browser)
+  naukri: true
+  wellfound: true
+  yc_waas: true
 
-# Relative to the project root.
-career_pages_file: career_pages.json
+# Every open listing is pulled (~700 internships); there is no working category filter
+# server-side, so evaluate_job() does the filtering.
+unstop:
+  opportunities: [internships]
+  max_pages: 20       # 100 per page
+
+# Category slugs under internshala.com/internships/. Overlapping categories are cheap: each
+# internship is yielded once per run, and detail pages are cached in data/cache/internshala/.
+internshala:
+  categories:
+    - computer-science-internship
+    - machine-learning-internship
+    - data-science-internship
+    - artificial-intelligence-ai-internship
+    - software-development-internship
+    - web-development-internship
+    - backend-development-internship
+    - full-stack-development-internship
+    - python-django-internship
+    - deep-learning-internship
+    - natural-language-processing-nlp-internship
+    - work-from-home-computer-science-internships
+    - work-from-home-data-science-internships
+  max_pages: 20
+  fetch_details: true
+
+instahyre:
+  experience_levels: [internship]
+
+himalayas:
+  employment_types: [Intern]
+  max_pages: 80
+  feed_pages: 0
+
+adzuna:
+  queries: [intern, internship]
+  max_pages: 5
+
+# ── Browser tier ─────────────────────────────────────────────────────────────
+# Budgets and pacing live in config/politeness.yaml.
+
+# Internships plus 0-1 year roles. experience: 0 = fresher; wfhType 2 = remote;
+# cityTypeGid 134 = Mumbai.
+naukri:
+  searches:
+    - {keyword: software developer intern}
+    - {keyword: machine learning intern}
+    - {keyword: data science intern}
+    - {keyword: ai intern}
+    - {keyword: python developer intern}
+    - {keyword: internship, wfhType: 2}
+    - {keyword: internship, cityTypeGid: 134}
+    - {keyword: software engineer, experience: 0}
+    - {keyword: machine learning engineer, experience: 0}
+    - {keyword: data scientist, experience: 0}
+  max_pages: 10
+  fetch_details: true
+
+wellfound:
+  roles: [software-engineer, machine-learning-engineer, data-scientist, backend-engineer, full-stack-engineer]
+  locations: [india, mumbai, remote]
+  max_pages: 3
+
+yc_waas:
+  paths: [/jobs]
+
+# Boards fetched per run by the ats_boards source (priority / Indian companies first).
+ats_boards_max_companies: 500
 
 # Where I can work. On-site/hybrid only in these cities; remote from anywhere.
 # Jobs outside the policy are stored with location_fit=outside_policy, never deleted.
@@ -56,6 +131,15 @@ target_keywords:
   - developer
   - programmer
   - sde
+  # Internshala names internships by skill, not role: "Web Development", "Python/Django",
+  # "React Native Development", "Flutter Development".
+  - development
+  - python
+  - web
+  - android
+  - flutter
+  - react
+  - devops
 
 # Title keywords that mark a non-technical role.
 exclude_title_keywords:

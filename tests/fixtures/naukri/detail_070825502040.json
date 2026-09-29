@@ -1,0 +1,306 @@
+{
+ "loggedIn": false,
+ "brandedJd": false,
+ "jobDetails": {
+  "savedJobFlag": 0,
+  "education": {
+   "degreeCombination": "",
+   "bTechPremium": false,
+   "mbaPremium": false,
+   "premiumProcessed": false,
+   "eduPlaceholderText": "",
+   "ug": [
+    "Any Graduate"
+   ],
+   "pg": [
+    "Any Postgraduate"
+   ],
+   "ppg": [],
+   "label": "",
+   "isSchool": false
+  },
+  "hideApplyButton": false,
+  "applyCount": 903,
+  "groupId": 297712,
+  "roleCategory": "Data Science & Machine Learning",
+  "mode": "crawled",
+  "tagLabels": [],
+  "jobRole": "Data Science & Machine Learning - Other",
+  "isTopGroup": 0,
+  "clientLogo": "https://img.naukimg.com/logo_images/groups/v1/297712.gif",
+  "wfhType": "0",
+  "companyDetail": {
+   "name": "Valeo",
+   "details": "As a technology company and partner to all automakers and new mobility players, Valeo innovates to make mobility cleaner, safer and smarter. Valeo is a technological and industrial leader in electrification, driving assistance systems, reinvention of the interior experience and lighting everywhere.",
+   "address": "",
+   "media": {
+    "ppt": null,
+    "video": null,
+    "photos": null
+   }
+  },
+  "jobIconType": "",
+  "shortDescription": "Valeo India Pvt Ltd is looking for Intern - AI to join our dynamic team and embark on a rewarding career journey",
+  "consent": false,
+  "jobId": "070825502040",
+  "showEducationAsPlaceholder": false,
+  "companyId": 2927066,
+  "functionalArea": "Data Science & Analytics",
+  "experienceText": "0-1 Yrs",
+  "referenceCode": "REQ2025061319",
+  "vacancy": 1,
+  "template": "",
+  "applyRedirectUrl": "https://valeo.wd3.myworkdayjobs.com/en-US/valeo_jobs/job/Chennai/Intern---AI_REQ2025061319",
+  "locationGids": [
+   "183"
+  ],
+  "description": "Valeo India Pvt Ltd is looking for Intern - AI to join our dynamic team and embark on a rewarding career journey.  <br /> <br /> <ul> <li> Assist in developing AI models and algorithms.  </li> <li> Conduct data preprocessing and analysis.  </li> <li> Support AI project planning and execution.  </li> <li> Collaborate with AI engineers and researchers on projects.  </li> <li> Learn and apply AI techniques under supervision.  </li> </ul>",
+  "staticCompanyName": "valeo-jobs-careers-164977",
+  "industry": "Automobile",
+  "staticUrl": "https://www.naukri.com/job-listings-intern-ai-valeo-india-pvt-ltd-chennai-0-to-1-years-070825502040",
+  "title": "Intern - AI",
+  "walkIn": false,
+  "maximumExperience": 1,
+  "logStr": "----F-0-1---",
+  "viewCount": 4746,
+  "jobType": "internship",
+  "internshipInfo": {
+   "amount": "Unpaid",
+   "duration": "No fixed duration",
+   "internshipExactStartDate": "Starts in 1-3 months",
+   "internshipApplyByDate": null,
+   "perksAndBenefits": null,
+   "currency": "INR"
+  },
+  "companyPageUrl": "valeo-overview-297712",
+  "minimumExperience": 0,
+  "employmentType": "Full Time, Permanent",
+  "microsite": false,
+  "jobAgentEligible": false,
+  "internshipDuration": "No fixed ",
+  "createdDate": "2025-08-07 18:11:52",
+  "consultant": false,
+  "showRecruiterDetail": false,
+  "locations": [
+   {
+    "localities": [],
+    "label": "Chennai",
+    "url": "https://www.naukri.com/jobs-in-chennai"
+   }
+  ],
+  "companyApplyUrl": "https://www.naukri.com/cloudgateway-apply/apply-services/v0/apply/saveCompanyApply?id=&file=070825502040&logstr=jdrestapi",
+  "keySkills": {
+   "other": [
+    {
+     "clickable": "",
+     "label": "Intern"
+    },
+    {
+     "clickable": "",
+     "label": "Trainee Apprentice"
+    },
+    {
+     "clickable": "mech",
+     "label": "Mechanical"
+    },
+    {
+     "clickable": "corp",
+     "label": "Corporate"
+    },
+    {
+     "clickable": "research",
+     "label": "Research"
+    },
+    {
+     "clickable": "internship",
+     "label": "Internship"
+    },
+    {
+     "clickable": "sustainable development",
+     "label": "Sustainable development"
+    },
+    {
+     "clickable": "automotive",
+     "label": "Automotive"
+    },
+    {
+     "clickable": "",
+     "label": "R&D Trainee"
+    }
+   ],
+   "preferred": []
+  },
+  "salaryDetail": {
+   "hideSalary": false,
+   "currency": "INR",
+   "label": "Unpaid"
+  },
+  "board": "1"
+ },
+ "ambitionBoxDetails": {
+  "companyInfo": {
+   "Url": "https://www.ambitionbox.com/reviews/valeo-reviews?jobId=naukri_070825502040&utm_source=naukri&utm_campaign=jd_ratings",
+   "Title": "Valeo Reviews by Employees",
+   "AggregateRating": "3.9",
+   "ReviewsCount": "1559"
+  },
+  "reviews": [
+   {
+    "Title": "Senior Software Engineer in Chennai",
+    "LikesText": "Recognition and skill development.",
+    "ReviewLink": "https://www.ambitionbox.com/reviews/valeo-reviews?rid=79909729&utm_source=naukri&utm_campaign=jd_reviews",
+    "PublishedOn": "02 Jun 2026",
+    "OverallCompanyRating": "5",
+    "Name": "Anonymous"
+   },
+   {
+    "Title": "Software Engineer in Chennai",
+    "LikesText": "good working culture and friendly employees",
+    "ReviewLink": "https://www.ambitionbox.com/reviews/valeo-reviews?rid=67766370&utm_source=naukri&utm_campaign=jd_reviews",
+    "PublishedOn": "01 Mar 2025",
+    "OverallCompanyRating": "5",
+    "Name": "Anonymous"
+   },
+   {
+    "DisLikesText": "Appraisals and promotions",
+    "Title": "Senior Software Engineer in Chennai",
+    "LikesText": "Job security and work culture",
+    "ReviewLink": "https://www.ambitionbox.com/reviews/valeo-reviews?rid=65165422&utm_source=naukri&utm_campaign=jd_reviews",
+    "PublishedOn": "17 Jan 2025",
+    "OverallCompanyRating": "4",
+    "Name": "Anonymous"
+   }
+  ],
+  "salaries": {
+   "widgetType": "salary_range",
+   "title": "Artificial Intelligence Intern typically earns between",
+   "ctcRangeText": "₹8.1L – ₹9L/yr",
+   "ctaText": "See detailed salary breakup",
+   "JobProfileName": "Artificial Intelligence Intern",
+   "AverageCtc": "8.5",
+   "SalariesUrl": "https://www.ambitionbox.com/salaries/valeo-salaries/artificial-intelligence-intern?utm_source=naukri&utm_campaign=jd_salaries",
+   "MaxCtc": "9.0",
+   "MinCtc": "8.1"
+  },
+  "benefits": {
+   "Users": 134,
+   "List": [
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/ProfessionalDegreeAssistance.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/ProfessionalDegreeAssistance.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/ProfessionalDegreeAssistance.png",
+     "BenefitName": "Learning & Development Support",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/HealthInsurance.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/HealthInsurance.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/HealthInsurance.png",
+     "BenefitName": "Health Insurance",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/Shuttle.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/Shuttle.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/Shuttle.png",
+     "BenefitName": "Transport / Travel Support",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/FreeMeal.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/FreeMeal.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/FreeMeal.png",
+     "BenefitName": "Free Meal",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/PerformanceBonus.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/PerformanceBonus.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/PerformanceBonus.png",
+     "BenefitName": "Performance Bonus",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/Relocation.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/Relocation.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/Relocation.png",
+     "BenefitName": "Relocation Assistance",
+     "Status": "true"
+    },
+    {
+     "newIconUrl": {
+      "dark": "https://static.ambitionbox.com/static/naukri-benefits/v2/dark/MentalWellbeing.png",
+      "default": "https://static.ambitionbox.com/static/naukri-benefits/v2/light/MentalWellbeing.png"
+     },
+     "BenefitImage": "https://static.ambitionbox.com/static/naukri-benefits/MentalWellbeing.png",
+     "BenefitName": "Health & Wellness Support",
+     "Status": "true"
+    }
+   ],
+   "BenefitsUrl": "https://www.ambitionbox.com/benefits/valeo-benefits?jobId=naukri_070825502040&utm_source=naukri&utm_campaign=jd_benefits"
+  },
+  "interviewQuestions": {
+   "url": "https://www.ambitionbox.com/interviews/valeo-interview-questions/intern?utm_source=naukri&utm_campaign=jd_interview_questions",
+   "questions": [
+    {
+     "question": "Is the power supplied from a socket alternating current (AC) or direct current (DC)?",
+     "questionUrl": "https://www.ambitionbox.com/interviews/valeo-interview-questions/intern?qid=U1hTly8i&utm_source=naukri&utm_campaign=jd_interview_questions"
+    },
+    {
+     "question": "What is the typical voltage and current supplied by an electrical socket?",
+     "questionUrl": "https://www.ambitionbox.com/interviews/valeo-interview-questions/intern?qid=U1hVDyec&utm_source=naukri&utm_campaign=jd_interview_questions"
+    },
+    {
+     "question": "The interviewer drew a circuit having a DC source, resistor, and a laser diode and asked us to name the components.",
+     "questionUrl": "https://www.ambitionbox.com/interviews/valeo-interview-questions/intern?qid=blIUBfiEy&utm_source=naukri&utm_campaign=jd_interview_questions"
+    }
+   ]
+  }
+ },
+ "seo": {
+  "classf": "Jobs & Career: Job Search, Apply Jobs, Post Jobs",
+  "flag": "JD",
+  "noindex": "n",
+  "bcrumb": "",
+  "id": 1763,
+  "title": "Intern - AI - Chennai - Valeo - 0 to 1 years of experience",
+  "keyword": "Intern - AI in Valeo Chennai",
+  "url": "job-listings-jobDesc",
+  "descp": "Job Description for Intern - AI in Valeo in Chennai for 0 to 1 years of experience. Apply Now!",
+  "canon": null
+ },
+ "cardsSequence": [
+  {
+   "label": "Details",
+   "key": 1
+  },
+  {
+   "label": "About Company",
+   "key": 2
+  },
+  {
+   "label": "Reviews",
+   "key": 4
+  },
+  {
+   "label": "Benefits",
+   "key": 5
+  },
+  {
+   "label": "Salaries",
+   "key": 6
+  }
+ ]
+}

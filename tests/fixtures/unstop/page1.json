@@ -1,0 +1,486 @@
+{
+ "data": {
+  "current_page": 1,
+  "data": [
+   {
+    "id": 1763253,
+    "public_url": "internships/social-media-marketing-internship-skill3x-1763253",
+    "title": "Social Media Marketing Internship",
+    "organization_id": 2066560,
+    "type": "jobs",
+    "subtype": "internships",
+    "regn_open": 1,
+    "updated_at": "2026-09-29T22:54:06+05:30",
+    "region": "online",
+    "visibility": "public",
+    "details": "<p><strong>About the Company</strong></p>\n<p>SKILL3X is offering an opportunity for an aspiring marketer to gain practical exposure to social media marketing in a flexible, remote work environment. The internship is designed for someone who is curious about digital communities, enjoys creating engaging content, and wants to build hands-on experience across social platforms.</p>\n<p><strong>Responsibilities</strong></p>\n<ul>\n<li>Support the planning and execution of social media content across relevant platforms.</li>\n<li>Assist with creating, editing, and scheduling posts, captions, stories, and campaign assets.</li>\n<li>Monitor audience engagement, comments, trends, and competitor activity to identify useful insights.</li>\n<li>Help maintain a consistent brand voice and contribute ideas for improving reach and interaction.</li>\n<li>Track basic performance metrics and prepare concise updates on content and campaign results.</li>\n</ul>\n<p><strong>Requirements</strong></p>\n<ul>\n<li>Interest in social media, digital marketing, content creation, or online communities.</li>\n<li>Strong written communication, creativity, attention to detail, and willingness to learn.</li>\n<li>Ability to work independently, manage deadlines, and collaborate through remote communication.</li>\n<li>No prior professional experience is required; academic projects, personal pages, or portfolio work are welcome.</li>\n<li>This is a 3-month unpaid internship with performance-based incentives and flexible working hours.</li>\n</ul>\n<p><strong>Work arrangement:</strong> Remote, work-from-home. The intern will receive practical exposure to social media marketing workflows, content performance, and campaign coordination while working with the SKILL3X team.</p>",
+    "short_id": "Q4Ff0Tm",
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6abbe7551c395_organisation_image-l1PxNxBao4704437595ZyrPyqR9Rb.png",
+    "organisation": {
+     "id": 2066560,
+     "name": "SKILL3X",
+     "public_url": "c/skill3x-2066560",
+     "logoUrl": "https://d8it4huxumps7.cloudfront.net/images/partners/new_organisation_image-l1PxNxBao4704437595ZyrPyqR9Rb.png",
+     "logoUrl2": "https://d8it4huxumps7.cloudfront.net/images/partners/new_organisation_image-l1PxNxBao4704437595ZyrPyqR9Rb.png",
+     "show_evaluator_login_link": false,
+     "official_email_domains": null,
+     "tier": null
+    },
+    "seo_url": "https://unstop.com/internships/social-media-marketing-internship-skill3x-1763253",
+    "status": "LIVE",
+    "tags": [],
+    "thumb": null,
+    "isPaid": false,
+    "festival": null,
+    "prizes": [],
+    "address_with_country_logo": {
+     "address": "",
+     "city": "",
+     "state": "",
+     "country": ""
+    },
+    "short_url": "https://unstop.com/o/Q4Ff0Tm",
+    "workfunction": [
+     {
+      "id": 1956,
+      "name": "Social Media Marketing",
+      "description": "",
+      "created_at": "2026-02-06T23:31:46+05:30",
+      "updated_at": "2026-02-06T23:31:46+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 1956,
+       "id": 6326426,
+       "ai_generated": true
+      }
+     }
+    ],
+    "assignedTag": {
+     "tag": null
+    },
+    "opportunity_config": {
+     "id": 1458382,
+     "opportunity_id": 1763253,
+     "banner_config": "{\"color\":\"color-bg3\",\"text\":\"Social Media Marketing Intern\",\"type\":8,\"banner_data\":[3]}",
+     "show_registrations_count": 0,
+     "show_impressions": 1,
+     "show_team_size": 1,
+     "show_region": 1
+    },
+    "payment_services": [],
+    "filters": [
+     {
+      "id": 424,
+      "name": "Postgraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "postgraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/postgraduate.svg"
+     },
+     {
+      "id": 426,
+      "name": "Undergraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "undergraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/undergraduate.svg"
+     },
+     {
+      "id": 679,
+      "name": "Fresher",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "fresher",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/fresher.svg"
+     },
+     {
+      "id": 4022,
+      "name": "Management",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": null,
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/.svg"
+     },
+     {
+      "id": 4025,
+      "name": "Arts, Commerce, Sciences & Others",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": null,
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/.svg"
+     }
+    ],
+    "required_skills": [
+     {
+      "id": 647347,
+      "skill": "Social Media Marketing (SMM)",
+      "skill_name": "Social Media Marketing (SMM)",
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 647347,
+       "id": 6326421,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 645012,
+      "skill": "Social Media Content Creation",
+      "skill_name": "Social Media Content Creation",
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 645012,
+       "id": 6326422,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 647346,
+      "skill": "Social Media Management",
+      "skill_name": "Social Media Management",
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 647346,
+       "id": 6326423,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 645600,
+      "skill": "Audience Engagement",
+      "skill_name": "Audience Engagement",
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 645600,
+       "id": 6326424,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 647759,
+      "skill": "Written Communication",
+      "skill_name": "Written Communication",
+      "pivot": {
+       "entity_id": 1763253,
+       "subject_id": 647759,
+       "id": 6326425,
+       "ai_generated": true
+      }
+     }
+    ],
+    "locations": [],
+    "jobDetail": {
+     "entity_id": 1763253,
+     "max_salary": null,
+     "currency": "fa-rupee",
+     "locations": [],
+     "type": "wfh",
+     "min_salary": null,
+     "show_salary": 1,
+     "min_experience": null,
+     "max_experience": null,
+     "timing": "full_time",
+     "paid_unpaid": "unpaid",
+     "pay_in": "monthly",
+     "not_disclosed": false
+    },
+    "end_date": "2026-10-13T23:59:59+05:30",
+    "approved_date": "2026-09-29 21:58:46 GMT+0530",
+    "viewsCount": 1,
+    "registerCount": 6,
+    "regnRequirements": {
+     "opportunity_id": 1763253,
+     "start_regn_dt": "2026-09-29T00:00:00+05:30",
+     "end_regn_dt": "2026-10-13T23:59:59+05:30",
+     "show_deadline": 1,
+     "min_team_size": 1,
+     "max_team_size": 1,
+     "work_location_type": "city",
+     "eligibility": "{\"sector\":[\"students\",\"fresher\"],\"engineering\":[],\"bSchools\":[\"allCourses\",{\"course\":\"mba1\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":1},{\"course\":\"mba2\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bba\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"bSchoolOthers\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"bcom\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mcom\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bhm\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ca\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"cs\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"pgdm\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"execMba\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":1},{\"course\":\"ipm\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"phdManagement\",\"type\":\"bSchools\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3}],\"arts\":[\"allCourses\",{\"course\":\"bsc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"msc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"ba\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ma\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"artsOthers\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mdes\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"march\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bdes\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"barch\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"bftech\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"bplan\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mplan\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"phdArts\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"mftech\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bfa\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mfa\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bs\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ms\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bed\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"med\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"beled\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"bped\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2}],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[2026],\"schoolFilteredClasses\":[\"all\"],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null,\"fresherEligibility\":null}",
+     "reg_status": "STARTED",
+     "remainingDaysArray": {
+      "durations": 13,
+      "text": " days left"
+     },
+     "remain_days": "13 days left",
+     "remaining_time": 1206303
+    }
+   },
+   {
+    "id": 1763401,
+    "public_url": "internships/artificial-intelligence-internship-xtragrad-technologie-private-limited-1763401",
+    "title": "Artificial Intelligence Internship",
+    "organization_id": 1972533,
+    "type": "jobs",
+    "subtype": "internships",
+    "regn_open": 1,
+    "updated_at": "2026-09-30T00:20:04+05:30",
+    "region": "online",
+    "visibility": "public",
+    "details": "<p><strong>About the Company:</strong></p>\n<p>Xtragrad Technologie Private Limited is a dynamic technology firm focused on innovation and growth. We are committed to providing cutting-edge solutions and fostering talent in the tech industry. Join us to gain hands-on experience and contribute to impactful projects.</p>\n<p><strong>Responsibilities:</strong></p>\n<ul>\n<li>Assist in the development and implementation of AI models and algorithms.</li>\n<li>Conduct research and analysis to support AI initiatives.</li>\n<li>Collaborate with team members on various projects.</li>\n<li>Contribute to the documentation and testing of AI solutions.</li>\n<li>Learn and apply new AI technologies and methodologies.</li>\n</ul>\n<p><strong>Requirements:</strong></p>\n<ul>\n<li>Currently enrolled in a relevant academic program (e.g., Computer Science, Artificial Intelligence, Data Science).</li>\n<li>Basic understanding of AI/ML concepts and principles.</li>\n<li>Familiarity with programming languages such as Python.</li>\n<li>Strong analytical and problem-solving skills.</li>\n<li>Ability to work independently and as part of a team.</li>\n<li>Enthusiasm for learning and contributing to AI projects.</li>\n</ul>",
+    "short_id": "PcgqbDF",
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6a4b602786fdf_xtragrad_logooo.jpg",
+    "organisation": {
+     "id": 1972533,
+     "name": "Xtragrad Technologie Private Limited",
+     "public_url": "c/xtragrad-technologie-private-limited-1972533",
+     "logoUrl": "",
+     "logoUrl2": "",
+     "show_evaluator_login_link": false,
+     "official_email_domains": null,
+     "tier": null
+    },
+    "seo_url": "https://unstop.com/internships/artificial-intelligence-internship-xtragrad-technologie-private-limited-1763401",
+    "status": "LIVE",
+    "tags": [],
+    "thumb": null,
+    "banner_mobile": null,
+    "isPaid": false,
+    "festival": null,
+    "prizes": [],
+    "address_with_country_logo": {
+     "address": "",
+     "city": "",
+     "state": "",
+     "country": ""
+    },
+    "short_url": "https://unstop.com/o/PcgqbDF",
+    "workfunction": [
+     {
+      "id": 1855,
+      "name": "Applied AI",
+      "description": "",
+      "created_at": "2026-02-06T23:31:46+05:30",
+      "updated_at": "2026-02-06T23:31:46+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 1855,
+       "id": 6325947,
+       "ai_generated": false
+      }
+     },
+     {
+      "id": 2106,
+      "name": "Artificial Intelligence",
+      "description": "",
+      "created_at": "2026-04-09T00:17:10+05:30",
+      "updated_at": "2026-04-09T00:17:10+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 2106,
+       "id": 6325948,
+       "ai_generated": false
+      }
+     },
+     {
+      "id": 1854,
+      "name": "Machine Learning Engineering",
+      "description": "",
+      "created_at": "2026-02-06T23:31:46+05:30",
+      "updated_at": "2026-02-06T23:31:46+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 1854,
+       "id": 6325954,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 2107,
+      "name": "AI Engineering",
+      "description": "",
+      "created_at": "2026-04-09T00:17:10+05:30",
+      "updated_at": "2026-04-09T00:17:10+05:30",
+      "work_function_name": null,
+      "batch_id": 11,
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 2107,
+       "id": 6325955,
+       "ai_generated": true
+      }
+     }
+    ],
+    "assignedTag": {
+     "tag": null
+    },
+    "opportunity_config": {
+     "id": 1458490,
+     "opportunity_id": 1763401,
+     "banner_config": "{\"color\":\"color-bg3\",\"text\":\"Artificial Intelligence Internship\",\"type\":3,\"banner_data\":[4]}",
+     "show_registrations_count": 0,
+     "show_impressions": 1,
+     "show_team_size": 1,
+     "show_region": 1
+    },
+    "payment_services": [],
+    "filters": [
+     {
+      "id": 422,
+      "name": "Engineering Students",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "engineering",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/engineering.svg"
+     },
+     {
+      "id": 424,
+      "name": "Postgraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "postgraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/postgraduate.svg"
+     },
+     {
+      "id": 426,
+      "name": "Undergraduate",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": "undergraduate",
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/undergraduate.svg"
+     },
+     {
+      "id": 4025,
+      "name": "Arts, Commerce, Sciences & Others",
+      "type": "eligible",
+      "subtype": null,
+      "file_name": null,
+      "domain_id": 0,
+      "icon_url": "https://d8it4huxumps7.cloudfront.net/images/icons/color_icons/.svg"
+     }
+    ],
+    "required_skills": [
+     {
+      "id": 645580,
+      "skill": "Artificial Intelligence (AI)",
+      "skill_name": "Artificial Intelligence (AI)",
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 645580,
+       "id": 6325949,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 647074,
+      "skill": "Python",
+      "skill_name": "Python",
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 647074,
+       "id": 6325950,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 646619,
+      "skill": "Machine Learning Concepts",
+      "skill_name": "Machine Learning Concepts",
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 646619,
+       "id": 6325951,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 643203,
+      "skill": "Analytical Skills",
+      "skill_name": "Analytical Skills",
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 643203,
+       "id": 6325952,
+       "ai_generated": true
+      }
+     },
+     {
+      "id": 1373,
+      "skill": "Problem Solving",
+      "skill_name": "Problem Solving",
+      "pivot": {
+       "entity_id": 1763401,
+       "subject_id": 1373,
+       "id": 6325953,
+       "ai_generated": true
+      }
+     }
+    ],
+    "locations": [
+     {
+      "id": 1855786,
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "country": "India",
+      "addressable_id": 1763401,
+      "addressable_type": "App\\Model\\Opportunity"
+     }
+    ],
+    "jobDetail": {
+     "entity_id": 1763401,
+     "max_salary": null,
+     "currency": "fa-rupee",
+     "locations": [
+      "Hyderabad"
+     ],
+     "type": "hybrid",
+     "min_salary": null,
+     "show_salary": 1,
+     "min_experience": null,
+     "max_experience": null,
+     "timing": "part_time",
+     "paid_unpaid": "unpaid",
+     "pay_in": "monthly",
+     "not_disclosed": false
+    },
+    "end_date": "2026-10-13T13:08:58+05:30",
+    "approved_date": "2026-09-29 21:19:59 GMT+0530",
+    "viewsCount": 1,
+    "registerCount": 20,
+    "regnRequirements": {
+     "opportunity_id": 1763401,
+     "start_regn_dt": "2026-09-29T20:26:13+05:30",
+     "end_regn_dt": "2026-10-13T13:08:58+05:30",
+     "show_deadline": 1,
+     "min_team_size": 1,
+     "max_team_size": 1,
+     "work_location_type": "city",
+     "eligibility": "{\"sector\":[\"students\"],\"engineering\":[\"allCourses\",{\"course\":\"btech\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mtech\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"integrated\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"engOthers\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"bca\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mca\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"mca1\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mcm\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"phdEng\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"diploma\",\"type\":\"engineering\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":0}],\"bSchools\":[],\"arts\":[\"allCourses\",{\"course\":\"bsc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"msc\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"ba\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ma\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"artsOthers\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"mdes\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"march\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bdes\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"barch\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"bftech\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"bplan\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mplan\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"phdArts\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":5},{\"course\":\"mftech\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bfa\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"mfa\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bs\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":3},{\"course\":\"ms\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"bed\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"med\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2},{\"course\":\"beled\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":4},{\"course\":\"bped\",\"type\":\"arts\",\"programme\":[\"all\"],\"passoutYear\":[\"all\"],\"specialization\":[\"all\"],\"duration\":2}],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[\"all\"],\"schoolFilteredClasses\":[\"all\"],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null}",
+     "reg_status": "STARTED",
+     "remainingDaysArray": {
+      "durations": 13,
+      "text": " days left"
+     },
+     "remain_days": "13 days left",
+     "remaining_time": 1167269
+    }
+   }
+  ],
+  "first_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&oppstatus=open&per_page=100&page=1",
+  "from": 201,
+  "last_page": 8,
+  "last_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&oppstatus=open&per_page=100&page=8",
+  "links": [],
+  "next_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&per_page=100&page=2",
+  "path": "https://unstop.com/api/public/opportunity/search-result?",
+  "per_page": 100,
+  "prev_page_url": "https://unstop.com/api/public/opportunity/search-result?&opportunity=internships&oppstatus=open&per_page=100&page=2",
+  "to": 293,
+  "total": 701
+ }
+}

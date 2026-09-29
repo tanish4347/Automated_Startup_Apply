@@ -1,0 +1,46 @@
+{
+  "__CLASS__": "Adzuna::API::Response::JobSearchResults",
+  "__fixture_note__": "Hand-written to the documented Adzuna response shape (developer.adzuna.com/docs/search); not recorded live - no API key was available.",
+  "count": 2,
+  "mean": 540000,
+  "results": [
+    {
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "id": "4891234567",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.fixture",
+      "title": "Machine Learning Intern",
+      "description": "We are looking for a Machine Learning Intern to join our team in Mumbai. You will work on NLP models in Python and PyTorch...",
+      "created": "2026-09-27T08:15:00Z",
+      "redirect_url": "https://www.adzuna.in/details/4891234567?utm_medium=api&utm_source=fixture",
+      "company": {"__CLASS__": "Adzuna::API::Response::Company", "display_name": "Fixture Analytics Pvt Ltd"},
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Mumbai, Maharashtra",
+        "area": ["India", "Maharashtra", "Mumbai"]
+      },
+      "category": {"__CLASS__": "Adzuna::API::Response::Category", "label": "IT Jobs", "tag": "it-jobs"},
+      "contract_time": "full_time",
+      "contract_type": "contract",
+      "salary_min": 180000,
+      "salary_max": 240000,
+      "salary_is_predicted": "0",
+      "latitude": 19.076,
+      "longitude": 72.8777
+    },
+    {
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "id": "4891234999",
+      "title": "Software Engineering Intern",
+      "description": "Backend internship working with Go and PostgreSQL...",
+      "created": "2026-09-25T10:00:00Z",
+      "redirect_url": "https://www.adzuna.in/details/4891234999?utm_medium=api&utm_source=fixture",
+      "company": {"display_name": "Example Cloud Labs"},
+      "location": {"display_name": "Bengaluru, Karnataka", "area": ["India", "Karnataka", "Bengaluru"]},
+      "category": {"label": "IT Jobs", "tag": "it-jobs"},
+      "contract_time": "full_time",
+      "salary_min": 650000,
+      "salary_max": 650000,
+      "salary_is_predicted": "1"
+    }
+  ]
+}
