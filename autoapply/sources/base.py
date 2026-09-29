@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Iterator
 
 
@@ -27,9 +28,10 @@ class SourceResult:
     salary_max: float | None = None
     salary_currency: str | None = None
     compensation_text: str | None = None
-    posted_date: str | None = None
-    deadline: str | None = None
+    posted_date: datetime | None = None   # must be a datetime: the DB column rejects strings
+    deadline: datetime | None = None
     ats_platform: str | None = None
+    employment_type: str | None = None    # as the source states it, e.g. "Intern", "Full time"
     classification_category: str | None = None
     classification_evidence: str | None = None
 
