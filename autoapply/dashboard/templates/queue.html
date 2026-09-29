@@ -1,0 +1,36 @@
+﻿{% extends "base.html" %}
+{% block title %}Queue{% endblock %}
+{% block page_title %}Application Queue{% endblock %}
+{% block topbar_actions %}
+<form method="post" action="/queue/start" style="display:inline"><button type="submit" class="btn btn-primary">Move Discovered to Queue</button></form>
+<form method="post" action="/queue/retry-failed" style="display:inline"><button type="submit" class="btn btn-secondary">Retry Failed</button></form>
+{% endblock %}
+{% block content %}
+{% if applications %}
+{% for a in applications %}
+{% set job = job_map.get(a.job_id) %}
+<div class="icard">
+  <div style="width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;background:{% if a.status.value=='queued' %}#3b82f6{% elif a.status.value=='in_progress' %}#8b5cf6{% else %}#ef4444{% endif %}"></div>
+  <div class="iinfo">
+    <div class="ititle">{{ a.company or '-' }} - {{ (a.role or '')[:70] }}</div>
+    <div class="isub">
+      <span class="badge badge-{{ a.status.value }}">{{ a.status.value }}</span>
+      &nbsp;Retries: {{ a.retry_count }}/{{ a.max_retries }}
+      {% if a.date_queued %}&nbsp;Queued: {{ fmt(a.date_queued) }}{% endif %}
+    </div>
+    {% if a.error_message %}
+    <div style="margin-top:6px;font-size:12px;color:#c0392b;font-family:monospace;background:#fff5f5;padding:6px 8px;border-radius:4px">{{ a.error_message[:200] }}</div>
+    {% endif %}
+  </div>
+  <div class="iacts">
+    <a href="/applications/{{ a.id }}" class="btn btn-secondary btn-sm">View</a>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty">
+  <div class="eico">&#10003;</div>
+  <p>Queue is empty. Use "Move Discovered to Queue" to load applications.</p>
+</div>
+{% endif %}
+{% endblock %}

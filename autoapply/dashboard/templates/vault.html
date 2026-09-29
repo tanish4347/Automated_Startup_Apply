@@ -1,0 +1,107 @@
+﻿{% extends "base.html" %}
+{% block title %}Question Vault{% endblock %}
+{% block page_title %}Question Vault{% endblock %}
+{% block topbar_actions %}
+<a href="/profile" class="btn btn-secondary">Profile Info</a>
+{% endblock %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Vault saved successfully.</div>{% endif %}
+
+<div style="margin-bottom:20px;display:flex;gap:10px">
+  <a href="/vault?view=categories" class="btn {{ 'btn-primary' if view == 'categories' else 'btn-secondary' }}">Categories View</a>
+  <a href="/vault?view=needs_input" class="btn {{ 'btn-primary' if view == 'needs_input' else 'btn-secondary' }}">Needs Your Input ({{ unanswered|length }})</a>
+</div>
+
+{% if view == 'categories' %}
+<div style="display:grid;grid-template-columns:1fr 3fr;gap:20px;align-items:start">
+  <div class="card" style="padding:16px">
+    <div style="font-weight:600;margin-bottom:12px;font-size:14px">Categories</div>
+    {% for s in cat_stats %}
+    <div style="margin-bottom:12px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <a href="#cat-{{ loop.index }}" style="color:#374151;text-decoration:none">{{ s.name }}</a>
+        <span style="color:#888">{{ s.answered }} / {{ s.total }}</span>
+      </div>
+      <div style="background:#e5e7eb;height:6px;border-radius:3px;overflow:hidden">
+        <div style="background:#6c8ff8;height:100%;width:{{ (s.answered / s.total * 100)|round if s.total else 0 }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div>
+    <form method="post" action="/vault/save">
+      <input type="hidden" name="view" value="categories">
+      {% for cat, items in grouped.items() %}
+      <div class="card" id="cat-{{ loop.index }}" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;cursor:pointer" onclick="tog('cat-body-{{ loop.index }}')">
+          <h2 style="font-size:16px;margin:0">{{ cat }}</h2>
+          <span style="font-size:12px;color:#888">{{ items|length }} questions &#9660;</span>
+        </div>
+        <div id="cat-body-{{ loop.index }}" style="display:{{ 'block' if loop.index == 1 else 'none' }}">
+          {% for a in items %}
+          <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f3f4f6">
+            <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">
+              {{ a.question }}
+              {% if a.sensitivity == 'SENSITIVE' %}<span class="badge badge-rejected" style="margin-left:6px;font-size:10px">SENSITIVE</span>{% endif %}
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="text" name="answer_{{ a.id }}" value="{{ a.answer or '' }}" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+              {% if a.source and a.source != 'UNKNOWN' %}
+              <div style="font-size:11px;color:#6b7280;width:140px;text-align:right">Source: {{ a.source }}</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+      
+      <div style="position:sticky;bottom:20px;background:#fff;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#555">All answers are optional unless required by a specific application.</span>
+        <button type="submit" class="btn btn-primary">Save Answers</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% elif view == 'needs_input' %}
+<div class="card">
+  <div class="card-title">Questions Needing Your Input</div>
+  <p style="font-size:13px;color:#666;margin-bottom:20px">These canonical questions are currently unanswered. Providing answers now speeds up future applications.</p>
+  
+  {% if unanswered %}
+  <form method="post" action="/vault/save">
+    <input type="hidden" name="view" value="needs_input">
+    {% for a in unanswered[:50] %}
+    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f3f4f6">
+      <div style="font-size:11px;color:#888;margin-bottom:4px;text-transform:uppercase">{{ a.category }}</div>
+      <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">
+        {{ a.question }}
+        {% if a.sensitivity == 'SENSITIVE' %}<span class="badge badge-rejected" style="margin-left:6px;font-size:10px">SENSITIVE</span>{% endif %}
+      </div>
+      <input type="text" name="answer_{{ a.id }}" value="" placeholder="Your answer (optional)" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+    </div>
+    {% endfor %}
+    {% if unanswered|length > 50 %}
+    <div style="font-size:13px;color:#888;text-align:center;margin:20px 0">Showing 50 of {{ unanswered|length }} unanswered questions.</div>
+    {% endif %}
+    <div style="margin-top:20px">
+      <button type="submit" class="btn btn-primary">Save Answers</button>
+    </div>
+  </form>
+  {% else %}
+  <div class="empty">
+    <div class="eico">&#127881;</div>
+    <p>All canonical questions have been answered!</p>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+function tog(id){var e=document.getElementById(id);if(e)e.style.display=e.style.display==='none'?'block':'none';}
+</script>
+{% endblock %}

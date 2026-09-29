@@ -1,0 +1,17 @@
+﻿{% extends "base.html" %}
+{% block title %}Companies{% endblock %}
+{% block page_title %}Companies ({{ companies|length }}){% endblock %}
+{% block content %}
+{% if companies %}
+<div class="card" style="padding:0"><div class="table-wrap">
+<table><thead><tr><th>Company</th><th style="text-align:right">Jobs</th><th></th></tr></thead><tbody>
+{% for company, count in companies %}
+<tr>
+  <td style="font-weight:500">{{ company }}</td>
+  <td style="text-align:right;color:#6c8ff8;font-weight:600">{{ count }}</td>
+  <td><a href="/companies/{{ company | urlencode }}" class="btn btn-secondary btn-sm">View</a></td>
+</tr>
+{% endfor %}
+</tbody></table></div></div>
+{% else %}<div class="empty"><div class="eico">&#127968;</div><p>No companies yet.</p></div>{% endif %}
+{% endblock %}

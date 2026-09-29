@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head><title>Mock ATS Form</title></head>
+<body>
+    <h1>Apply for Software Engineer</h1>
+    <form action="/submit" method="post" id="app">
+        <div class="field">
+            <label for="first_name">First Name *</label>
+            <input type="text" id="first_name" name="first_name" required>
+        </div>
+        <div class="field">
+            <label for="last_name">Last Name *</label>
+            <input type="text" id="last_name" name="last_name" required>
+        </div>
+        <div class="field">
+            <label for="email">Email *</label>
+            <input type="text" id="email" name="email" required>
+        </div>
+        <div class="field">
+            <label for="phone">Phone *</label>
+            <input type="text" id="phone" name="phone" required>
+        </div>
+        <div class="custom-question">
+            <label>Why do you want to join us? * <span class="asterisk"></span></label>
+            <textarea name="why_us"></textarea>
+        </div>
+        <div class="custom-question">
+            <label>Will you require sponsorship? * <span class="asterisk"></span></label>
+            <select name="sponsorship">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Resume/CV</label>
+            <input type="file" name="resume">
+        </div>
+        <button type="submit" id="submit_app">Submit Application</button>
+    </form>
+    
+    <script>
+        document.getElementById('app').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Validate required
+            let valid = true;
+            if(!document.getElementById('first_name').value) valid = false;
+            if(!document.querySelector('textarea[name="why_us"]').value) {
+                // Mock failure
+                let err = document.createElement('div');
+                err.className = 'error-message';
+                err.innerText = 'Required custom questions missed';
+                document.body.appendChild(err);
+                valid = false;
+            }
+            if(valid) {
+                document.body.innerHTML = '<h1>Thank you for applying!</h1>';
+                history.pushState({}, '', '/thank-you');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+﻿{% extends "base.html" %}
+{% block title %}Personal Info / Vault{% endblock %}
+{% block page_title %}Personal Info / Populate Vault{% endblock %}
+{% block topbar_actions %}
+<a href="/vault" class="btn btn-secondary">Question Vault</a>
+<a href="/resumes" class="btn btn-secondary">Documents</a>
+{% endblock %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Profile saved.</div>{% endif %}
+
+<div style="display:grid;grid-template-columns:3fr 1fr;gap:20px;align-items:start">
+<div>
+  <!-- CV EXTRACTED ANSWERS -->
+  {% if cv_answers %}
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">CV Extracted Information</div>
+    <p style="font-size:13px;color:#666;margin-bottom:12px">Please review and confirm information automatically extracted from your CV.</p>
+    <div style="max-height:400px;overflow-y:auto;padding-right:10px">
+      {% for a in cv_answers %}
+      <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px;margin-bottom:10px;background:#f9fafb;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#374151">{{ a.question }}</div>
+          <div style="font-size:14px;color:#111827;margin-top:2px">{{ a.answer }}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px">
+            <span style="display:inline-block;padding:2px 6px;border-radius:10px;background:#fef3c7;color:#92400e;margin-right:6px">{{ a.status }}</span>
+            Source: {{ a.source }}
+          </div>
+        </div>
+        {% if a.status != 'CONFIRMED' %}
+        <form method="post" action="/vault/confirm">
+          <input type="hidden" name="answer_id" value="{{ a.id }}">
+          <button type="submit" class="btn btn-primary btn-sm">Confirm</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- PERSONAL -->
+  <div class="sec" id="personal">
+  <div class="sec-hdr">
+    <h2>Personal Information</h2>
+    <button class="btn btn-secondary btn-sm" onclick="tog('pform')">Edit</button>
+  </div>
+  <div id="pread" class="card">
+    <div class="fg2">
+      <div><div style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase">Full Name</div>
+      <div style="font-size:14px">{{ ((identity.first_name or '') + ' ' + (identity.last_name or ''))|trim if identity else '-' }}</div></div>
+      <div><div style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase">Email</div>
+      <div style="font-size:14px">{{ identity.email if identity else '-' }}</div></div>
+      <div><div style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase">Phone</div>
+      <div style="font-size:14px">{{ identity.phone if identity else '-' }}</div></div>
+      <div><div style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase">LinkedIn</div>
+      <div style="font-size:14px">{{ identity.linkedin_url if identity else '-' }}</div></div>
+    </div>
+  </div>
+  <div id="pform" style="display:none">
+  <form method="post" action="/profile/save">
+    <div class="card">
+      <div class="fg3">
+        <div class="form-group"><label>First Name</label><input name="first_name" value="{{ identity.first_name if identity else '' }}"></div>
+        <div class="form-group"><label>Middle Name</label><input name="middle_name" value="{{ identity.middle_name if identity else '' }}"></div>
+        <div class="form-group"><label>Last Name</label><input name="last_name" value="{{ identity.last_name if identity else '' }}"></div>
+      </div>
+      <div class="fg2">
+        <div class="form-group"><label>Preferred Name</label><input name="preferred_name" value="{{ identity.preferred_name if identity else '' }}"></div>
+        <div class="form-group"><label>Pronouns</label><input name="pronouns" value="{{ identity.pronouns if identity else '' }}" placeholder="He/Him"></div>
+        <div class="form-group"><label>Email</label><input name="email" type="email" value="{{ identity.email if identity else '' }}"></div>
+        <div class="form-group"><label>Phone</label><input name="phone" value="{{ identity.phone if identity else '' }}"></div>
+        <div class="form-group"><label>City</label><input name="city" value="{{ identity.city if identity else '' }}"></div>
+        <div class="form-group"><label>Country</label><input name="country" value="{{ identity.country if identity else '' }}"></div>
+        <div class="form-group"><label>LinkedIn</label><input name="linkedin_url" value="{{ identity.linkedin_url if identity else '' }}"></div>
+        <div class="form-group"><label>GitHub</label><input name="github_url" value="{{ identity.github_url if identity else '' }}"></div>
+        <div class="form-group"><label>Portfolio</label><input name="portfolio_url" value="{{ identity.portfolio_url if identity else '' }}"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button type="submit" class="btn btn-primary">Save Personal Info</button>
+        <button type="button" class="btn btn-secondary" onclick="tog('pform')">Cancel</button>
+      </div>
+    </div>
+  </form>
+  </div>
+  </div>
+</div>
+
+<div>
+  <div class="card">
+    <div class="card-title">Profile Completeness</div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Personal</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Personal == 'Complete' else '#b45309' }}">{{ completeness.Personal }}</span>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Education</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Education == 'Complete' else '#b45309' }}">{{ completeness.Education }}</span>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Experience</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Experience == 'Complete' else '#b45309' }}">{{ completeness.Experience }}</span>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Projects</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Projects == 'Complete' else '#b45309' }}">{{ completeness.Projects }}</span>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Skills</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Skills == 'Complete' else '#b45309' }}">{{ completeness.Skills }}</span>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:#555">Resume</span>
+      <span style="font-weight:600;color:{{ '#166534' if completeness.Resume == 'Complete' else '#b45309' }}">{{ completeness.Resume }}</span>
+    </div>
+    <div style="font-size:13px;margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between">
+      <span style="color:#555;font-weight:600">Question Vault Answers</span>
+      <span style="font-weight:600;color:#6c8ff8">{{ completeness.Answers }}</span>
+    </div>
+    <div style="margin-top:16px">
+      <a href="/vault" class="btn btn-primary" style="width:100%;text-align:center;box-sizing:border-box">Go to Question Vault</a>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function tog(id){var e=document.getElementById(id);if(e)e.style.display=e.style.display==='none'?'block':'none';}
+{% if not identity or not identity.email %}document.addEventListener('DOMContentLoaded',function(){tog('pform');});{% endif %}
+</script>
+{% endblock %}

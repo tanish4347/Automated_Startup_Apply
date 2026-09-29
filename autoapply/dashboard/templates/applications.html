@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+{% block title %}Applications{% endblock %}
+{% block page_title %}Applications ({{ total }}){% endblock %}
+{% block content %}
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))">
+{% for key, val in app_stats.items() %}{% if key != 'total' %}
+<a href="/applications?status={{ key }}" style="text-decoration:none">
+  <div class="stat-card" style="padding:12px 14px;{% if status_filter==key %}border-color:#6c8ff8;background:#f0f4ff{% endif %}">
+    <div class="lbl2">{{ key }}</div><div class="val" style="font-size:20px">{{ val }}</div>
+  </div>
+</a>
+{% endif %}{% endfor %}
+</div>
+<div class="filters">
+  <form method="get" action="/applications" style="display:flex;gap:8px;flex-wrap:wrap">
+    <input name="q" value="{{ q }}" placeholder="Search company or role..." style="width:220px">
+    <select name="status"><option value="">All Statuses</option>{% for s in statuses %}<option value="{{ s }}" {% if status_filter==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    {% if q or status_filter %}<a href="/applications" class="btn btn-secondary">Clear</a>{% endif %}
+  </form>
+</div>
+{% if applications %}
+<div class="card" style="padding:0"><div class="table-wrap">
+<table><thead><tr><th>Company</th><th>Role</th><th>Status</th><th>Discovered</th><th>Applied</th><th>Retries</th><th></th></tr></thead><tbody>
+{% for a in applications %}
+<tr>
+  <td style="font-weight:500">{{ a.company or '-' }}</td>
+  <td>{{ (a.role or '')[:55] }}{% if (a.role or '')|length > 55 %}...{% endif %}</td>
+  <td><span class="badge badge-{{ a.status.value }}">{{ a.status.value }}</span></td>
+  <td style="color:#888;font-size:12px">{{ fmt(a.date_discovered) }}</td>
+  <td style="color:#888;font-size:12px">{{ fmt(a.date_applied) if a.date_applied else '-' }}</td>
+  <td style="color:#888;font-size:12px">{{ a.retry_count }}</td>
+  <td><a href="/applications/{{ a.id }}" class="btn btn-secondary btn-sm">View</a></td>
+</tr>
+{% endfor %}
+</tbody></table></div></div>
+<div class="pgn">
+  {% if cur_page > 1 %}<a href="/applications?q={{ q }}&status={{ status_filter }}&page={{ cur_page-1 }}">Prev</a>{% endif %}
+  <span style="font-size:13px;color:#666">Page {{ cur_page }} of {{ pages }}</span>
+  {% if cur_page < pages %}<a href="/applications?q={{ q }}&status={{ status_filter }}&page={{ cur_page+1 }}">Next</a>{% endif %}
+</div>
+{% else %}<div class="empty"><div class="eico">&#128203;</div><p>No applications found.</p></div>{% endif %}
+{% endblock %}

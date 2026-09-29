@@ -1,0 +1,32 @@
+﻿{% extends "base.html" %}
+{% block title %}Resumes{% endblock %}
+{% block page_title %}Resumes{% endblock %}
+{% block topbar_actions %}<a href="/profile" class="btn btn-secondary">Personal Info</a>{% endblock %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Resume uploaded successfully.</div>{% endif %}
+<div class="card" style="margin-bottom:20px">
+  <div class="card-title">Upload Resume</div>
+  <form method="post" action="/profile/resume/upload" enctype="multipart/form-data" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <input type="file" name="file" accept=".pdf,.doc,.docx" required style="font-size:13px">
+    <button type="submit" class="btn btn-primary">Upload</button>
+    <span style="font-size:12px;color:#888">Uploading auto-sets as active. Previous versions preserved.</span>
+  </form>
+</div>
+{% if resumes %}
+{% for r in resumes %}
+<div class="icard" {% if r.is_active %}style="border-color:#6c8ff8;background:#f0f4ff"{% endif %}>
+  <div style="font-size:28px">&#128196;</div>
+  <div class="iinfo">
+    <div class="ititle">{{ r.file_name }}{% if r.is_active %} <span class="badge badge-submitted" style="margin-left:8px">ACTIVE</span>{% endif %}</div>
+    <div class="isub">Uploaded: {{ fmt(r.uploaded_at) }}</div>
+  </div>
+  <div class="iacts">
+    {% if not r.is_active %}<form method="post" action="/resumes/{{ r.id }}/activate"><button type="submit" class="btn btn-primary btn-sm">Set Active</button></form>{% endif %}
+    <form method="post" action="/resumes/{{ r.id }}/delete" onsubmit="return confirm('Delete this resume?')"><button type="submit" class="btn btn-danger btn-sm">Delete</button></form>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty"><div class="eico">&#128196;</div><p>No resumes uploaded yet.</p></div>
+{% endif %}
+{% endblock %}

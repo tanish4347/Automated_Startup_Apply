@@ -1,0 +1,35 @@
+﻿{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div class="card">
+  <div class="card-title">System Status</div>
+  <table><tbody>
+    <tr><td style="color:#888;font-size:13px;padding:8px 0;border:none">Active Jobs</td><td style="font-weight:600;border:none">{{ job_count }}</td></tr>
+    <tr><td style="color:#888;font-size:13px;padding:8px 0;border:none">Applications</td><td style="font-weight:600;border:none">{{ app_count }}</td></tr>
+    <tr><td style="color:#888;font-size:13px;padding:8px 0;border:none">Profile</td><td style="font-size:13px;border:none">{% if identity and identity.email %}<span style="color:#065f46">{{ identity.first_name }} {{ identity.last_name }}</span>{% else %}<span style="color:#c0392b">Not set</span>{% endif %}</td></tr>
+    <tr><td style="color:#888;font-size:13px;padding:8px 0;border:none">Active Resume</td><td style="font-size:13px;border:none">{% if active_resume %}<span style="color:#065f46">{{ active_resume.file_name }}</span>{% else %}<span style="color:#c0392b">Not uploaded</span>{% endif %}</td></tr>
+  </tbody></table>
+</div>
+<div class="card">
+  <div class="card-title">Quick Links</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <a href="/profile" class="btn btn-secondary">Edit Personal Info</a>
+    <a href="/resumes" class="btn btn-secondary">Manage Resumes</a>
+    <a href="/vault" class="btn btn-secondary">Question Vault</a>
+    <a href="/discovery" class="btn btn-secondary">Discovery Stats</a>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">Discovery CLI</div>
+  <div style="background:#1e2533;color:#c8cdd8;border-radius:6px;padding:12px;font-family:monospace;font-size:13px">python -m autoapply.cli discover</div>
+  <p style="font-size:12px;color:#888;margin-top:8px">Run from the project directory.</p>
+</div>
+<div class="card">
+  <div class="card-title">Database</div>
+  <p style="font-size:13px;color:#555;margin-bottom:6px">Active: <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px">data/autoapply.db</code></p>
+  <p style="font-size:12px;color:#888">Archive: <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px">data/autoapply_archive_pre_14_targeted.db</code></p>
+</div>
+</div>
+{% endblock %}

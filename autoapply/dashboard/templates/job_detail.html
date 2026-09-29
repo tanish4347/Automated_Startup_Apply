@@ -1,0 +1,65 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block page_title %}Job Detail{% endblock %}
+{% block topbar_actions %}
+<a href="/jobs" class="btn btn-secondary">Back to Jobs</a>
+{% if applications and applications[0].status.value == 'discovered' %}<form method="post" action="/jobs/{{ job.id }}/queue" style="display:inline"><button class="btn btn-primary">Queue</button></form>{% endif %}
+{% if job.application_url %}<a href="{{ job.application_url }}" target="_blank" class="btn btn-success">Apply Externally</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start">
+<div>
+  <div class="card" style="margin-bottom:16px">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:6px">{{ job.title }}</h2>
+    <div style="font-size:14px;color:#555;margin-bottom:4px">{{ job.company or 'Unknown' }}</div>
+    {% if job.location %}<div style="font-size:13px;color:#888">&#128205; {{ job.location }}</div>{% endif %}
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#666;margin-top:12px;padding-top:12px;border-top:1px solid #f0f2f8">
+      <span>Category: <span class="badge badge-{{ 'submitted' if job.classification_category == 'INTERNSHIP' else 'queued' }}">{{ job.classification_category }}</span></span>
+      <span>Source: <strong>{{ job.source }}</strong></span>
+      {% if job.ats_platform %}<span>ATS: <strong>{{ job.ats_platform }}</strong></span>{% endif %}
+      <span>Discovered: <strong>{{ fmt(job.discovered_at) }}</strong></span>
+    </div>
+  </div>
+  {% if job.description_text or job.description_raw %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Job Description</div>
+    <div style="font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap;max-height:600px;overflow-y:auto">{{ job.description_text or job.description_raw }}</div>
+  </div>
+  {% endif %}
+  {% if job.requirements %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Requirements</div>
+    <div style="font-size:13px;line-height:1.7;white-space:pre-wrap">{{ job.requirements }}</div>
+  </div>
+  {% endif %}
+</div>
+<div>
+  {% if applications %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Application</div>
+    {% for a in applications %}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span class="badge badge-{{ a.status.value }}" style="padding:4px 12px">{{ a.status.value }}</span>
+      <a href="/applications/{{ a.id }}" class="btn btn-secondary btn-sm">View</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if job.application_url %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Application URL</div>
+    <a href="{{ job.application_url }}" target="_blank" style="color:#6c8ff8;font-size:12px;word-break:break-all">{{ job.application_url[:80] }}{% if job.application_url|length > 80 %}...{% endif %}</a>
+  </div>
+  {% endif %}
+  {% if job.tags %}
+  <div class="card">
+    <div class="card-title">Tags</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+    {% for tag in job.tags %}<span style="background:#f3f4f6;color:#374151;padding:2px 8px;border-radius:12px;font-size:11px">{{ tag }}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+</div>
+{% endblock %}
+

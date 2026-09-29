@@ -1,0 +1,40 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ company_name }}{% endblock %}
+{% block page_title %}{{ company_name }}{% endblock %}
+{% block topbar_actions %}<a href="/companies" class="btn btn-secondary">Back</a>{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+  <div class="stat-card"><div class="lbl2">Active Jobs</div><div class="val">{{ jobs|length }}</div></div>
+  <div class="stat-card"><div class="lbl2">Applications</div><div class="val">{{ applications|length }}</div></div>
+</div>
+{% if jobs %}
+<div class="card" style="margin-bottom:20px">
+  <div class="card-title">Jobs at {{ company_name }}</div>
+  <table><thead><tr><th>Title</th><th>Category</th><th>Discovered</th><th></th></tr></thead><tbody>
+  {% for j in jobs %}
+  <tr>
+    <td><a href="/jobs/{{ j.id }}" style="color:#6c8ff8">{{ j.title[:70] }}</a></td>
+    <td><span class="badge badge-{{ 'submitted' if j.classification_category == 'INTERNSHIP' else 'queued' }}">{{ j.classification_category }}</span></td>
+    <td style="color:#888;font-size:12px">{{ fmt(j.discovered_at) }}</td>
+    <td><a href="/jobs/{{ j.id }}" class="btn btn-secondary btn-sm">View</a></td>
+  </tr>
+  {% endfor %}
+  </tbody></table>
+</div>
+{% endif %}
+{% if applications %}
+<div class="card">
+  <div class="card-title">Applications at {{ company_name }}</div>
+  <table><thead><tr><th>Role</th><th>Status</th><th>Applied</th><th></th></tr></thead><tbody>
+  {% for a in applications %}
+  <tr>
+    <td>{{ (a.role or '')[:60] }}</td>
+    <td><span class="badge badge-{{ a.status.value }}">{{ a.status.value }}</span></td>
+    <td style="color:#888;font-size:12px">{{ fmt(a.date_applied) if a.date_applied else '-' }}</td>
+    <td><a href="/applications/{{ a.id }}" class="btn btn-secondary btn-sm">View</a></td>
+  </tr>
+  {% endfor %}
+  </tbody></table>
+</div>
+{% endif %}
+{% endblock %}

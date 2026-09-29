@@ -1,0 +1,49 @@
+﻿# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Keys and Secrets
+*.key
+.vault_key
+*.pem
+secrets.json
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+data/
+db/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and Caches
+logs/
+*.log
+.cache/
+
+# User-specific files
+candidate_profile.json
+*.pdf
+vault_documents/
+browser_profiles/
+playwright_state/
+my_resume.pdf
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db

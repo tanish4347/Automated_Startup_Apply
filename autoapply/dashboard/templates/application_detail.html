@@ -1,0 +1,72 @@
+﻿{% extends "base.html" %}
+{% block title %}Application Detail{% endblock %}
+{% block page_title %}Application Detail{% endblock %}
+{% block topbar_actions %}
+<a href="/applications" class="btn btn-secondary">Back</a>
+{% if application.job_id %}<a href="/jobs/{{ application.job_id }}" class="btn btn-secondary">View Job</a>{% endif %}
+{% if application.application_url %}<a href="{{ application.application_url }}" target="_blank" class="btn btn-success">Open Application</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start">
+<div>
+  <div class="card" style="margin-bottom:16px">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">{{ application.role or 'Unknown Role' }}</h2>
+    <div style="font-size:14px;color:#555;margin-bottom:12px">{{ application.company or 'Unknown' }}</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#666">
+      <span>Status: <span class="badge badge-{{ application.status.value }}">{{ application.status.value }}</span></span>
+      <span>Discovered: {{ fmt(application.date_discovered) }}</span>
+      {% if application.date_applied %}<span>Applied: {{ fmt(application.date_applied) }}</span>{% endif %}
+      <span>Retries: {{ application.retry_count }}/{{ application.max_retries }}</span>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Update Status</div>
+    <form method="post" action="/applications/{{ application.id }}/status" style="display:flex;gap:10px;align-items:center">
+      <select name="new_status" style="flex:1;padding:8px;border:1px solid #dde0ea;border-radius:6px;font-size:13px">
+        {% for s in ['discovered','queued','in_progress','submitted','assessment','interview','rejected','offer','failed','closed'] %}
+        <option value="{{ s }}" {% if application.status.value==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+  </div>
+  {% if application.error_message %}
+  <div class="card" style="margin-bottom:16px;border-color:#fca5a5;background:#fff5f5">
+    <div class="card-title" style="color:#c0392b">Error</div>
+    <div style="font-size:13px;color:#7f1d1d;font-family:monospace;white-space:pre-wrap">{{ application.error_message }}</div>
+  </div>
+  {% endif %}
+  {% if application.answers_submitted %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Answers Submitted</div>
+    {% for q, a in application.answers_submitted.items() %}
+    <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f2f8">
+      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:3px">{{ q }}</div>
+      <div style="font-size:13px">{{ a }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if job and (job.description_text or job.description_raw) %}
+  <div class="card">
+    <div class="card-title">Original Job Description</div>
+    <div style="font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:400px;overflow-y:auto">{{ job.description_text or job.description_raw }}</div>
+  </div>
+  {% endif %}
+</div>
+<div>
+  {% if application.resume_used %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Resume Used</div>
+    <div style="font-size:13px">{{ application.resume_used }}</div>
+  </div>
+  {% endif %}
+  {% if application.status.value in ['submitted','assessment','interview'] %}
+  <div class="card" style="background:#ede9fe;border-color:#c4b5fd">
+    <div class="card-title" style="color:#5b21b6">Interview Prep</div>
+    <a href="/interview-prep" class="btn btn-secondary" style="width:100%;justify-content:center">Open Interview Prep</a>
+  </div>
+  {% endif %}
+</div>
+</div>
+{% endblock %}

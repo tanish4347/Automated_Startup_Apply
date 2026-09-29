@@ -1,0 +1,56 @@
+﻿{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block topbar_actions %}<form method="post" action="/queue/start"><button type="submit" class="btn btn-primary">Start Queue</button></form>{% endblock %}
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card"><div class="lbl2">Active Jobs</div><div class="val">{{ job_stats.total }}</div></div>
+  <div class="stat-card"><div class="lbl2">Internships</div><div class="val">{{ job_stats.internships }}</div></div>
+  <div class="stat-card"><div class="lbl2">Entry-Level</div><div class="val">{{ job_stats.entry_level }}</div></div>
+  <div class="stat-card"><div class="lbl2">Discovered</div><div class="val">{{ app_stats.discovered }}</div></div>
+  <div class="stat-card"><div class="lbl2">Queued</div><div class="val">{{ app_stats.queued }}</div></div>
+  <div class="stat-card"><div class="lbl2">Submitted</div><div class="val">{{ app_stats.submitted }}</div></div>
+  <div class="stat-card"><div class="lbl2">Interview</div><div class="val" style="color:#166534">{{ app_stats.interview }}</div></div>
+  <div class="stat-card"><div class="lbl2">Rejected</div><div class="val" style="color:#991b1b">{{ app_stats.rejected }}</div></div>
+  <div class="stat-card"><div class="lbl2">Failed</div><div class="val" style="color:#7f1d1d">{{ app_stats.failed }}</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div class="card">
+  <div class="card-title">Recent Jobs</div>
+  {% if recent_jobs %}
+  <table><thead><tr><th>Company</th><th>Title</th><th>Category</th><th>Date</th></tr></thead><tbody>
+  {% for j in recent_jobs %}
+  <tr>
+    <td><a href="/jobs/{{ j.id }}" style="color:#6c8ff8">{{ j.company or '-' }}</a></td>
+    <td>{{ j.title[:45] }}{% if j.title|length > 45 %}...{% endif %}</td>
+    <td><span class="badge badge-{{ 'submitted' if j.classification_category == 'INTERNSHIP' else 'queued' }}">{{ j.classification_category }}</span></td>
+    <td style="color:#888;font-size:12px">{{ fmt(j.discovered_at) }}</td>
+  </tr>
+  {% endfor %}
+  </tbody></table>
+  {% else %}<div class="empty"><div class="eico">&#128203;</div><p>No jobs yet.</p></div>{% endif %}
+  <div style="margin-top:12px"><a href="/jobs" class="btn btn-secondary btn-sm">View All Jobs</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Recent Applications</div>
+  {% if recent_apps %}
+  <table><thead><tr><th>Company</th><th>Role</th><th>Status</th></tr></thead><tbody>
+  {% for a in recent_apps %}
+  <tr>
+    <td><a href="/applications/{{ a.id }}" style="color:#6c8ff8">{{ a.company or '-' }}</a></td>
+    <td>{{ (a.role or '')[:40] }}{% if (a.role or '')|length > 40 %}...{% endif %}</td>
+    <td><span class="badge badge-{{ a.status.value }}">{{ a.status.value }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody></table>
+  {% else %}<div class="empty"><div class="eico">&#128221;</div><p>No applications yet.</p></div>{% endif %}
+  <div style="margin-top:12px"><a href="/applications" class="btn btn-secondary btn-sm">View All</a></div>
+</div>
+</div>
+<div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+  <a href="/jobs" class="btn btn-secondary">Browse Jobs</a>
+  <a href="/queue" class="btn btn-secondary">View Queue</a>
+  <a href="/profile" class="btn btn-secondary">Personal Info</a>
+  <a href="/discovery" class="btn btn-secondary">Discovery</a>
+</div>
+{% endblock %}

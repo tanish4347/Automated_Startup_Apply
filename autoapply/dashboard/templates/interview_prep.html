@@ -1,0 +1,46 @@
+﻿{% extends "base.html" %}
+{% block title %}Interview Prep{% endblock %}
+{% block page_title %}Interview Prep{% endblock %}
+{% block content %}
+{% if applications %}
+<div class="alert alert-success">You have {{ applications|length }} application(s) at assessment/interview stage.</div>
+{% for a in applications %}
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">{{ a.role or '-' }}</div>
+      <div style="font-size:13px;color:#555;margin-bottom:8px">{{ a.company or '-' }}</div>
+      <span class="badge badge-{{ a.status.value }}">{{ a.status.value }}</span>
+    </div>
+    <a href="/applications/{{ a.id }}" class="btn btn-secondary">View Application</a>
+  </div>
+  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="background:#ede9fe;border-radius:6px;padding:14px">
+      <div style="font-weight:600;font-size:13px;color:#5b21b6;margin-bottom:8px">Technical Prep</div>
+      <ul style="font-size:12px;color:#555;list-style:none;line-height:2">
+        <li>Review job description requirements</li>
+        <li>Revise listed technologies</li>
+        <li>Practice system design</li>
+        <li>Data structures and algorithms</li>
+      </ul>
+    </div>
+    <div style="background:#d1fae5;border-radius:6px;padding:14px">
+      <div style="font-weight:600;font-size:13px;color:#065f46;margin-bottom:8px">Behavioral Prep</div>
+      <ul style="font-size:12px;color:#555;list-style:none;line-height:2">
+        <li>Prepare STAR-format stories</li>
+        <li>Review submitted answers</li>
+        <li>Research the company</li>
+        <li>Prepare questions to ask</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty">
+  <div class="eico">&#127919;</div>
+  <p>No active assessment or interview applications yet.</p>
+  <div style="margin-top:16px"><a href="/applications" class="btn btn-secondary">View Applications</a></div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}AutoApply{% endblock %}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#222;display:flex;min-height:100vh}
+a{color:inherit;text-decoration:none}
+#sidebar{width:200px;min-height:100vh;background:#1e2533;color:#c8cdd8;flex-shrink:0;display:flex;flex-direction:column}
+#sidebar .logo{padding:20px 16px;font-size:18px;font-weight:700;color:#fff;border-bottom:1px solid #2d3447}
+#sidebar .logo span{color:#6c8ff8}
+#sidebar nav{flex:1;padding:8px 0}
+#sidebar nav a{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;font-weight:500;color:#9aa3b5;border-left:3px solid transparent;transition:.15s}
+#sidebar nav a:hover{background:#262d3d;color:#e0e4f0}
+#sidebar nav a.active{background:#262d3d;color:#6c8ff8;border-left-color:#6c8ff8}
+#sidebar nav .lbl{padding:16px 16px 4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a5270}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+#topbar{background:#fff;border-bottom:1px solid #e5e8f0;padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#topbar h1{font-size:16px;font-weight:600}
+#topbar .acts{display:flex;gap:10px;align-items:center}
+#content{flex:1;padding:24px 28px;overflow-y:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:#6c8ff8;color:#fff}.btn-primary:hover{background:#5879e8}
+.btn-secondary{background:#f0f2fa;color:#444;border:1px solid #dde0ea}.btn-secondary:hover{background:#e4e8f5}
+.btn-danger{background:#fee2e2;color:#c0392b;border:1px solid #fca5a5}
+.btn-success{background:#d1fae5;color:#166534;border:1px solid #6ee7b7}
+.btn-sm{padding:4px 10px;font-size:12px}
+.card{background:#fff;border-radius:8px;border:1px solid #e5e8f0;padding:20px}
+.card-title{font-size:14px;font-weight:600;color:#444;margin-bottom:14px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e5e8f0;border-radius:8px;padding:16px 20px}
+.stat-card .lbl2{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:6px}
+.stat-card .val{font-size:26px;font-weight:700;color:#222}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;background:#f8f9fc;border-bottom:1px solid #e5e8f0}
+td{padding:10px 12px;border-bottom:1px solid #f0f2f8;vertical-align:top}
+tr:hover td{background:#fafbff}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-remote{background:#d1fae5;color:#065f46}
+.badge-onsite{background:#fee2e2;color:#991b1b}
+.badge-hybrid{background:#fef3c7;color:#92400e}
+.badge-unknown{background:#f3f4f6;color:#6b7280}
+.badge-discovered{background:#f3f4f6;color:#4b5563}
+.badge-queued{background:#dbeafe;color:#1e40af}
+.badge-in_progress{background:#ede9fe;color:#5b21b6}
+.badge-submitted{background:#d1fae5;color:#065f46}
+.badge-assessment{background:#fef3c7;color:#92400e}
+.badge-interview{background:#dcfce7;color:#14532d}
+.badge-rejected{background:#fee2e2;color:#991b1b}
+.badge-failed{background:#fecaca;color:#7f1d1d}
+.badge-offer{background:#bbf7d0;color:#14532d}
+.badge-closed{background:#e5e7eb;color:#374151}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:8px 10px;border:1px solid #dde0ea;border-radius:6px;font-size:13px;font-family:inherit;color:#222;background:#fff}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#6c8ff8;box-shadow:0 0 0 3px rgba(108,143,248,.12)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sec{margin-bottom:28px}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e5e8f0}
+.sec-hdr h2{font-size:15px;font-weight:700;color:#333}
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px}
+.alert-success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.alert-warn{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.pgn{display:flex;gap:6px;align-items:center;margin-top:16px}
+.pgn a{padding:5px 10px;border-radius:5px;font-size:13px;border:1px solid #dde0ea;background:#fff}
+.pgn a.active{background:#6c8ff8;color:#fff;border-color:#6c8ff8}
+.filters{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.filters input,.filters select{padding:7px 10px;border:1px solid #dde0ea;border-radius:6px;font-size:13px;background:#fff}
+.icard{background:#fff;border:1px solid #e5e8f0;border-radius:8px;padding:16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px}
+.icard .iinfo{flex:1;min-width:0}
+.icard .ititle{font-size:14px;font-weight:600;color:#222;margin-bottom:3px}
+.icard .isub{font-size:12px;color:#888}
+.icard .iacts{display:flex;gap:8px;flex-shrink:0}
+.empty{text-align:center;padding:60px 20px;color:#aaa}
+.empty .eico{font-size:40px;margin-bottom:12px}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div id="sidebar">
+  <div class="logo">Auto<span>Apply</span></div>
+  <nav>
+    <div class="lbl">Overview</div>
+    <a href="/" class="{% if page=='dashboard' %}active{% endif %}">&#9632; Dashboard</a>
+    <div class="lbl">Jobs</div>
+    <a href="/jobs" class="{% if page=='jobs' %}active{% endif %}">&#128188; Jobs</a>
+    <a href="/companies" class="{% if page=='companies' %}active{% endif %}">&#127968; Companies</a>
+    <div class="lbl">Applications</div>
+    <a href="/applications" class="{% if page=='applications' %}active{% endif %}">&#128196; Applications</a>
+    <a href="/queue" class="{% if page=='queue' %}active{% endif %}">&#9776; Queue</a>
+    <div class="lbl">Profile</div>
+    <a href="/profile" class="{% if page=='profile' %}active{% endif %}">&#128100; Personal Info</a>
+    <a href="/resumes" class="{% if page=='resumes' %}active{% endif %}">&#128196; Resumes</a>
+    <a href="/vault" class="{% if page=='vault' %}active{% endif %}">&#128274; Question Vault</a>
+    <div class="lbl">Other</div>
+    <a href="/interview-prep" class="{% if page=='interview-prep' %}active{% endif %}">&#127919; Interview Prep</a>
+    <a href="/discovery" class="{% if page=='discovery' %}active{% endif %}">&#128269; Discovery</a>
+    <a href="/settings" class="{% if page=='settings' %}active{% endif %}">&#9881; Settings</a>
+  </nav>
+</div>
+<div id="main">
+  <div id="topbar">
+    <h1>{% block page_title %}{% endblock %}</h1>
+    <div class="acts">{% block topbar_actions %}{% endblock %}</div>
+  </div>
+  <div id="content">{% block content %}{% endblock %}</div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
