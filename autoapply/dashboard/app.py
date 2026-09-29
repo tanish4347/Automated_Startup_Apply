@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 
 from autoapply.config import get_settings
+from autoapply.logging import get_logger
 from autoapply.models.base import Base, engine_from_settings, get_session_factory
 from autoapply.models.job import Job
 from autoapply.models.application import Application, ApplicationStatus
@@ -33,6 +34,7 @@ STATIC_DIR = _HERE / "static"
 STATIC_DIR.mkdir(exist_ok=True)
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+log = get_logger(__name__)
 
 # ── db ─────────────────────────────────────────────────────────────────────
 _engine = None
@@ -371,8 +373,10 @@ def create_app(settings=None):
         r = db.query(VaultResume).filter(VaultResume.id == resume_id).first()
         if r:
             if r.file_path and os.path.exists(r.file_path):
-                try: os.remove(r.file_path)
-                except: pass
+                try:
+                    os.remove(r.file_path)
+                except OSError as e:
+                    log.warning("resume_file_delete_failed", path=r.file_path, error=str(e))
             db.delete(r); db.commit()
         return RedirectResponse("/resumes", status_code=303)
 

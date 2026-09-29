@@ -43,6 +43,6 @@ def check_for_captcha(page: Page) -> bool:
         try:
             if page.locator(sel).count() > 0 and page.locator(sel).first.is_visible():
                 return True
-        except:
-            pass
+        except Exception as e:
+            log.debug("captcha_check_failed", selector=sel, error=str(e))
     return False

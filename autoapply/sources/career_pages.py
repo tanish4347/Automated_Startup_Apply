@@ -1,6 +1,6 @@
 ﻿from typing import Iterator
-import os
 import json
+from pathlib import Path
 from typing import Any
 
 from autoapply.sources.base import BaseSource, SourceResult
@@ -24,16 +24,19 @@ def _fetch_json(client: HttpClient, method: str, url: str, **kwargs: Any) -> Any
         return None
 
 class CareerPagesSource(BaseSource):
+    def __init__(self, companies_file: Path):
+        self.companies_file = companies_file
+
     @property
     def name(self) -> str:
         return 'career_pages'
 
     def discover(self) -> Iterator[SourceResult]:
-        config_path = os.path.join(os.getcwd(), 'career_pages.json')
-        companies = []
-        if os.path.exists(config_path):
-            with open(config_path, 'r', encoding='utf-8') as f:
-                companies = json.load(f)
+        if not self.companies_file.exists():
+            log.error('career_pages_file_missing', path=str(self.companies_file))
+            return
+        with open(self.companies_file, 'r', encoding='utf-8') as f:
+            companies = json.load(f)
 
         with HttpClient(requests_per_second=10.0, max_retries=1, timeout=10.0) as client:
             yield from self._scan(client, companies)

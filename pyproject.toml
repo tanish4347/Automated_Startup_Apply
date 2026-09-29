@@ -23,6 +23,7 @@ dependencies = [
     "beautifulsoup4>=4.12",
     "lxml>=4.9",
     "aiofiles>=23.0",
+    "google-genai>=1.0",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +36,12 @@ dev = [
 browser = [
     "playwright>=1.40",
 ]
+
+[tool.setuptools.packages.find]
+include = ["autoapply*"]
+
+[tool.setuptools.package-data]
+"autoapply.dashboard" = ["templates/*.html"]
 
 [project.scripts]
 autoapply = "autoapply.cli:main"

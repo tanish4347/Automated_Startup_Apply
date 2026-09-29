@@ -279,3 +279,54 @@ Individual reasons (one job can carry several):
 - 9 requests failed all retries: network errors on the Lever, Ashby, Greenhouse, SmartRecruiters and Workable APIs.
 - 2 LinkedIn 429s.
 - 1 SmartRecruiters 400.
+
+---
+
+## 6. Status after Phase 0 + 1a (branch `v2`)
+
+| Item | Status |
+|---|---|
+| 1.4 search config never read | **FIXED**: `config/search.yaml` → `SearchConfig` (pydantic); the old YAMLs are deleted |
+| 1.7 dedup not cross-source | **FIXED**: dedup v2 keys on company + title + place; `source_id` is no longer used |
+| 2.2 dedup over-merge | **FIXED**: see the dedup notes below |
+| 2.5 first sighting wins | **PARTIAL**: a duplicate now records a `job_sightings` row, fills missing fields, and upgrades a job-board link to a direct ATS link. Classification is **not** re-run when a later sighting adds a description |
+| 2.6 Mumbai rule inverted | **FIXED**: configurable location policy; `location_fit` flags and never rejects. `outside_policy` jobs are stored but not auto-queued |
+| 2.10 CWD-dependent paths | **PARTIAL**: `career_pages.json` resolves from the project root. `_find_project_root()` still walks up from the CWD |
+| 3.3 unused config files | **FIXED**: removed |
+| 3.4 alembic unused | **FIXED**: `autoapply/migrations/` (0001 baseline … 0004 backfill). `init` = `upgrade head`; a pre-Alembic DB is stamped first |
+| Bare `except: pass` | **FIXED**: the two in `playwright_utils.py` and `dashboard/app.py` now log |
+| `co-op` / `coop` matched "Cooperative" | **FIXED**: found in the real run (2 OpenAI full-time roles were AUTO_ACCEPTed) |
+
+**Dedup notes.** The Phase 1a spec said to strip intern, season and year words from titles.
+Running that on the real 20,608-row DB merged **1,360** rows and closed 32 pending applications.
+The wrong merges included:
+- an internship with the full-time role of the same name;
+- Summer 2027 with Winter 2027, and 2026 with 2027;
+- Bucharest with Chicago (both became "unknown");
+- five different Maharashtra towns, via a city named in the title;
+- US-remote with Canada-remote.
+
+The shipped v2 under-merges instead:
+- intern wording is normalized but kept;
+- season and year are kept;
+- word order is ignored;
+- an unknown city is keyed by its raw text;
+- remote keeps its country;
+- the title supplies a city only when the location is empty.
+
+Result on the same DB: **112 merges, 4 pending applications closed**. All 4 were checked and are real duplicates.
+
+**Location notes.** Mumbai, Navi Mumbai and Thane localities (Borivali, Andheri, Powai, Vashi,
+Airoli, Mira Road, …) are now recognized. The real run had an in-policy Borivali internship that
+had been marked `outside_policy`.
+
+**Migrating the real run's DB** (`init`, then `companies-import`) took 43s:
+- 20,608 jobs → 271 active: 4 in-policy, 267 outside the policy.
+- 112 merged.
+- 20,720 sightings.
+- 687 companies: 48 Indian, 57 low-priority.
+
+Of the active jobs:
+- 51 are in India (16 Bengaluru, 1 Mumbai);
+- 72 are PAID (58 with an amount);
+- 163 have a direct ATS apply link.

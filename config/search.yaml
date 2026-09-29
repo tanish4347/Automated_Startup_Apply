@@ -1,0 +1,86 @@
+# Discovery configuration. Loaded by autoapply.config.load_search_config().
+
+# Keyword searches (LinkedIn guest search and Remotive).
+queries:
+  - software engineer intern
+  - machine learning intern
+  - backend intern
+  - data science intern
+  - AI intern
+  - research intern
+
+# Tags queried on RemoteOK.
+remoteok_tags:
+  - software-engineering-intern
+  - machine-learning-intern
+  - intern
+  - internship
+
+linkedin:
+  locations: [India, Bengaluru, Mumbai, Remote]
+  max_pages: 2
+
+sources:
+  remoteok: true
+  remotive: true
+  arbeitnow: true
+  linkedin: true
+  career_pages: true
+
+# Relative to the project root.
+career_pages_file: career_pages.json
+
+# Where I can work. On-site/hybrid only in these cities; remote from anywhere.
+# Jobs outside the policy are stored with location_fit=outside_policy, never deleted.
+location_policy:
+  onsite_cities: [Mumbai, Navi Mumbai, Thane]
+  remote: preferred   # preferred | allowed | disallowed
+
+# Title keywords that make a job a target field (whole-word, case-insensitive).
+target_keywords:
+  - data science
+  - machine learning
+  - ml
+  - ai
+  - genai
+  - artificial intelligence
+  - data analytic
+  - nlp
+  - computer vision
+  - research
+  - data engineer
+  - software engineer
+  - backend
+  - full stack
+  - frontend
+  - developer
+  - programmer
+  - sde
+
+# Title keywords that mark a non-technical role.
+exclude_title_keywords:
+  - marketing
+  - sales
+  - hr
+  - human resources
+  - finance
+  - operations
+  - ops
+  - design
+  - legal
+  - account
+  - business
+  - recruiter
+  - customer success
+  - support
+  - seo
+  - content
+  - writer
+  - event
+  - talent
+  - payroll
+  - compliance
+  - auditor
+  - mechanical
+  - electrical
+  - civil

@@ -10,14 +10,16 @@ from autoapply.logging import get_logger
 log = get_logger(__name__)
 
 class RemoteOkSource(BaseSource):
+    def __init__(self, tags: list[str]):
+        self.tags = tags
+
     @property
     def name(self) -> str:
         return "remoteok"
 
     def discover(self, **kwargs: Any) -> Iterator[SourceResult]:
-        tags = ['software-engineering-intern', 'machine-learning-intern', 'intern', 'internship']
         with HttpClient() as client:
-            for t in tags:
+            for t in self.tags:
                 url = f"https://remoteok.com/api?tags={t}"
                 log.info("remoteok_fetching", tag=t)
                 resp = client.get(url)

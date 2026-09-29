@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import os
+from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
-from pydantic import Field
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -121,3 +122,49 @@ def get_settings() -> Settings:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     return settings
+
+
+# ── Discovery / search configuration (config/search.yaml) ──────────────────
+
+class LinkedInSearch(BaseModel):
+    locations: list[str] = ["India", "Remote"]
+    max_pages: int = 2
+
+
+class SourceToggles(BaseModel):
+    remoteok: bool = True
+    remotive: bool = True
+    arbeitnow: bool = True
+    linkedin: bool = True
+    career_pages: bool = True
+
+
+class LocationPolicy(BaseModel):
+    """Where the candidate can work. Used to compute Job.location_fit."""
+    onsite_cities: list[str] = []
+    remote: Literal["preferred", "allowed", "disallowed"] = "preferred"
+
+
+class SearchConfig(BaseModel):
+    queries: list[str]
+    remoteok_tags: list[str] = []
+    linkedin: LinkedInSearch = LinkedInSearch()
+    sources: SourceToggles = SourceToggles()
+    career_pages_file: str = "career_pages.json"
+    location_policy: LocationPolicy = LocationPolicy()
+    target_keywords: list[str]
+    exclude_title_keywords: list[str] = []
+
+    @property
+    def career_pages_path(self) -> Path:
+        return PROJECT_ROOT / self.career_pages_file
+
+
+SEARCH_CONFIG_PATH = PROJECT_ROOT / "config" / "search.yaml"
+
+
+@lru_cache(maxsize=None)
+def load_search_config(path: str | None = None) -> SearchConfig:
+    """Load and validate config/search.yaml."""
+    with open(path or SEARCH_CONFIG_PATH, "r", encoding="utf-8") as f:
+        return SearchConfig.model_validate(yaml.safe_load(f) or {})

@@ -11,15 +11,16 @@ from autoapply.logging import get_logger
 log = get_logger(__name__)
 
 class RemotiveSource(BaseSource):
+    def __init__(self, searches: list[str]):
+        self.searches = searches
+
     @property
     def name(self) -> str:
         return "remotive"
 
     def discover(self, **kwargs: Any) -> Iterator[SourceResult]:
-        searches = ['software engineer intern', 'machine learning intern', 'intern', 'internship']
-        
         with HttpClient() as client:
-            for s in searches:
+            for s in self.searches:
                 q = urllib.parse.quote_plus(s)
                 url = f"https://remotive.com/api/remote-jobs?search={q}"
                 log.info("remotive_fetching", url=url)

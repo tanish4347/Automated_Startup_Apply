@@ -7,11 +7,16 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import (
-    Column, String, Text, Integer, Float, DateTime, Enum, Index, JSON,
+    Column, String, Text, Integer, Float, DateTime, Enum, ForeignKey, Index, JSON,
 )
 from sqlalchemy.orm import relationship
 
 from autoapply.models.base import Base
+
+ROLE_FAMILIES = ("swe", "ml", "ds", "data_eng", "research", "other")
+APPLY_CHANNELS = (
+    "ats_direct", "internshala", "naukri", "wellfound", "linkedin_easy", "email", "google_form", "unknown",
+)
 
 class WorkMode(str, enum.Enum):
     REMOTE = "remote"
@@ -34,7 +39,19 @@ class Job(Base):
     title = Column(String(512), nullable=False)
     company = Column(String(256), nullable=True, index=True)
     location = Column(String(512), nullable=True)
+    company_id = Column(Integer, ForeignKey("companies.id", name="fk_jobs_company_id"), nullable=True, index=True)
+    city = Column(String(128), nullable=True, index=True)
+    country = Column(String(128), nullable=True)
     work_mode = Column(Enum(WorkMode), default=WorkMode.UNKNOWN)
+    location_fit = Column(String(32), nullable=True, index=True)  # ok | outside_policy | unknown
+    stipend_min = Column(Float, nullable=True)
+    stipend_max = Column(Float, nullable=True)
+    stipend_currency = Column(String(8), nullable=True)
+    stipend_period = Column(String(16), nullable=True)  # month | week | hour | year
+    duration_months = Column(Integer, nullable=True)
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    role_family = Column(String(16), nullable=True, index=True)  # swe | ml | ds | data_eng | research | other
+    apply_channel = Column(String(24), nullable=True)  # see APPLY_CHANNELS
     description_raw = Column(Text, nullable=True)
     description_text = Column(Text, nullable=True)
     responsibilities = Column(Text, nullable=True)
@@ -67,6 +84,8 @@ class Job(Base):
     score = Column(Float, nullable=True)
     reject_reason = Column(Text, nullable=True)
     applications = relationship("Application", back_populates="job", lazy="selectin")
+    company_ref = relationship("Company", back_populates="jobs")
+    sightings = relationship("JobSighting", back_populates="job", cascade="all, delete-orphan")
     __table_args__ = (
         Index("ix_jobs_source_source_id", "source", "source_id"),
         Index("ix_jobs_company_title", "company", "title"),

@@ -1,179 +1,119 @@
-﻿# ARCHITECTURE.md
+# ARCHITECTURE.md
 
-## 1. Project Overview
-The Automated Startup Apply system is an end-to-end autonomous job discovery and application platform. Its primary objective is to continuously discover relevant internship opportunities across multiple platforms and ATS systems, intelligently deduplicate them, and ultimately automate the application process using the candidate's personal data, resume, and an intelligent knowledge base.
+This document describes what the code **actually does today**. Planned work is marked
+*(planned)*. For the full list of known defects, see [docs/AUDIT.md](docs/AUDIT.md).
 
-## 2. Core Architecture
+## 1. Overview
+
+A local Python system that discovers internship postings, stores them in SQLite, and has
+Playwright-based appliers for a few ATSs. Search is focused on internships. The candidate can
+work on-site only in Mumbai (incl. Navi Mumbai and Thane) and remotely from anywhere.
 
 ```text
-JOB SOURCES (Greenhouse, Lever, LinkedIn, RemoteOK, Remotive)
-    ↓
-JOB ACQUISITION (Concurrent HTTP API / RSS / HTML parsing)
-    ↓
-NORMALIZATION (Standardized models, text extraction)
-    ↓
-DEDUPLICATION (Cross-source canonical hashing)
-    ↓
-JOB DATABASE (SQLite with strict scoring / YoE / PhD exclusions)
-    ↓
-APPLICATION QUEUE (Prioritization & Status Tracking)
-    ↓
-APPLICATION AGENT (Playwright + Python)
-    ↑ (Reads)
-CANDIDATE KNOWLEDGE BASE (Vault: Facts, Story Bank, Preferences)
-    ↓
-APPLICATION DATABASE (State Machine, Error Tracking, Screenshots)
-    ↓
-DASHBOARD (FastAPI Server-Rendered UI)
-    ↓
-INTERVIEW / ASSESSMENT PREPARATION (Generative AI)
+config/search.yaml ──► discovery orchestrator (sequential, one source at a time)
+                         │  RemoteOK · Remotive · Arbeitnow · LinkedIn guest · career_pages.json ATS probe
+                         ▼
+                       filter.evaluate_job   (rules: internship, field, seniority, YoE, PhD,
+                         │                    pay detection, location policy → location_fit)
+                         ▼
+                       dedup + ingest ──► SQLite (jobs, applications, vault_*)
+                                             ▲                    │
+                           dashboard (FastAPI + Jinja) ◄──────────┘
+                                             │
+                       apply engine (Playwright appliers) ── reads Vault ── Gemini for custom questions
 ```
 
-## 3. Major Components
+## 2. Components
 
-- **JOB DISCOVERY**: Natively fetches job postings via APIs and HTML parsing from configured sources. Location: `autoapply/sources/`. 
-- **SOURCE ADAPTERS**: Individual implementations (e.g., `greenhouse.py`, `linkedin.py`) mapping raw data into standard `SourceResult`.
-- **JOB NORMALIZATION / FILTERING**: Computes an eligibility score based on target fields, Years of Experience (YoE), and strict internship classification. Location: `autoapply/sources/filter.py`.
-- **DEDUPLICATION**: Identifies duplicate jobs across different platforms (e.g., LinkedIn vs. Greenhouse) using a global identity hash. Location: `autoapply/services/dedup.py`.
-- **DATABASE**: Central SQLite database bridging all workflows (Jobs, Applications, Vault). Location: `autoapply/models/`.
-- **APPLICATION QUEUE**: A state-machine managing job lifecycle (QUEUED -> IN_PROGRESS -> SUBMITTED/FAILED). Location: `autoapply/services/application_service.py`.
-- **APPLICATION ROUTER / ATS ADAPTERS**: Playwright-based browser automation logic tailored for specific ATS systems (Greenhouse, Lever, etc.). Location: `autoapply/appliers/`.
-- **CANDIDATE VAULT**: The structured data repository for the user's factual info, preferences, and story bank. Location: `autoapply/candidate/vault.py`.
-- **QUESTION BRAIN / AI AGENT**: Synthesizes structured data from the Vault dynamically to map arbitrary employer questions into consistent answers using LLMs. Location: `autoapply/intelligence/`.
-- **DASHBOARD**: Server-rendered FastAPI UI replacing the need for external tools to view jobs, trace applications, and update the Vault. Location: `autoapply/dashboard/app.py`.
-- **CLI**: The main entry point to trigger discovery, the dashboard, and initialization. Location: `autoapply/cli.py`.
-- **TESTING**: Simple verification scripts ensuring adapter connectivity. Location: `tests/`.
+| Area | Location | State |
+|---|---|---|
+| CLI | `autoapply/cli.py` | `init`, `status`, `discover`, `apply`, `dashboard` |
+| Settings | `autoapply/config.py` | Env/`AUTOAPPLY_*` settings + `SearchConfig` (pydantic) loaded from `config/search.yaml` |
+| Discovery | `autoapply/sources/orchestrator.py` | Runs enabled sources **sequentially** (no thread pool) |
+| Active sources | `sources/remoteok.py`, `remotive.py`, `arbeitnow.py`, `linkedin.py`, `career_pages.py` | LinkedIn: guest HTML search only, no descriptions. `career_pages`: probes Greenhouse → Lever → Ashby → SmartRecruiters → Workable per company in `career_pages.json` |
+| Unused sources | `sources/greenhouse.py`, `lever.py`, `ashby.py`, `indeed_rss.py`, `registry.py` | Never instantiated |
+| HTTP | `sources/http_client.py` | Rate limit + retry/backoff; `html_to_text`, `guess_work_mode` |
+| Filter | `sources/filter.py` | Rule-based classifier. See §3 |
+| Location | `sources/location.py` | Normalizes messy location strings → canonical city / country / work mode (Indian aliases + Mumbai-area localities) |
+| Dedup | `services/dedup.py` | v2: normalized company + order-insensitive title + place (city, raw location, or `remote-<country>`). Deliberately under-merges |
+| Ingest | `services/job_service.py` | Links/creates the company, records a sighting. On a duplicate: fills missing fields, upgrades to a direct ATS link, never overwrites |
+| Companies | `models/company.py`, `services/company_service.py` | `companies` (durable: ATS type/token, is_india, priority, …) and `job_sightings`. `cli companies-import` loads `career_pages.json` |
+| Applications | `services/application_service.py` | State machine: DISCOVERED → QUEUED → IN_PROGRESS → SUBMITTED/FAILED → ASSESSMENT/INTERVIEW/OFFER/REJECTED → CLOSED. There is **no** `MANUAL_REQUIRED` state |
+| Appliers | `appliers/` | Registered: Greenhouse, Lever, Ashby, SmartRecruiters. `workable.py` and `breezy.py` exist but are not registered. The apply engine **cannot start**: `appliers/orchestrator.py` imports `reset_stalled_applications`, which does not exist (AUDIT 1.9) |
+| Custom questions | `appliers/question_engine.py` | **Google Gemini** (`gemini-2.5-flash`, needs `GEMINI_API_KEY`). Sends the Vault profile + question and trusts the model's self-reported confidence. No embeddings or canonical-key mapping yet *(planned)* |
+| Candidate data | `models/vault.py`, `candidate/manager.py` | Vault tables are the single candidate store (edited on the dashboard). `VaultIdentity` exposes `full_name`, `location`, `resume_path`, `to_profile_dict()` for the appliers |
+| Dashboard | `dashboard/app.py` | FastAPI + Jinja2 SSR, Tailwind via CDN |
+| DB / migrations | `models/`, `autoapply/migrations/` | SQLite via SQLAlchemy, WAL mode, `busy_timeout=5000`. Schema is managed by Alembic |
+| Unused | `models/intelligence.py`, `security.py` | Never read or imported |
 
-## 4. Job Discovery Architecture
+### Stub modules
+These modules were empty. They were deleted in the fix commit before this one:
+`intelligence/analyzer.py`, `candidate/question_catalog.py`, `appliers/vault_integration.py`,
+`candidate/auto_populate.py`, `candidate/cv_parser.py`.
 
-- **Acquisition**: Jobs are fetched concurrently using a ThreadPoolExecutor in `orchestrator.py`.
-- **Source Adapters**: Inherit from `BaseSource`. We employ direct REST API polling for ATS boards (Greenhouse, Lever, Ashby, Workable, SmartRecruiters) derived from a massive `career_pages.json` universe, as well as aggregator APIs (Remotive, RemoteOK) and guest HTML parsing (LinkedIn).
-- **Normalization**: Fields are mapped to the canonical `Job` schema.
-- **Filtering & Deduplication**: Filter scoring natively eliminates non-internship roles. Then `deduplicate_job` handles cross-source hashing. Rejected jobs are retained in the database (`is_active=0`) for auditability, avoiding blind spots.
-- **Extensibility**: Adding a new source simply requires extending `BaseSource` and yielding `SourceResult` objects.
+Still empty: `config.yaml` (read as an optional settings override, but has no content),
+`tests/conftest.py`, `tests/test_adapters.py`, `tests/test_config.py`, `tests/test_models.py`,
+`tests/test_services.py`, `README.md`.
 
-## 5. Current Job Search Rules
+## 3. Discovery rules (`config/search.yaml` + `sources/filter.py`)
 
-The current engine is strictly constrained to source **ONLY INTERNSHIP ROLES**. Entry-level/full-time roles are heavily penalized and auto-rejected.
+- **Hard rejects** (`AUTO_REJECT`, stored with `is_active=0` and a `reject_reason`):
+  - not explicitly an internship;
+  - non-technical title;
+  - no target-field match;
+  - senior title;
+  - >3 years of experience required;
+  - PhD-only.
+- **Target and exclude keywords** come from `config/search.yaml`.
+- **Location policy** (`location_policy` in `config/search.yaml`) never rejects. It sets `jobs.location_fit`:
+  - `ok`: remote (policy allows remote), or the location names an on-site city (Mumbai, Navi Mumbai, Thane);
+  - `outside_policy`: on-site/hybrid anywhere else. These jobs are stored and visible but **not auto-queued** (no application row is created);
+  - `unknown`: no location given.
+- **Pay** (`detect_pay`): `UNPAID` ("unpaid", "no stipend") → `PAID` with an amount (₹ / Rs / INR / $ / € / £, ranges, "15k/month", per month/week/hour/year) → `UNKNOWN` for "performance based" with no fixed amount → `PAID` for the words "stipend", "salary", "paid internship" → otherwise `UNKNOWN`. Amounts are stored as `stipend_*`.
+- **Enrichment** (stored on `jobs`): city, country, `role_family` (swe/ml/ds/data_eng/research/other), `duration_months`, `apply_channel` (ats_direct/internshala/naukri/wellfound/linkedin_easy/email/google_form/unknown), and stipend min/max/currency/period. `start_date` exists but no source fills it yet.
+- **Work mode**: a source-supplied value wins. Otherwise it is detected from location + title (remote / WFH / hybrid), with `guess_work_mode(location)` as the ingest fallback.
 
-- **Target Fields**: Data Science, Machine Learning, AI / GenAI, Data Analytics, NLP, Computer Vision, Research / AI Research, Data Engineering, ML Engineering, Software Engineering, Backend, Full Stack.
-- **Exclusions**: 
-  - Non-technical roles (Sales, HR, Marketing).
-  - PhD/Doctoral-specific internships (e.g., "PhD candidates only").
-  - Seniority roles (Lead, Manager, Principal, etc.) and roles requesting >2 Years of Experience.
-  - Mumbai on-site/hybrid internships (Remote Mumbai internships are allowed).
-- **Inclusions**: Remote internships, Non-remote internships (excluding Mumbai), Summer/3-month internships.
+## 4. Database
 
-## 6. Application Architecture
+Tables:
+- `jobs` (N:1 → `companies`)
+- `job_sightings` (N:1 → `jobs`)
+- `companies`
+- `applications` (N:1 → `jobs`)
+- `vault_identity`, `vault_education`, `vault_employment`, `vault_project`, `vault_skill`, `vault_resume`, `vault_answer`
+- `application_intelligence` (unused)
 
-- **Queue**: Tracks applications via an explicit state machine (`QUEUED`, `IN_PROGRESS`, `SUBMITTED`, `FAILED`, `MANUAL_REQUIRED`).
-- **Browser Automation**: `autoapply/appliers/` utilizes Playwright to spin up headless/headed browsers, navigate to URLs, fill standard inputs natively, and use DOM parsing to interpret fields.
-- **Resilience**: The system supports crash recovery and retry loops. If a form asks a question completely alien to the Vault, it gracefully halts, marks `MANUAL_REQUIRED`, captures a snapshot/screenshot, and preserves the session.
+Migrations live in `autoapply/migrations/versions/`:
+- `0001_baseline`: the schema previously created by `create_all`.
+- `0002_location_fit`: adds `jobs.location_fit`.
+- `0003_companies_sightings`: adds `companies`, `job_sightings` and the job enrichment columns.
+- `0004_backfill_dedup_v2`: data only. Links companies, adds sightings, fills enrichment, and rehashes with dedup v2. Colliding rows are marked `MERGED` and inactive, never deleted.
 
-## 7. Candidate Knowledge Base
+`python -m autoapply.cli init` runs `alembic upgrade head`. A pre-Alembic DB is stamped at
+`0001_baseline` first, so existing data is kept. You can also run `alembic upgrade head`
+directly; the URL comes from `AUTOAPPLY_DB_URL` or the default `data/autoapply.db`.
 
-The Vault (`autoapply/models/vault.py` & `candidate_vault.json`/DB) separates candidate identity into:
-1. **FACTS**: Hard truths (e.g., Name, Email, Graduation Year, GPA).
-2. **PREFERENCES / POLICIES**: Application constraints (e.g., Target Salary, Visa requirements, Location preferences).
-3. **STORY BANK**: Bulleted project and experience summaries.
-4. **REUSABLE ANSWERS**: Hardcoded strings for specific common questions (e.g., "What is your GitHub URL?").
+## 5. Running
 
-The Application Agent cross-references this Vault rather than hallucinating generic AI answers.
-
-## 8. Dynamic Question Understanding
-
-The system tackles the massive variance in ATS question framing via the Question Brain.
-- **Extraction**: Playwright scrapes form labels.
-- **Semantic Mapping**: An LLM or embedding step classifies the question (e.g., "Are you willing to relocate?" and "Would you move for this role?" both map to `relocation_preference`).
-- **Resolution**: The Agent queries the mapped concept against the Vault. If confidence is high, it submits. If factual data is missing, it refuses to hallucinate and stops.
-
-## 9. AI / LLM Architecture
-
-- **Provider**: Uses OpenAI (e.g., GPT-4o-mini) and Anthropic (e.g., Claude 3.5 Haiku) dynamically configured in `.env`.
-- **Purpose**: Strictly utilized for semantic classification (mapping ATS questions to Vault fields), rewriting Story Bank bullets to fit character constraints, or generating polite Cover Letter intros based *only* on provided facts.
-- **Safety**: Prompt constraints explicitly instruct the LLM *never* to invent facts, skills, or employment history not found in the Candidate Vault.
-
-## 10. Dashboard Architecture
-
-- **Stack**: FastAPI server returning raw HTML via Jinja2 templates, utilizing Tailwind CSS via CDN.
-- **Philosophy**: Chose Server-Side Rendering (SSR) to reduce complexity. The app does not require npm, webpack, or React. It's a single Python monolith for extreme stability.
-- **Routing**: Clean RESTful routes (Jobs, Applications, Settings, Queue).
-
-## 11. Database
-
-- **Technology**: SQLite via SQLAlchemy.
-- **Key Tables**:
-  - `jobs`: Stores raw snapshots, standard schema (title, company, description), YoE, classification tracking, and pay status.
-  - `applications`: Stores state transitions, URLs, failure traces.
-  - `vault_entries`: Centralized candidate config.
-- **Relationships**: `jobs` 1<->N `applications`.
-
-## 12. Security
-
-- **Secrets**: Ignored globally via `.gitignore`. API keys (`OPENAI_API_KEY`) live in `.env`.
-- **Candidate Data**: Private resumes (`data/resumes/`) and the SQLite `.db` file are strictly `.gitignored`.
-- **Cryptography**: A `.vault_key` can be used to locally encrypt highly sensitive text fields in the DB, though physical DB isolation is the primary defense.
-
-## 13. Error Handling / Reliability
-
-- **Network**: HTTP requests employ exponential backoff in `orchestrator.py` and `http_client.py`.
-- **ATS Isolation**: If Greenhouse changes its DOM structure, only the `GreenhouseApplier` fails. The rest of the orchestrator proceeds.
-- **Playwright Failures**: Handled via try/except timeouts. Stalled applications are safely rolled back to a retryable state or flagged.
-
-## 14. Testing
-
-- **Suite**: Contains `test_career.py` and `test_e2e.py` for verifying ATS endpoints and database interactions.
-- **Limitations**: The test suite is currently functional/integration focused. It does not possess full unit-test coverage for every Playwright edge case.
-
-## 15. Repository Structure
-
-```
-autoapply/
-├── appliers/       # Playwright ATS scripts
-├── candidate/      # Vault and Resume parsing
-├── dashboard/      # FastAPI UI and Jinja templates
-├── intelligence/   # Question parsing / LLM prompts
-├── models/         # SQLAlchemy DB schemas
-├── services/       # Core business logic (Dedup, Job, App)
-├── sources/        # Job discovery & API adapters
-├── cli.py          # Command Line Interface
-tests/              # Test suite
-career_pages.json   # ATS company tokens
-config.yaml         # App config
-search_config.yaml  # Discovery config
-pyproject.toml      # Dependencies
+```bash
+python -m venv .venv && .venv/bin/pip install -e '.[dev,browser]'
+.venv/bin/playwright install chromium          # only needed for the apply engine
+.venv/bin/python -m autoapply.cli init          # create / migrate the DB
+.venv/bin/python -m autoapply.cli companies-import   # load career_pages.json into companies
+.venv/bin/python -m autoapply.cli discover      # run discovery
+.venv/bin/python -m autoapply.cli dashboard     # http://127.0.0.1:8080
+.venv/bin/pytest --ignore=tests/test_e2e.py --ignore=tests/test_career.py   # offline tests
 ```
 
-## 16. Technology Stack
+`tests/test_career.py` hits live ATS APIs. `tests/test_e2e.py` needs Playwright and writes to
+the real DB (AUDIT 2.11).
 
-| Technology | Purpose | Where used | Reason for choice |
-|---|---|---|---|
-| Python 3.10+ | Core language | Everywhere | ML/LLM ecosystem maturity |
-| FastAPI | Web framework | `dashboard/`, `cli.py` | High performance, simple SSR routing |
-| SQLAlchemy | ORM | `models/`, `services/` | Bulletproof relational schema handling |
-| SQLite | Database | `data/autoapply.db` | Zero-configuration local persistence |
-| Playwright | Browser Automation | `appliers/` | Handles SPAs and complex ATS DOMs flawlessly |
-| Pydantic | Schema Validation | `sources/`, LLM outputs | Type safety for API data and LLM structures |
-| Jinja2 | HTML Templating | `dashboard/templates/` | Robust server-rendered UI |
+## 6. Known limitations
 
-## 17. Important Engineering Decisions
-
-- **Relational DB over JSON**: Moved from JSON blobs to SQLAlchemy to handle massive deduplication queries, queue states, and lifecycle tracking reliably.
-- **SSR Dashboard**: Dropped React/Next.js for FastAPI+Jinja2. Keeps the project as a single deployable Python package, eliminating build steps.
-- **Job Scoring vs. Binary Filters**: Moved to a cumulative scoring engine to gracefully handle edge cases (e.g. good title but missing pay) instead of rigid booleans.
-- **Full Snapshot Preservation**: Rejected jobs are kept with `is_active=0` and exact `reject_reason` strings to allow auditing of the search rules and prevent duplicate re-fetching.
-
-## 18. Known Limitations
-
-- **LinkedIn Strictness**: LinkedIn Guest API heavily rate-limits. We rely on targeted searches but can easily be blocked.
-- **Unsupported ATS**: Workday forms are highly dynamic and often require manual intervention / 2FA.
-- **CAPTCHAs**: No automatic CAPTCHA bypassing. If triggered, the application halts and flags `MANUAL_REQUIRED`.
-- **LLM Latency**: Semantic mapping of every form field via OpenAI adds ~5-15 seconds per application.
-
-## 19. How the System Runs
-
-- **Setup**: `pip install -e .` & `playwright install`
-- **Initialize DB**: `python -m autoapply.cli init`
-- **Run Discovery (Background Search)**: `python -m autoapply.cli discover`
-- **Run Application Engine**: `python -m autoapply.cli apply`
-- **Launch UI**: `python -m autoapply.cli dashboard`
+The main ones are below; everything else is in [docs/AUDIT.md](docs/AUDIT.md).
+- A later, richer sighting fills fields but does not re-run classification (2.5).
+- Guessed ATS tokens can attribute jobs to the wrong company (2.3).
+- `career_pages` stores HTML or empty descriptions (2.4).
+- Appliers can submit fabricated or misplaced values (2.1).
+- LinkedIn guest search rate-limits aggressively and returns no descriptions.
+- No CAPTCHA handling. Workday is not supported.
