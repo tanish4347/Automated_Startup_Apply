@@ -81,7 +81,7 @@ def create_app(settings=None):
     # The candidate editing their own data: these POSTs are the only dashboard writes that count as
     # user input, so only they may set SENSITIVE fields (autoapply/candidate/sensitive.py).
     # Deliberately not every POST: /queue/start and friends must never inherit this permission.
-    USER_INPUT_PREFIXES = ("/profile", "/vault", "/intake", "/resumes")
+    USER_INPUT_PREFIXES = ("/profile", "/vault", "/intake", "/resumes", "/review")
 
     @app.middleware("http")
     async def candidate_input(request: Request, call_next):
@@ -90,6 +90,32 @@ def create_app(settings=None):
             with user_input():
                 return await call_next(request)
         return await call_next(request)
+
+    # ── REVIEW ─────────────────────────────────────────────────────────────
+    @app.get("/review", response_class=HTMLResponse)
+    def review_page(request: Request):
+        return templates.TemplateResponse(request, "review.html", {"page": "review"})
+
+    @app.get("/review/api/items")
+    def review_items(tab: str = "pending", db: Session = Depends(get_db)):
+        from autoapply.appliers.review import items
+        return {"tab": tab, "items": items(db, tab), "counts": {t: len(items(db, t)) for t in ("pending", "uncertain")}}
+
+    @app.get("/review/evidence/{attempt_id}")
+    def review_evidence(attempt_id: int, db: Session = Depends(get_db)):
+        from fastapi.responses import FileResponse
+        from autoapply.models.attempt import ApplicationAttempt
+        a = db.get(ApplicationAttempt, attempt_id)
+        if not a or not a.screenshot_path or not Path(a.screenshot_path).exists():
+            raise HTTPException(404)
+        return FileResponse(a.screenshot_path, media_type="image/png")
+
+    @app.post("/review/api/{attempt_id}")
+    async def review_decide(attempt_id: int, request: Request, db: Session = Depends(get_db)):
+        from autoapply.appliers.review import decide
+        body = await request.json()
+        decide(db, attempt_id, body["action"], body.get("values") or {})
+        return {"ok": True}
 
     # ── INTAKE ─────────────────────────────────────────────────────────────
     @app.get("/intake", response_class=HTMLResponse)

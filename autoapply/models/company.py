@@ -15,7 +15,7 @@ ATS_TYPES = (
     "greenhouse", "lever", "ashby", "workable", "smartrecruiters", "recruitee", "keka",
     "zoho_recruit", "darwinbox", "freshteam", "mynexthire", "workday", "turbohire", "bamboohr",
     "jazzhr", "personio", "teamtailor", "breezy", "pinpoint", "recruiterflow", "skillate",
-    "springrecruit", "hirepro", "google_form", "custom", "unknown",
+    "springrecruit", "hirepro", "zwayam", "google_form", "custom", "unknown",
 )
 
 # Company.priority

@@ -181,7 +181,7 @@ _ATS_HOSTS = {
     "recruitee": ("recruitee.com",), "keka": ("keka.com",), "zoho_recruit": ("zohorecruit.",),
     "darwinbox": ("darwinbox.",), "freshteam": ("freshteam.com",),
 }
-_BOARD_CHANNELS = ("internshala", "naukri", "wellfound")
+_BOARD_CHANNELS = ("internshala", "naukri", "wellfound", "unstop", "instahyre")
 
 
 def detect_apply_channel(source: str | None, ats_platform: str | None, application_url: str | None) -> str:

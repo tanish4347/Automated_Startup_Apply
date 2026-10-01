@@ -55,6 +55,14 @@ def normalize_company(name: str | None) -> str:
     return normalize_string(stripped)
 
 
+def normalize_brand(name: str | None) -> str:
+    """Aggressive brand key: legal suffix AND generic tail words always dropped ("ACME LABS" and
+    "Acme Labs Pvt. Ltd." are both "acme"). Used only where over-merging is the safe error: the
+    never-double-apply cluster (autoapply/appliers/harness.py). Job dedup keeps normalize_company."""
+    stripped = _LEGAL_SUFFIX_RE.sub(" ", name or "").strip(" .,")
+    return normalize_string(_ENTITY_TAIL_RE.sub("", stripped) or stripped)
+
+
 def normalize_title(title: str | None) -> str:
     """Order-insensitive role key: "Software Engineer, Intern" == "Intern - Software Engineer",
     "SDE Internship - Bangalore" == "SDE Intern" (the city is part of the place key instead)."""

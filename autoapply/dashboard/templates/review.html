@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Review{% endblock %}
+{% block page_title %}Review{% endblock %}
+{% block content %}
+<style>
+#review{max-width:1100px;margin:0 auto}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button.on{background:#6c8ff8;color:#fff;border-color:#6c8ff8}
+.rcard{background:#fff;border:1px solid #e5e8f0;border-radius:10px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.rcard h2{font-size:17px;font-weight:600;margin-bottom:4px}
+.rcard .sub{font-size:12px;color:#6b7280;margin-bottom:12px}
+.shot{border:1px solid #e5e8f0;border-radius:6px;max-height:640px;overflow:auto}
+.shot img{width:100%;display:block}
+.reason{background:#fef3c7;color:#92400e;font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:12px}
+table.f{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+table.f td{padding:6px 8px;border-bottom:1px solid #f0f2f8;vertical-align:top}
+table.f td:first-child{color:#555;width:42%}
+table.f .tier{font-size:10px;color:#888;display:block}
+table.f input{width:100%;padding:5px 7px;border:1px solid #d5d9e6;border-radius:4px;font:inherit;font-size:12px}
+.missing td{background:#fff7ed}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.keys{font-size:12px;color:#888;margin-top:12px;display:flex;gap:16px;flex-wrap:wrap}
+kbd{background:#f0f2fa;border:1px solid #dde0ea;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px;font-family:inherit}
+.empty{text-align:center;padding:48px;color:#666;background:#fff;border:1px solid #e5e8f0;border-radius:10px}
+.pos{font-size:12px;color:#777;margin-bottom:8px}
+@media (max-width:900px){.rcard{grid-template-columns:1fr}}
+</style>
+<div id="review">
+  <div class="tabs">
+    <button class="btn btn-secondary" data-tab="pending">Waiting for review <span id="c-pending"></span></button>
+    <button class="btn btn-secondary" data-tab="uncertain">Uncertain submissions <span id="c-uncertain"></span></button>
+  </div>
+  <div class="pos" id="pos"></div>
+  <div id="card"></div>
+  <div class="keys" id="keys"></div>
+</div>
+<script>
+let tab = new URLSearchParams(location.search).get('tab') || 'pending', items = [], i = 0, editing = false;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function load() {
+  const r = await (await fetch('/review/api/items?tab=' + tab)).json();
+  items = r.items; i = Math.min(i, Math.max(items.length - 1, 0)); editing = false;
+  document.getElementById('c-pending').textContent = `(${r.counts.pending})`;
+  document.getElementById('c-uncertain').textContent = `(${r.counts.uncertain})`;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  render();
+}
+
+function render() {
+  const box = document.getElementById('card'), it = items[i];
+  document.getElementById('pos').textContent = items.length ? `${i + 1} of ${items.length}` : '';
+  document.getElementById('keys').innerHTML = tab === 'pending'
+    ? '<span><kbd>A</kbd> approve</span><span><kbd>R</kbd> reject</span><span><kbd>E</kbd> edit, then <kbd>Ctrl</kbd>+<kbd>Enter</kbd> approve</span><span><kbd>←</kbd> <kbd>→</kbd> move</span>'
+    : '<span><kbd>Y</kbd> it went through</span><span><kbd>N</kbd> it did not</span><span><kbd>←</kbd> <kbd>→</kbd> move</span>';
+  if (!it) { box.innerHTML = `<div class="empty">Nothing ${tab === 'pending' ? 'waiting for review' : 'uncertain'}.</div>`; return; }
+  const row = (f, missing) => `<tr class="${missing ? 'missing' : ''}"><td>${esc(f.label)}<span class="tier">${esc(f.canonical_key || '')}${f.tier ? ' · tier ' + esc(f.tier) : ''}${missing ? ' · ' + esc(f.reason) : ''}</span></td>` +
+    `<td>${editing ? `<input data-label="${esc(f.label)}" value="${esc(missing ? '' : f.value)}">` : esc(missing ? '— not filled —' : f.value)}</td></tr>`;
+  box.innerHTML = `<div class="rcard"><div>
+      <h2>${esc(it.job.title)}</h2>
+      <div class="sub">${esc(it.job.company)} · ${esc(it.job.location || '')} · ${esc(it.job.stipend || '')} · ${esc(it.job.channel)} · <a href="${esc(it.job.url)}" target="_blank" rel="noopener">posting</a> · mode ${esc(it.mode)}</div>
+      ${it.park_reason ? `<div class="reason">${esc(it.park_reason)}</div>` : ''}${it.error ? `<div class="reason">${esc(it.error)}</div>` : ''}
+      <table class="f">${it.filled.map(f => row(f, false)).join('')}${it.unfilled.map(f => row(f, true)).join('')}</table>
+      <div class="actions">${tab === 'pending'
+        ? `<button class="btn btn-primary" data-a="approve">Approve</button><button class="btn btn-secondary" data-a="edit">${editing ? 'Save and approve' : 'Edit and approve'}</button><button class="btn btn-danger" data-a="reject">Reject</button>`
+        : `<button class="btn btn-success" data-a="landed">It went through</button><button class="btn btn-secondary" data-a="not_landed">It did not</button>`}</div>
+    </div><div class="shot">${it.screenshot ? `<img src="${it.screenshot}" alt="Filled form for ${esc(it.job.title)}">` : '<div class="empty">No screenshot</div>'}</div></div>`;
+  box.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a));
+  if (editing) { const f = box.querySelector('input'); if (f) f.focus(); }
+}
+
+async function act(action) {
+  const it = items[i]; if (!it) return;
+  if (action === 'edit' && !editing) { editing = true; render(); return; }
+  const values = {};
+  if (action === 'edit') document.querySelectorAll('#card input[data-label]').forEach(el => { values[el.dataset.label] = el.value; });
+  const r = await fetch('/review/api/' + it.id, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action, values})});
+  if (!r.ok) { alert('Could not save: ' + await r.text()); return; }
+  await load();
+}
+
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; i = 0; history.replaceState(null, '', '?tab=' + tab); load(); });
+document.addEventListener('keydown', e => {
+  const typing = ['INPUT', 'TEXTAREA'].includes((document.activeElement || {}).tagName);
+  if (editing && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); act('edit'); return; }
+  if (e.key === 'Escape' && editing) { editing = false; render(); return; }
+  if (typing) return;
+  const k = e.key.toLowerCase();
+  if (e.key === 'ArrowRight') { i = Math.min(items.length - 1, i + 1); render(); }
+  else if (e.key === 'ArrowLeft') { i = Math.max(0, i - 1); render(); }
+  else if (tab === 'pending' && k === 'a') act('approve');
+  else if (tab === 'pending' && k === 'r') act('reject');
+  else if (tab === 'pending' && k === 'e') act('edit');
+  else if (tab === 'uncertain' && k === 'y') act('landed');
+  else if (tab === 'uncertain' && k === 'n') act('not_landed');
+});
+load();
+</script>
+{% endblock %}

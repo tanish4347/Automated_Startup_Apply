@@ -15,7 +15,8 @@ from autoapply.models.base import Base
 
 ROLE_FAMILIES = ("swe", "ml", "ds", "data_eng", "research", "other")
 APPLY_CHANNELS = (
-    "ats_direct", "internshala", "naukri", "wellfound", "linkedin_easy", "email", "google_form", "unknown",
+    "ats_direct", "internshala", "naukri", "wellfound", "unstop", "instahyre", "linkedin_easy", "email",
+    "google_form", "unknown",
 )
 
 class WorkMode(str, enum.Enum):
@@ -80,6 +81,10 @@ class Job(Base):
     first_seen = Column(DateTime(timezone=True), nullable=True, default=lambda: datetime.now(timezone.utc))
     last_seen = Column(DateTime(timezone=True), nullable=True, default=lambda: datetime.now(timezone.utc))
     closed_at = Column(DateTime(timezone=True), nullable=True)
+    # Aggregator postings (himalayas, unstop) resolved once to the real apply URL; never re-resolved.
+    resolved_apply_url = Column(Text, nullable=True)
+    apply_resolved_at = Column(DateTime(timezone=True), nullable=True)
+    apply_resolve_note = Column(Text, nullable=True)
     classification_status = Column(String(32), nullable=True)
     score = Column(Float, nullable=True)
     reject_reason = Column(Text, nullable=True)

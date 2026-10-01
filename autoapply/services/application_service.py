@@ -24,10 +24,12 @@ _TRANSITIONS: dict[ApplicationStatus, set[ApplicationStatus]] = {
         ApplicationStatus.SUBMITTED,
         ApplicationStatus.FAILED,
         ApplicationStatus.PARKED,
+        ApplicationStatus.QUEUED,   # stall recovery (reset_stalled_applications)
         ApplicationStatus.CLOSED,
     },
     # Parked until the candidate enters the missing SENSITIVE answer, then re-queued.
-    ApplicationStatus.PARKED: {ApplicationStatus.QUEUED, ApplicationStatus.CLOSED},
+    ApplicationStatus.PARKED: {ApplicationStatus.QUEUED, ApplicationStatus.CLOSED,
+                               ApplicationStatus.SUBMITTED},  # an uncertain submit the candidate confirmed
     ApplicationStatus.SUBMITTED: {
         ApplicationStatus.ASSESSMENT,
         ApplicationStatus.INTERVIEW,
@@ -96,6 +98,32 @@ def transition_status(
         new_status=new_status.value,
     )
     return application
+
+
+def reset_stalled_applications(session: Session, timeout_minutes: float = 30,
+                               now: datetime | None = None) -> int:
+    """IN_PROGRESS applications untouched for longer than the timeout (a crashed or killed run)
+    go back to QUEUED with retry_count + 1; once retry_count reaches max_retries they go to
+    FAILED instead. Returns how many were reset or failed."""
+    from datetime import timedelta
+    now = now or datetime.now(timezone.utc)
+    cutoff = now - timedelta(minutes=timeout_minutes)
+    stalled = []
+    for app in session.query(Application).filter(Application.status == ApplicationStatus.IN_PROGRESS):
+        touched = app.updated_at if app.updated_at.tzinfo else app.updated_at.replace(tzinfo=timezone.utc)
+        if touched < cutoff:
+            stalled.append(app)
+    for app in stalled:
+        app.retry_count = (app.retry_count or 0) + 1
+        if app.retry_count >= (app.max_retries or 3):
+            transition_status(session, app, ApplicationStatus.FAILED,
+                              error_message=f"stalled in progress {app.retry_count} times; giving up")
+        else:
+            transition_status(session, app, ApplicationStatus.QUEUED,
+                              error_message=f"stalled in progress; requeued (retry {app.retry_count})")
+    if stalled:
+        log.info("stalled_applications_reset", count=len(stalled))
+    return len(stalled)
 
 
 def queue_discovered(session: Session, limit: int = 50) -> list[Application]:

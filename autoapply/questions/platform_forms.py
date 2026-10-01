@@ -71,8 +71,12 @@ FORM_DUMP_JS = r"""() => {
     return text(lg) || nearText(el.closest('label') || el) || el.name || ''; };
   const optText = el => { if (el.id) { const l = document.querySelector(`label[for="${CSS.escape(el.id)}"]`); if (text(l)) return text(l); }
     return text(el.closest('label')) || el.value || ''; };
+  // Every control gets a data-aa id (a DOM attribute only; no request) so an applier can fill
+  // exactly the field it read.
   const out = [], groups = {};
+  let n = 0;
   for (const el of document.querySelectorAll('input,textarea,select,[contenteditable="true"]')) {
+    el.setAttribute('data-aa', String(n++));
     const type = (el.getAttribute('type') || el.tagName).toLowerCase();
     if (['hidden','submit','button','image','reset','search','password'].includes(type)) continue;
     if (!vis(el) && !['radio','checkbox','file'].includes(type)) continue;
@@ -87,15 +91,18 @@ FORM_DUMP_JS = r"""() => {
         while (box && !members.every(m => box.contains(m))) box = box.parentElement;
         const fs = el.closest('fieldset'), lg = fs && fs.querySelector('legend');
         groups[key] = {label: text(lg) || (box ? nearText(box) : '') || el.name || '',
-                       field_type: type === 'radio' ? 'select' : 'multi_select', required: false, options: []};
+                       field_type: type === 'radio' ? 'select' : 'multi_select', required: false, options: [],
+                       aa: el.getAttribute('data-aa'), option_aa: [], control: type};
       }
-      groups[key].options.push(optText(el)); groups[key].required = groups[key].required || required; continue;
+      groups[key].options.push(optText(el)); groups[key].option_aa.push(el.getAttribute('data-aa'));
+      groups[key].required = groups[key].required || required; continue;
     }
     const tag = el.tagName;
     const field_type = tag === 'SELECT' ? 'select' : (tag === 'TEXTAREA' || el.isContentEditable) ? 'textarea'
       : ({file: 'file', email: 'email', tel: 'phone', date: 'date', number: 'number', url: 'url'}[type] || 'text');
     const label = labelOf(el);
-    out.push({label, field_type, required: required || /\*\s*$/.test(label),
+    out.push({label, field_type, required: required || /\*\s*$/.test(label), aa: el.getAttribute('data-aa'),
+              control: tag === 'SELECT' ? 'select' : type,
               options: tag === 'SELECT' ? [...el.options].map(o => o.text.trim()).filter(Boolean) : null});
   }
   for (const g of Object.values(groups)) out.push(g);

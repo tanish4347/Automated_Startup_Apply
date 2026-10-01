@@ -23,11 +23,30 @@ import time
 
 log = get_logger(__name__)
 
+# Harness appliers (autoapply/appliers/harness.py: review_only by default, evidence, outcomes).
+HARNESS_APPLIERS: list = []
+
+
 def setup_appliers() -> None:
+    from autoapply.appliers.internshala import InternshalaApplier
+    if not any(a.platform == "internshala" for a in HARNESS_APPLIERS):
+        HARNESS_APPLIERS.append(InternshalaApplier())
+    from autoapply.appliers.registry import list_appliers
+    if "greenhouse" in list_appliers():
+        return
     register_applier(GreenhouseApplier())
     register_applier(LeverApplier())
     register_applier(AshbyApplier())
     register_applier(SmartRecruitersApplier())
+
+
+def _default_answerer():
+    try:
+        from autoapply.answers.engine import harness_answerer
+        return harness_answerer()
+    except ImportError:
+        from autoapply.appliers.harness import Answer
+        return lambda field, job: Answer(park_reason="no answer engine")
 
 def run_application_engine(limit: int = 10) -> None:
     setup_appliers()
@@ -42,7 +61,10 @@ def run_application_engine(limit: int = 10) -> None:
     with SessionLocal() as session:
         profile = get_active_identity(session)
         
-        stalled_count = reset_stalled_applications(session)
+        from autoapply.appliers.harness import CapReached, load_config, pause, run_attempt, submit_mode
+        cfg = load_config()
+        answerer = _default_answerer()
+        stalled_count = reset_stalled_applications(session, timeout_minutes=float(cfg.get("stall_timeout_min", 30)))
         if stalled_count > 0:
             log.info('recovered_stalled_applications', count=stalled_count)
             
@@ -56,9 +78,29 @@ def run_application_engine(limit: int = 10) -> None:
         
         for app in queued_apps:
             log.info('processing_application', app_id=app.id, job_id=app.job_id)
-            transition_status(session, app, ApplicationStatus.IN_PROGRESS)
             job = app.job
+            harness = next((a for a in HARNESS_APPLIERS if a.can_handle(job)), None)
+            if harness is not None:
+                try:
+                    run_attempt(session, harness, app, answerer, cfg=cfg)
+                except CapReached as e:
+                    log.info('daily_cap_reached', reason=str(e))
+                    break
+                processed += 1
+                if processed < len(queued_apps):
+                    pause(cfg, processed)
+                continue
             applier = find_applier(job)
+            # The pre-harness ATS appliers submit directly: they can't halt before submit, so
+            # they run only where config/apply.yaml says submit_mode: live for their platform.
+            if applier is not None and submit_mode(applier.name, cfg) != 'live':
+                transition_status(session, app, ApplicationStatus.IN_PROGRESS)
+                transition_status(session, app, ApplicationStatus.PARKED,
+                                  error_message=f'{applier.name}: review_only, and this applier cannot halt '
+                                                'before submit; not run')
+                processed += 1
+                continue
+            transition_status(session, app, ApplicationStatus.IN_PROGRESS)
             
             if not applier:
                 log.warning('no_applier_found', job_id=job.id, platform=job.ats_platform, source=job.source)
@@ -95,4 +137,7 @@ def run_application_engine(limit: int = 10) -> None:
             if processed < len(queued_apps):
                 time.sleep(2)
                 
-    log.info('application_engine_finished', processed=processed, successes=successes)
+    tiers = dict(getattr(answerer, 'state', {}).get('engine').stats) if getattr(answerer, 'state', {}).get('engine') else {}
+    log.info('application_engine_finished', processed=processed, successes=successes, answer_tiers=tiers)
+    if tiers:
+        print('Fields per answer tier this run: ' + ', '.join(f'{k}={v}' for k, v in sorted(tiers.items())))

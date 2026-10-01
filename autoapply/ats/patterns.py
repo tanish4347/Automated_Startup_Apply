@@ -48,6 +48,9 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("skillate", re.compile(r"\b" + _SUB + r"\.skillate\.com\b", re.I)),
     ("springrecruit", re.compile(r"\b" + _SUB + r"\.springrecruit\.com\b", re.I)),
     ("hirepro", re.compile(r"\b" + _SUB + r"\.hirepro\.in\b", re.I)),
+    # Indian ATS seen on custom careers portals (Curefit). Its job list is a multipart POST to
+    # public.zwayam.com/jobs/search with domain + companyId, so it is detect-only for now.
+    ("zwayam", re.compile(r"\b(?:[a-z0-9-]+\.)?(zwayam)\.com\b", re.I)),
     ("google_form", re.compile(r"(https?://(?:docs\.google\.com/forms/d/(?:e/)?[A-Za-z0-9_-]+|forms\.gle/[A-Za-z0-9]+))", re.I)),
 ]
 
@@ -74,6 +77,7 @@ _NOT_TOKENS = {
     "skillate": {"www", "app", "api"},
     "springrecruit": {"www", "app", "api"},
     "hirepro": {"www", "app", "api"},
+    "zwayam": set(),
     "workday": set(),
     "zoho_recruit": {"www.zohorecruit.com", "www.zohorecruit.in"},
     "google_form": set(),
@@ -89,7 +93,7 @@ HARVESTABLE = {
 # careers-page crawler. BambooHR's /careers/list and JazzHR's /apply are reachable but no board
 # with open jobs was found to verify a parser against (2026-09-30).
 DETECT_ONLY = {"turbohire", "bamboohr", "jazzhr", "pinpoint", "recruiterflow", "skillate", "springrecruit",
-               "hirepro", "google_form"}
+               "hirepro", "zwayam", "google_form"}
 
 
 @dataclass(frozen=True)
@@ -164,5 +168,6 @@ def board_url(ats_type: str, token: str) -> str | None:
         "skillate": f"https://{token}.skillate.com/",
         "springrecruit": f"https://{token}.springrecruit.com/",
         "hirepro": f"https://{token}.hirepro.in/",
+        "zwayam": "https://public.zwayam.com/",
         "google_form": token,
     }.get(ats_type)

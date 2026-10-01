@@ -1,0 +1,14 @@
+# Answer engine (autoapply/answers/engine.py). Tiers 1 and 2 only: no generated prose.
+
+# Tier 1b: local embedding nearest neighbour over known phrasings.
+embedding_model: BAAI/bge-small-en-v1.5
+similarity_floor: 0.86          # accept a neighbour only at or above this cosine similarity
+sensitive_similarity_floor: 0.93  # stricter, for SENSITIVE canonical keys
+
+# Tier 2: constrained entailment with a local model, only for finite answer spaces
+# (yes/no, or a select/radio with options scraped from the form). Skipped cleanly when
+# Ollama is not running.
+ollama:
+  url: http://localhost:11434
+  model: qwen3:8b
+  timeout_s: 60

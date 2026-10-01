@@ -76,6 +76,12 @@ class Application(Base):
     retry_count = Column(Integer, default=0, nullable=False)
     max_retries = Column(Integer, default=3, nullable=False)
 
+    # Never double-apply: normalized company + title, shared by every job row of one posting
+    # (autoapply/appliers/harness.py: cluster_key). Claimed in application_claims before an attempt.
+    dedup_cluster = Column(String(512), nullable=True, index=True)
+    # The daily cap counts applications whose last attempt started today (UTC), from this column.
+    last_attempt_at = Column(DateTime(timezone=True), nullable=True, index=True)
+
     # Snapshot at time of application
     posting_snapshot_at_apply = Column(Text, nullable=True)
 

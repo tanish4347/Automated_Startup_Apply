@@ -1,0 +1,35 @@
+# Application engine settings. Read by autoapply/appliers/harness.py; never written by code.
+#
+# submit_mode, per platform: review_only (default) | live
+#   review_only  fill everything, screenshot, halt at the submit control, park for /review.
+#                The browser runs in read-only mode: every non-GET request is aborted before it
+#                leaves, so nothing can be submitted.
+#   live         read-only mode off; the applier may actually submit.
+# A platform missing here, or with any value other than exactly "live", is review_only.
+# Promote a platform to live only by editing this file by hand.
+submit_mode:
+  internshala: review_only
+  unstop: review_only
+  naukri: review_only
+  greenhouse: review_only
+  lever: review_only
+  ashby: review_only
+  smartrecruiters: review_only
+
+# Applications per UTC day, counted from applications.last_attempt_at (so a restart can't
+# exceed it). Per-platform sub-caps default to the global cap.
+daily_cap: 40
+platform_caps: {}          # e.g. {internshala: 25}
+
+# Seconds between attempts: uniform random in [min, max], plus a longer pause every N attempts.
+pacing:
+  min_s: 45
+  max_s: 120
+  long_pause_every: 8
+  long_pause_s: [300, 600]
+
+# IN_PROGRESS applications untouched this long are reset (reset_stalled_applications).
+stall_timeout_min: 30
+
+# Where screenshots and filled-field records go (git-ignored under data/).
+evidence_dir: data/evidence

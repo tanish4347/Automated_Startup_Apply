@@ -113,11 +113,18 @@ class BrowserSession:
     def __enter__(self) -> "BrowserSession":
         from playwright.sync_api import sync_playwright
         self.profile_dir.mkdir(parents=True, exist_ok=True)
+        from autoapply.sources.session_cookies import carry_over
+        session_cookies = carry_over(self.profile_dir)   # read before Chrome discards them at startup
         self._pw = sync_playwright().start()
         self._ctx = self._pw.chromium.launch_persistent_context(
             str(self.profile_dir), headless=self.headless, channel="chromium", user_agent=USER_AGENT,
             locale="en-IN", viewport={"width": 1366, "height": 900},
         )
+        if session_cookies:
+            try:
+                self._ctx.add_cookies(session_cookies)
+            except Exception as e:
+                log.warning("session_cookies_not_added", platform=self.platform, error=str(e)[:120])
         self.page = self._ctx.pages[0] if self._ctx.pages else self._ctx.new_page()
         self._ctx.on("request", self._on_request)
         self._ctx.on("response", self._on_response)
