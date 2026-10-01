@@ -40,7 +40,7 @@ Single source of truth for project state. Last updated 2026-10-01. Branch `main`
 ## In progress: prompt 16, "close the applier coverage gap"
 Goal: harden the 4 ATS appliers on the harness, add Unstop and Naukri appliers, harvest Naukri and Instahyre, and produce a coverage report. Everything stays review_only.
 
-**Uncommitted work in the tree (tests pass, 356):**
+**Groundwork committed in "wip: applier coverage groundwork" (tests pass, 356):**
 - `harness.py`:
   - `Reroute` exception: the job is re-tagged via `resolve.reroute()`, the attempt outcome is `rerouted`, and the job is re-queued.
   - `FormApplier.click_is_submit`: review_only parks before the click and takes a screenshot.

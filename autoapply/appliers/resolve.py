@@ -132,6 +132,20 @@ def _record(job: Job, url: str | None, note: str, now: datetime, definitive: boo
         job.ats_platform = platform
 
 
+def reroute(job: Job, url: str, note: str, now: datetime | None = None) -> str:
+    """An applier found that the posting applies elsewhere (Unstop's or Naukri's "apply on company
+    site"). Cache the resolution and re-tag the job from the target URL, not from its source, so it
+    leaves the platform's channel: an ATS host -> ats_direct + ats_platform, anything else -> company_site."""
+    job.apply_resolve_note = note[:500]
+    job.resolved_apply_url = url
+    job.apply_resolved_at = now or datetime.now(timezone.utc)
+    channel, platform = channel_for(url, None)
+    job.apply_channel = "company_site" if channel == "unknown" else channel
+    if platform:
+        job.ats_platform = platform
+    return job.apply_channel
+
+
 def resolve_unstop(job: Job, now: datetime) -> str:
     _record(job, job.source_url or job.application_url,
             "applies on Unstop's own registration form; no external apply link on the posting", now, True)

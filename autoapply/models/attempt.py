@@ -6,6 +6,7 @@ ApplicationAttempt: one row per attempt. outcome is one of
   parked     stopped before submitting: review_only mode (halted at the submit control, waiting
              for /review), or a SENSITIVE / free-text answer was missing
   failed     an error
+  rerouted   the posting applies somewhere else; the job was re-tagged and re-queued, nothing sent
 review_status tracks the candidate's decision in /review: pending | approved | rejected.
 
 ApplicationClaim: at most one claim per dedup cluster (UNIQUE). A claim is taken before an
@@ -23,7 +24,8 @@ from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text
 from autoapply.models.base import Base
 
 SUBMITTED, UNCERTAIN, PARKED, FAILED = "submitted", "uncertain", "parked", "failed"
-OUTCOMES = (SUBMITTED, UNCERTAIN, PARKED, FAILED)
+REROUTED = "rerouted"   # the posting applies elsewhere (a company site / ATS); the job was re-tagged
+OUTCOMES = (SUBMITTED, UNCERTAIN, PARKED, FAILED, REROUTED)
 REVIEW_ONLY, LIVE = "review_only", "live"
 
 

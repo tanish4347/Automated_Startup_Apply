@@ -44,8 +44,14 @@ PLATFORMS = {
 }
 
 # Reads every visible form control on the page (and open dialogs), with its label, type,
-# required flag and options. Radio/checkbox groups become one select / multi_select.
+# required flag and options. Radio/checkbox groups become one select / multi_select. Open shadow
+# roots are walked too (SmartRecruiters' one-click form is built from web components), and ARIA
+# comboboxes (react-select on Greenhouse/Ashby) are reported as control "combobox".
 FORM_DUMP_JS = r"""() => {
+  const deepAll = (root, sel) => { const out = [...root.querySelectorAll(sel)];
+    for (const h of root.querySelectorAll('*')) if (h.shadowRoot) out.push(...deepAll(h.shadowRoot, sel));
+    return out; };
+  const rootOf = el => { const r = el.getRootNode(); return r && r.querySelector ? r : document; };
   const vis = el => { const r = el.getBoundingClientRect(), s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
   const text = el => (el && el.innerText || '').replace(/\s+/g, ' ').trim();
@@ -60,22 +66,22 @@ FORM_DUMP_JS = r"""() => {
     return '';
   };
   const labelOf = el => {
-    if (el.id) { const l = document.querySelector(`label[for="${CSS.escape(el.id)}"]`); if (text(l)) return text(l); }
+    if (el.id) { const l = rootOf(el).querySelector(`label[for="${CSS.escape(el.id)}"]`); if (text(l)) return text(l); }
     if (el.getAttribute('aria-label')) return el.getAttribute('aria-label');
     const by = el.getAttribute('aria-labelledby');
-    if (by) { const t = by.split(/\s+/).map(i => text(document.getElementById(i))).join(' ').trim(); if (t) return t; }
+    if (by) { const t = by.split(/\s+/).map(i => text(rootOf(el).getElementById ? rootOf(el).getElementById(i) : document.getElementById(i))).join(' ').trim(); if (t) return t; }
     const wrap = el.closest('label'); if (text(wrap)) return text(wrap);
     return nearText(el) || el.getAttribute('placeholder') || el.name || '';
   };
   const groupLabel = el => { const fs = el.closest('fieldset'); const lg = fs && fs.querySelector('legend');
     return text(lg) || nearText(el.closest('label') || el) || el.name || ''; };
-  const optText = el => { if (el.id) { const l = document.querySelector(`label[for="${CSS.escape(el.id)}"]`); if (text(l)) return text(l); }
+  const optText = el => { if (el.id) { const l = rootOf(el).querySelector(`label[for="${CSS.escape(el.id)}"]`); if (text(l)) return text(l); }
     return text(el.closest('label')) || el.value || ''; };
   // Every control gets a data-aa id (a DOM attribute only; no request) so an applier can fill
   // exactly the field it read.
   const out = [], groups = {};
   let n = 0;
-  for (const el of document.querySelectorAll('input,textarea,select,[contenteditable="true"]')) {
+  for (const el of deepAll(document, 'input,textarea,select,[contenteditable="true"]')) {
     el.setAttribute('data-aa', String(n++));
     const type = (el.getAttribute('type') || el.tagName).toLowerCase();
     if (['hidden','submit','button','image','reset','search','password'].includes(type)) continue;
@@ -86,7 +92,7 @@ FORM_DUMP_JS = r"""() => {
       // holds every option of the group (not the text before each option, which is the previous option).
       const key = el.name || groupLabel(el);
       if (!groups[key]) {
-        const members = el.name ? [...document.querySelectorAll(`input[name="${CSS.escape(el.name)}"]`)] : [el];
+        const members = el.name ? [...rootOf(el).querySelectorAll(`input[name="${CSS.escape(el.name)}"]`)] : [el];
         let box = el.parentElement;
         while (box && !members.every(m => box.contains(m))) box = box.parentElement;
         const fs = el.closest('fieldset'), lg = fs && fs.querySelector('legend');
@@ -102,7 +108,7 @@ FORM_DUMP_JS = r"""() => {
       : ({file: 'file', email: 'email', tel: 'phone', date: 'date', number: 'number', url: 'url'}[type] || 'text');
     const label = labelOf(el);
     out.push({label, field_type, required: required || /\*\s*$/.test(label), aa: el.getAttribute('data-aa'),
-              control: tag === 'SELECT' ? 'select' : type,
+              control: tag === 'SELECT' ? 'select' : el.getAttribute('role') === 'combobox' ? 'combobox' : type,
               options: tag === 'SELECT' ? [...el.options].map(o => o.text.trim()).filter(Boolean) : null});
   }
   for (const g of Object.values(groups)) out.push(g);

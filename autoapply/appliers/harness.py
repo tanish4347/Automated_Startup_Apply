@@ -11,8 +11,14 @@ Modes (config/apply.yaml submit_mode, per platform; code only ever reads it):
 Every attempt records a full-page screenshot, the filled-field diff (canonical_key -> value placed
 in the DOM), the final URL, and a form fingerprint (platform + sorted question set). Outcomes:
 submitted (the platform's own success assertion matched), uncertain (no error, assertion did not
-match: NOT success), parked (review_only halt, or a SENSITIVE / free-text answer missing), failed.
-"submitted" is never inferred from the absence of an exception.
+match: NOT success), parked (review_only halt, or a SENSITIVE / free-text answer missing), failed,
+rerouted (the posting applies elsewhere: the job is re-tagged through the link resolver and
+re-queued for whichever applier owns the new channel). "submitted" is never inferred from the
+absence of an exception.
+
+Platforms whose apply button IS the submission (Naukri: one click POSTs the application, see
+docs/NAUKRI_FORM.md) set FormApplier.click_is_submit. There is no form to fill before the click,
+so review_only stops before it: the posting is screenshotted and the attempt parks.
 
 Never double-apply: an attempt first claims the job's dedup cluster (normalised company + title,
 shared by every job row of one posting, e.g. the same internship on Internshala and Unstop) in
@@ -44,7 +50,7 @@ from autoapply.config import PROJECT_ROOT
 from autoapply.logging import get_logger
 from autoapply.models.application import Application, ApplicationStatus
 from autoapply.models.attempt import (
-    FAILED, LIVE, PARKED, REVIEW_ONLY, SUBMITTED, UNCERTAIN, ApplicationAttempt, ApplicationClaim,
+    FAILED, LIVE, PARKED, REROUTED, REVIEW_ONLY, SUBMITTED, UNCERTAIN, ApplicationAttempt, ApplicationClaim,
 )
 from autoapply.models.job import Job
 from autoapply.services.dedup import normalize_brand, normalize_title
@@ -175,12 +181,22 @@ class Answer:
 Answerer = Callable[[FormField, Job], Answer]
 
 
+class Reroute(Exception):
+    """Raised by open_form when the posting applies somewhere else (a company site or an ATS).
+    Raised before anything is sent; the harness re-tags the job and re-queues the application."""
+
+    def __init__(self, url: str, note: str = ""):
+        super().__init__(note or f"applies at {url}")
+        self.url, self.note = url, note or f"applies at {url}"
+
+
 class FormApplier(abc.ABC):
     """A harness applier. Subclasses open the form, and declare explicitly what proves a
     submission landed (success_assertion). Filling is generic over FormField."""
 
     platform: str = ""
     channels: tuple[str, ...] = ()
+    click_is_submit = False   # True: the apply control itself submits; there is no form before it
 
     def can_handle(self, job: Job) -> bool:
         return (job.apply_channel or "") in self.channels
@@ -213,6 +229,17 @@ class FormApplier(abc.ABC):
                     page.locator(f'[data-aa="{aa}"]').check()
         elif field.control == "select":
             page.locator(f'[data-aa="{field.aa}"]').select_option(label=str(value))
+        elif field.control == "combobox":
+            # react-select / autocomplete: type, then pick the option the widget offers for it
+            box = page.locator(f'[data-aa="{field.aa}"]')
+            box.click()
+            box.fill(str(value))
+            page.wait_for_timeout(800)
+            opt = page.get_by_role("option", name=str(value), exact=False).first
+            if opt.count():
+                opt.click()
+            else:
+                box.press("Enter")
         else:
             page.locator(f'[data-aa="{field.aa}"]').fill(str(value))
 
@@ -236,6 +263,35 @@ def fingerprint(platform: str, fields: list[FormField]) -> str:
 
 
 # ── one attempt ──────────────────────────────────────────────────────────────
+
+def _click_is_submit(session: Session, applier: FormApplier, app: Application, attempt: ApplicationAttempt,
+                     bs, mode: str, cfg: dict[str, Any]) -> None:
+    """The apply control is the submission. review_only: screenshot the posting and park before the
+    click. live: click, then only the platform's success assertion makes it submitted."""
+    from autoapply.services.application_service import transition_status
+    shot = _evidence_dir(cfg) / f"attempt_{attempt.id}.png"
+    attempt.form_fingerprint = fingerprint(applier.platform, [])
+    if mode == REVIEW_ONLY:
+        bs.page.screenshot(path=str(shot), full_page=True)
+        attempt.screenshot_path, attempt.final_url = str(shot), bs.page.url
+        attempt.outcome, attempt.review_status = PARKED, "pending"
+        attempt.park_reason = (f"review_only: {applier.platform}'s Apply button is itself the submission; "
+                               "halted before the click")
+        transition_status(session, app, ApplicationStatus.PARKED)
+        return
+    before = bs.page.url
+    applier.submit_control(bs).click()
+    bs.page.wait_for_timeout(5000)
+    evidence = applier.success_assertion(bs, before)
+    bs.page.screenshot(path=str(shot), full_page=True)
+    attempt.screenshot_path, attempt.final_url = str(shot), bs.page.url
+    if evidence:
+        attempt.outcome, attempt.success_evidence = SUBMITTED, evidence
+        transition_status(session, app, ApplicationStatus.SUBMITTED)
+    else:
+        attempt.outcome, attempt.review_status = UNCERTAIN, "pending"
+        transition_status(session, app, ApplicationStatus.PARKED)
+
 
 @dataclass
 class AttemptResult:
@@ -288,6 +344,10 @@ def run_attempt(session: Session, applier: FormApplier, app: Application, answer
         if mode == REVIEW_ONLY:
             bs.read_only()
         applier.open_form(bs, job)
+        if applier.click_is_submit:
+            submit_clicked = mode == LIVE   # in live mode the click is the first thing it does
+            _click_is_submit(session, applier, app, attempt, bs, mode, cfg)
+            return AttemptResult(attempt)
         fields = applier.read_fields(bs)
         attempt.form_fingerprint = fingerprint(applier.platform, fields)
         resume_fld = applier.resume_field(fields)
@@ -340,6 +400,13 @@ def run_attempt(session: Session, applier: FormApplier, app: Application, answer
                 transition_status(session, app, ApplicationStatus.PARKED)
     except CapReached:
         raise
+    except Reroute as e:
+        from autoapply.appliers.resolve import reroute
+        reroute(job, e.url, e.note)
+        attempt.outcome, attempt.park_reason, attempt.final_url = REROUTED, e.note[:500], e.url
+        release(session, app)
+        transition_status(session, app, ApplicationStatus.QUEUED)
+        log.info("attempt_rerouted", app_id=app.id, to=e.url, channel=job.apply_channel)
     except Exception as e:
         attempt.error = f"{type(e).__name__}: {e}"[:2000]
         if submit_clicked:          # the click may have gone through: never call that a failure
