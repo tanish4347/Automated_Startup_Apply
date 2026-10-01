@@ -26,45 +26,79 @@ sources:
   instahyre: true
   himalayas: true
   adzuna: true        # skipped unless ADZUNA_APP_ID / ADZUNA_APP_KEY are set (.env)
-  remoteok: true
-  remotive: true
-  arbeitnow: true
+  # Retired: 441 postings between them, 0 in-policy. US/EU remote boards with no Indian
+  # internships; re-enable if that changes.
+  remoteok: false
+  remotive: false
+  arbeitnow: false
   linkedin: true
   ats_boards: true     # companies' own ATS boards, as resolved by `autoapply ats resolve`
   # Browser tier (autoapply discover --browser)
   naukri: true
   wellfound: true
-  yc_waas: true
+  yc_waas: false       # retired: 30 postings, 0 in-policy (logged-out teaser is US full-time)
 
 # Every open listing is pulled (~700 internships); there is no working category filter
 # server-side, so evaluate_job() does the filtering.
 unstop:
-  opportunities: [internships]
-  max_pages: 20       # 100 per page
-
-# Category slugs under internshala.com/internships/. Overlapping categories are cheap: each
-# internship is yielded once per run, and detail pages are cached in data/cache/internshala/.
+  opportunities: [internships, jobs]
+  # oppstatus=open caps the pool at ~700 internships + ~745 jobs, so paging runs to exhaustion
+  # (empty next_page_url) rather than to a page cap. Search terms add engineering slices that the
+  # category filters cannot: Unstop ignores category/domain server-side.
+  search_terms: ["", software, developer, engineer, "machine learning", "data science",
+                 "artificial intelligence", python, "web development", "full stack", backend, analyst]
+  max_pages: 40
 internshala:
   categories:
     - computer-science-internship
+    - software-development-internship
+    - backend-development-internship
+    - frontend-development-internship
+    - full-stack-development-internship
+    - web-development-internship
+    - mobile-app-development-internship
+    - android-app-development-internship
+    - ios-app-development-internship
+    - python-django-internship
+    - java-development-internship
+    - javascript-development-internship
+    - node-js-development-internship
+    - react-js-development-internship
+    - flutter-development-internship
+    - devops-internship
+    - cloud-computing-internship
+    - software-testing-internship
+    - cyber-security-internship
+    - blockchain-development-internship
+    - game-development-internship
+    - ui-ux-design-internship
     - machine-learning-internship
     - data-science-internship
     - artificial-intelligence-ai-internship
-    - software-development-internship
-    - web-development-internship
-    - backend-development-internship
-    - full-stack-development-internship
-    - python-django-internship
     - deep-learning-internship
     - natural-language-processing-nlp-internship
+    - computer-vision-internship
+    - data-analytics-internship
+    - big-data-internship
     - work-from-home-computer-science-internships
+    - work-from-home-software-development-internships
+    - work-from-home-web-development-internships
     - work-from-home-data-science-internships
-  max_pages: 20
+    - work-from-home-machine-learning-internships
+    - work-from-home-artificial-intelligence-ai-internships
+    - work-from-home-python-django-internships
+    - computer-science-internship-in-mumbai
+    - software-development-internship-in-mumbai
+    - data-science-internship-in-mumbai
+    - web-development-internship-in-mumbai
+    - machine-learning-internship-in-mumbai
+  max_pages: 25
   fetch_details: true
-
 instahyre:
-  experience_levels: [internship]
-
+  # internship is only ~63 jobs site-wide; entry_level adds the 0-1 year roles the classifier can
+  # still accept.
+  experience_levels: [internship, entry_level]
+  max_pages: 10
 himalayas:
   employment_types: [Intern]
   max_pages: 80
@@ -80,25 +114,43 @@ adzuna:
 # Internships plus 0-1 year roles. experience: 0 = fresher; wfhType 2 = remote;
 # cityTypeGid 134 = Mumbai.
 naukri:
+  # 20 jobs per page. Aggressive by request: wide keyword set, Mumbai and remote slices, deep paging.
   searches:
     - {keyword: software developer intern}
+    - {keyword: software engineer intern}
     - {keyword: machine learning intern}
     - {keyword: data science intern}
+    - {keyword: data analyst intern}
     - {keyword: ai intern}
     - {keyword: python developer intern}
+    - {keyword: web developer intern}
+    - {keyword: backend developer intern}
+    - {keyword: frontend developer intern}
+    - {keyword: full stack intern}
+    - {keyword: android developer intern}
+    - {keyword: devops intern}
+    - {keyword: research intern}
     - {keyword: internship, wfhType: 2}
     - {keyword: internship, cityTypeGid: 134}
+    - {keyword: software intern, cityTypeGid: 134}
+    - {keyword: data intern, cityTypeGid: 134}
     - {keyword: software engineer, experience: 0}
     - {keyword: machine learning engineer, experience: 0}
     - {keyword: data scientist, experience: 0}
-  max_pages: 10
+    - {keyword: python developer, experience: 0}
+    - {keyword: full stack developer, experience: 0}
+    - {keyword: data analyst, experience: 0}
+    - {keyword: software developer, experience: 0, cityTypeGid: 134}
+    - {keyword: trainee engineer, experience: 0}
+  max_pages: 25
   fetch_details: true
-
 wellfound:
-  roles: [software-engineer, machine-learning-engineer, data-scientist, backend-engineer, full-stack-engineer]
+  # Logged out there is no employment-type filter, so intern-scoped role slugs are used and the
+  # classifier rejects the rest.
+  roles: [software-engineer-intern, data-science-intern, machine-learning-engineer,
+          software-engineer, data-scientist]
   locations: [india, mumbai, remote]
   max_pages: 3
-
 yc_waas:
   paths: [/jobs]
 

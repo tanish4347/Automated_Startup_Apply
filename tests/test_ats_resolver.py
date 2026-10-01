@@ -14,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 import autoapply.models  # noqa: F401  (registers all tables)
 from autoapply.ats.harvesters import Target, parse_personio, parse_teamtailor
 from autoapply.ats.http import AsyncFetcher
+from autoapply.discovery import ats_resolver
 from autoapply.discovery.ats_resolver import (
     CompanyView, Resolution, apply_resolution, careers_links, due_companies, fingerprint, is_due, probe_slugs,
     resolve, run_resolver,
@@ -223,3 +224,108 @@ def test_ats_boards_only_fetches_resolved_boards(session):
     session.commit()
     source = AtsBoardsSource(session_factory=lambda: session)
     assert [t.company for _, t in source.targets(session)] == ["Resolved"]
+
+
+# ── probes must require real jobs, not just an existing board ────────────────
+
+@pytest.mark.parametrize("ats,url,empty,full", [
+    ("workable", "https://apply.workable.com/api/v1/widget/accounts/acme",
+     '{"name": "Acme", "jobs": []}', '{"name": "Acme", "jobs": [{"shortcode": "A1"}]}'),
+    ("recruitee", "https://acme.recruitee.com/api/offers/", '{"offers": []}', '{"offers": [{"id": 1}]}'),
+    ("ashby", "https://api.ashbyhq.com/posting-api/job-board/acme", '{"jobs": []}', '{"jobs": [{"id": "x"}]}'),
+    ("freshteam", "https://acme.freshteam.com/hire/widgets/jobs.json", '{"jobs": []}', '{"jobs": [{"id": 1}]}'),
+    ("breezy", "https://acme.breezy.hr/json", '[]', '[{"id": "a"}]'),
+    ("bamboohr", "https://acme.bamboohr.com/careers/list", '{"result": []}', '{"result": [{"id": 1}]}'),
+])
+def test_probe_needs_an_actual_job(ats, url, empty, full):
+    """Every one of these answers 200 with an empty list for an account that merely exists
+    (Zepto, Acko and Flipkart all have empty Workable accounts while using something else)."""
+    company = CompanyView(1, "Acme", website="https://acme.com")
+    fn = dict(ats_resolver.PROBES)[ats]
+    for body, expected in ((empty, False), (full, True)):
+        async def go(body=body):
+            f, _ = routes({url: (200, body, {"content-type": "application/json"})})
+            async with f:
+                return await fn(f, "acme", company)
+        assert bool(run(go())) is expected, f"{ats} with body {body}"
+
+
+def test_indian_companies_skip_the_euro_smb_probes():
+    indian = CompanyView(1, "Acme", website="https://acme.in", is_india=True)
+    other = CompanyView(2, "Acme", website="https://acme.com", is_india=False)
+    assert [p for p, _ in ats_resolver.probes_for(indian)][:3] == ["keka", "zoho_recruit", "freshteam"]
+    assert "personio" not in [p for p, _ in ats_resolver.probes_for(indian)]
+    assert "personio" in [p for p, _ in ats_resolver.probes_for(other)]
+
+
+def test_a_stored_board_url_is_not_re_used_as_evidence():
+    """A wrong verdict writes an ATS board URL into careers_url; re-fingerprinting it would
+    re-confirm that verdict at 0.95 on every later run."""
+    company = CompanyView(1, "Acko", website="https://acko.com",
+                          careers_url="https://apply.workable.com/acko/")
+    r, seen = resolve_with({}, company, allow_probe=False)
+    assert r.ats_type != "workable"
+    assert not any("workable" in str(u) for u in seen)
+
+
+def test_careers_subdomains_are_tried():
+    table = {"https://acme.com": (200, "<p>home</p>"),
+             "https://careers.acme.com/": (200, '<a href="https://acme.skillate.com/">Openings</a>')}
+    r, _ = resolve_with(table, CompanyView(1, "Acme", website="https://acme.com"), allow_probe=False)
+    assert (r.ats_type, r.token) == ("skillate", "acme")
+
+
+# ── browser stage ────────────────────────────────────────────────────────────
+
+class _FakePage:
+    def __init__(self, urls, html=""):
+        self._urls, self._html, self._handlers = urls, html, []
+
+    def on(self, event, fn):
+        self._handlers.append(fn)
+
+    def goto(self, url, **kw):
+        for fn in self._handlers:
+            for u in self._urls:
+                fn(type("R", (), {"url": u})())
+
+    def wait_for_timeout(self, ms):
+        pass
+
+    def content(self):
+        return self._html
+
+    def close(self):
+        pass
+
+
+def test_browser_stage_reads_the_ats_out_of_the_pages_own_requests(session):
+    """Curefit's careers portal only reveals zwayam in its XHR calls."""
+    c = _company(session, "Curefit", ats_type="custom", careers_url="https://careers.cult.fit/", is_india=True)
+    session.commit()
+
+    class Ctx:
+        def new_page(self):
+            return _FakePage(["https://public.zwayam.com/jobs/search", "https://c.go-mpulse.net/api/config.json"])
+
+    stats = ats_resolver.browser_stage(session, 10, context_factory=Ctx)
+    assert stats["zwayam"] == 1
+    assert (c.ats_type, c.ats_resolved_at is not None, c.needs_generic_crawl) == ("zwayam", True, True)
+
+
+def test_browser_stage_does_not_inherit_another_companys_requests(session):
+    """Each company gets its own page, so a late response from the previous one cannot be
+    attributed to it (seen live: Zepto's darwinbox call landing during Unacademy's load)."""
+    c = _company(session, "Unacademy", ats_type="custom", careers_url="https://unacademy.com/careers", is_india=True)
+    session.commit()
+    pages = []
+
+    class Ctx:
+        def new_page(self):
+            p = _FakePage(["https://unacademy.com/api/jobs"])
+            pages.append(p)
+            return p
+
+    stats = ats_resolver.browser_stage(session, 10, context_factory=Ctx)
+    assert stats["still_custom"] == 1 and c.ats_type == "custom"
+    assert len(pages) == len(ats_resolver.JOB_LIST_PATHS)   # a fresh page per navigation

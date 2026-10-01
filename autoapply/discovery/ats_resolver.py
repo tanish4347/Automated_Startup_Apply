@@ -488,8 +488,8 @@ def resolve_in_browser(browser_ctx, company: CompanyView, careers_url: str) -> R
         page = browser_ctx.new_page()
         try:
             html, urls = sniff_page(page, base + path)
-            if not html:
-                continue
+            if not html and not urls:
+                continue   # the evidence may be in the requests even when the body is empty
             ref = _pick(find_ats_refs(" ".join(urls)), company) or _pick(find_ats_refs(html), company)
             if ref:
                 return Resolution(ref.ats_type, ref.token, careers_url, 0.9,
