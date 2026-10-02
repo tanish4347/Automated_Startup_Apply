@@ -1,5 +1,2 @@
-"""Application automation adapters package."""
-
-from autoapply.appliers.base import BaseApplier, ApplyResult
-
-__all__ = ["BaseApplier", "ApplyResult"]
+"""Application appliers. Every applier is a harness FormApplier (autoapply/appliers/harness.py),
+registered in autoapply/appliers/registry.py."""

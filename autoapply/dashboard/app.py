@@ -543,8 +543,10 @@ def create_app(settings=None):
         active = db.query(Application).filter(Application.status.in_([
             ApplicationStatus.ASSESSMENT, ApplicationStatus.INTERVIEW,
         ])).all()
+        from autoapply.services.company_brief import brief_for, company_of, summary
+        briefs = {a.id: summary(brief_for(db, company_of(db, a.job), fetch=False)) for a in active}
         return templates.TemplateResponse(request, "interview_prep.html", {
-            "page": "interview-prep", "applications": active, "fmt": _fmt,
+            "page": "interview-prep", "applications": active, "briefs": briefs, "fmt": _fmt,
         })
 
     # ── SETTINGS ───────────────────────────────────────────────────────────

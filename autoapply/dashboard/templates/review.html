@@ -16,8 +16,9 @@ table.f{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
 table.f td{padding:6px 8px;border-bottom:1px solid #f0f2f8;vertical-align:top}
 table.f td:first-child{color:#555;width:42%}
 table.f .tier{font-size:10px;color:#888;display:block}
-table.f input{width:100%;padding:5px 7px;border:1px solid #d5d9e6;border-radius:4px;font:inherit;font-size:12px}
+table.f input,table.f textarea{width:100%;padding:5px 7px;border:1px solid #d5d9e6;border-radius:4px;font:inherit;font-size:12px}
 .missing td{background:#fff7ed}
+.gen{display:inline-block;margin-top:3px;font-size:10px;font-weight:600;color:#7c2d12;background:#ffedd5;border-radius:4px;padding:1px 6px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .keys{font-size:12px;color:#888;margin-top:12px;display:flex;gap:16px;flex-wrap:wrap}
 kbd{background:#f0f2fa;border:1px solid #dde0ea;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11px;font-family:inherit}
@@ -54,8 +55,12 @@ function render() {
     ? '<span><kbd>A</kbd> approve</span><span><kbd>R</kbd> reject</span><span><kbd>E</kbd> edit, then <kbd>Ctrl</kbd>+<kbd>Enter</kbd> approve</span><span><kbd>←</kbd> <kbd>→</kbd> move</span>'
     : '<span><kbd>Y</kbd> it went through</span><span><kbd>N</kbd> it did not</span><span><kbd>←</kbd> <kbd>→</kbd> move</span>';
   if (!it) { box.innerHTML = `<div class="empty">Nothing ${tab === 'pending' ? 'waiting for review' : 'uncertain'}.</div>`; return; }
-  const row = (f, missing) => `<tr class="${missing ? 'missing' : ''}"><td>${esc(f.label)}<span class="tier">${esc(f.canonical_key || '')}${f.tier ? ' · tier ' + esc(f.tier) : ''}${missing ? ' · ' + esc(f.reason) : ''}</span></td>` +
-    `<td>${editing ? `<input data-label="${esc(f.label)}" value="${esc(missing ? '' : f.value)}">` : esc(missing ? '— not filled —' : f.value)}</td></tr>`;
+  const gen = f => f.generated_id ? `<span class="gen">${f.needs_approval ? 'generated: needs your approval' : 'generated: approved'}</span>` : '';
+  const input = (f, missing) => f.generated_id
+    ? `<textarea data-label="${esc(f.label)}" rows="6">${esc(f.value)}</textarea>`
+    : `<input data-label="${esc(f.label)}" value="${esc(missing ? '' : f.value)}">`;
+  const row = (f, missing) => `<tr class="${missing ? 'missing' : ''}"><td>${esc(f.label)}<span class="tier">${esc(f.canonical_key || '')}${f.tier ? ' · tier ' + esc(f.tier) : ''}${missing ? ' · ' + esc(f.reason) : ''}</span>${gen(f)}</td>` +
+    `<td>${editing ? input(f, missing) : `<span style="white-space:pre-wrap">${esc(missing ? '— not filled —' : f.value)}</span>`}</td></tr>`;
   box.innerHTML = `<div class="rcard"><div>
       <h2>${esc(it.job.title)}</h2>
       <div class="sub">${esc(it.job.company)} · ${esc(it.job.location || '')} · ${esc(it.job.stipend || '')} · ${esc(it.job.channel)} · <a href="${esc(it.job.url)}" target="_blank" rel="noopener">posting</a> · mode ${esc(it.mode)}</div>
@@ -66,14 +71,14 @@ function render() {
         : `<button class="btn btn-success" data-a="landed">It went through</button><button class="btn btn-secondary" data-a="not_landed">It did not</button>`}</div>
     </div><div class="shot">${it.screenshot ? `<img src="${it.screenshot}" alt="Filled form for ${esc(it.job.title)}">` : '<div class="empty">No screenshot</div>'}</div></div>`;
   box.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a));
-  if (editing) { const f = box.querySelector('input'); if (f) f.focus(); }
+  if (editing) { const f = box.querySelector('[data-label]'); if (f) f.focus(); }
 }
 
 async function act(action) {
   const it = items[i]; if (!it) return;
   if (action === 'edit' && !editing) { editing = true; render(); return; }
   const values = {};
-  if (action === 'edit') document.querySelectorAll('#card input[data-label]').forEach(el => { values[el.dataset.label] = el.value; });
+  if (action === 'edit') document.querySelectorAll('#card [data-label]').forEach(el => { values[el.dataset.label] = el.value; });
   const r = await fetch('/review/api/' + it.id, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action, values})});
   if (!r.ok) { alert('Could not save: ' + await r.text()); return; }
   await load();

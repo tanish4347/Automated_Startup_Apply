@@ -1,9 +1,9 @@
 # PROGRESS.md
 
-Single source of truth for project state. Last updated 2026-10-01. Branch `main`; check
+Single source of truth for project state. Last updated 2026-10-02. Branch `main`; check
 `git log -1` and `git status` for the exact commit and any uncommitted work.
 
-## Done (prompts 1–15)
+## Done (prompts 1–17)
 - **Foundation:** config (`config/*.yaml`), location policy, Alembic migrations 0001–0011, company-first data model,
   dedup v2, data-corruption fixes (see docs/AUDIT.md for the original audit).
 - **Discovery:**
@@ -37,65 +37,66 @@ Single source of truth for project state. Last updated 2026-10-01. Branch `main`
 - **Discovery yield (15):** in-policy jobs went from 554 to 603.
   - internshala 366, himalayas 128, unstop 84, naukri 18, ats/career 3, instahyre 2, linkedin 1, wellfound 1.
 
-## In progress: prompt 16, "close the applier coverage gap"
-Goal: harden the 4 ATS appliers on the harness, add Unstop and Naukri appliers, harvest Naukri and Instahyre, and produce a coverage report. Everything stays review_only.
+- **Applier coverage (16):** every applier is a harness `FormApplier`, registered in `appliers/registry.py`
+  (the LinkedIn guard and its tests kept). The legacy `BaseApplier` path, `question_engine.py` (Gemini),
+  `playwright_utils.py`, `workable.py` and `breezy.py` are deleted.
+  - Greenhouse, Lever, Ashby and SmartRecruiters were rewritten on the harness with explicit success assertions
+    (provisional). Each was checked read-only against a real form on 2026-10-02: 20, 14, 22 and 14 fields, with
+    the submit control found. Greenhouse uses the embed form; the old `.asterisk` check is gone. Lever's
+    hCaptcha widget is tolerated on load and never solved. Ashby needs its GraphQL *queries* allowed through
+    read-only mode (`read_only_allow`), while mutations stay blocked.
+  - Unstop: multi-step form (`max_steps`, `next_control`). A Next that sends data halts review_only. An external
+    `regn_type` / off-site click raises `Reroute`. "Application Closed" counts as closed.
+  - Naukri: the Apply click is the submission (`docs/NAUKRI_FORM.md`). Company-site jobs reroute from stored
+    links or the page's job JSON, without clicking.
+  - Harness: `NeedsLogin` re-queues the application and skips that platform for the run. Tier-3 answers park
+    until approved, even when the platform is `live`.
+  - Himalayas: the company's own ATS board is found by its slug, and a job is matched on an exact unique title
+    (`resolve.resolve_himalayas_boards`). This routed 25 jobs: 14 SmartRecruiters, 9 Greenhouse, 2 Lever.
+  - `autoapply appliers coverage|list|resolve`. **Coverage on 2026-10-02: 483 of 603 in-policy jobs have an
+    applier** (internshala 366, unstop 84, smartrecruiters 14, greenhouse 10, naukri 5, ashby 2, lever 2).
+    120 have none: 104 Himalayas with no supported board or no title match, 12 company_site, 2 instahyre, 1 Workday, 1 wellfound.
+- **Generative tier + company brief (17):** migration 0012 adds `companies.company_brief` (it did not exist
+  before) and `generated_answer`.
+  - `services/company_brief.py` builds a brief once per company from database facts plus text lifted from its
+    site (homepage and about page). It respects robots.txt, uses the `company_brief` budget, and is cached
+    permanently. Run `autoapply companies brief`. The same brief is shown on /interview-prep.
+  - `answers/generate.py` is tier 3. Retrieval is the story bank plus the brief. Ollama generates a draft, then
+    a separate verification call lists each claim with a quote. Deterministic checks then require the quotes,
+    numbers and names to appear in the context. A rejected draft parks and is not retried.
+  - Drafts are cached per (canonical_key, company) and always go to /review. Approve or edit approves the draft.
+  - It refuses SENSITIVE keys and any prompt containing a SENSITIVE value. `vault status` says tier 3 is
+    disabled until the story pass is complete (currently 0 of 3).
+- **Prompt 18 (email tracking, status timeline, interview prep page, funnel, digest): not started**, deferred by the user.
 
-**Groundwork committed in "wip: applier coverage groundwork" (tests pass, 356):**
-- `harness.py`:
-  - `Reroute` exception: the job is re-tagged via `resolve.reroute()`, the attempt outcome is `rerouted`, and the job is re-queued.
-  - `FormApplier.click_is_submit`: review_only parks before the click and takes a screenshot.
-  - Combobox filling.
-- `models/attempt.py`: `REROUTED` outcome.
-- `resolve.py`: `reroute()`. A target that is not an ATS becomes `company_site`.
-- `questions/platform_forms.py`: `FORM_DUMP_JS` walks open shadow roots and reports `role=combobox`.
-
-**Findings:**
-- **Naukri: clicking Apply IS the submission.** The page JS binds a click on `.apply-button` to
-  `POST /cloudgateway-workflow/workflow-services/apply-workflow/v1/apply` with the jobId. If the job has a
-  questionnaire (`questionnaireIdPresent`), a chatbot (`botapi/v5/respond`) follows. 13 of the 18 in-policy jobs are
-  `companyApplyJob=true` ("apply on company site") and should reroute.
-  - Still to write: `docs/NAUKRI_FORM.md`.
-- The Naukri browser profile is **not logged in**. Run `autoapply browser-login naukri`.
-- Himalayas `applicationLink` always points back to himalayas.app, which is behind Cloudflare. Its 128 jobs have no route.
-- Unstop raw data has no external-apply field. Detect it at apply time (the Register/Apply target host) and `Reroute`.
-- Sample ATS job URLs exist in the DB (ids 2658 gh, 18221 ashby, 17166 lever, 20289 smartrecruiters) for read-only checks.
-
-**Next steps (in order):**
-1. Rewrite `appliers/greenhouse.py`, `lever.py`, `ashby.py`, `smartrecruiters.py` as `FormApplier`s:
-   - Each needs URL building, `open_form`, `submit_control`, and an explicit `success_assertion`.
-     - Greenhouse: `/confirmation` URL or "Thank you for applying". The old `.asterisk` error check is wrong: `.asterisk` is the required-field marker.
-     - Lever: `/thanks`.
-     - Ashby: success container.
-     - SmartRecruiters: provisional.
-   - Delete their bespoke logic and remove `tests/test_e2e.py`'s legacy usage.
-   - Check each against one real form, read-only.
-2. `appliers/unstop.py`:
-   - Open the posting, then Register.
-   - An external host means `Reroute`.
-   - A login wall means `NeedsLogin`.
-   - The success assertion is provisional.
-3. `appliers/naukri.py`:
-   - `click_is_submit=True`.
-   - `#company-site-button` means `Reroute` to the popup URL.
-4. Merge the registries: move the harness appliers into `registry.py` (keep the LinkedIn guard and its tests) and drop the legacy path in `orchestrator.py`.
-5. Add an `autoapply appliers coverage` command: for each in-policy job, the handling applier, and the count with none.
-6. After the user logs in: `autoapply questions harvest --platform naukri` and `--platform instahyre`.
-7. Write `docs/NAUKRI_FORM.md` and add tests for all of the above.
+## Next steps
+1. Log in: `autoapply browser-login naukri`, then `instahyre`, `unstop`, `internshala`. Then run
+   `autoapply questions harvest --platform naukri --platform instahyre`.
+   - Naukri is expected to report "apply is a submit" with 0 fields (see docs/NAUKRI_FORM.md).
+2. Confirm the 3 story-bank answers at /intake, then install Ollama (`qwen3:8b`). That turns on tiers 2 and 3.
+3. Run `autoapply companies brief --limit 100` for the companies behind in-policy jobs.
+4. Run `autoapply apply` in review_only and work through /review.
+   - Every success assertion stays provisional until a live submission is observed.
+5. Prompt 18.
 
 ## Blocked on the user
 - Logins:
   - Internshala is still not logged in (Google sign-in fails in Playwright). Use `autoapply browser-login internshala` in a plain browser.
   - Naukri and Instahyre also need logins.
 - robots.txt decision: Internshala disallows `/student/*` and `/application/*`, and Unstop disallows `/api/*` and `/competitions/*/register`.
-- Install Ollama (`qwen3:8b`) for answer tier 2. Without it, tier 2 is skipped.
+- Install Ollama (`qwen3:8b`) for answer tiers 2 and 3. Without it, both are skipped and those fields park.
+- Story bank: 0 of 3 confirmed. Tier 3 stays off until all are confirmed at /intake.
 
 ## Known bugs / limits
-- Himalayas is behind Cloudflare, so there is no apply route for its 128 in-policy jobs.
+- Himalayas is behind Cloudflare. Only the 25 jobs matched on a company ATS board have a route; 103 still have none.
 - Some resolver targets time out from this network (Acko/Skillate). Urban Company is unresolved.
 - Every success assertion is provisional until a live submission is observed.
+  Unstop's steps after step 1 and its final control were not reachable logged out.
+- The Naukri questionnaire chatbot is not answered automatically. Those applications end up `uncertain` for review.
 - Instahyre yields almost no in-policy jobs.
 - Further items are in docs/AUDIT.md (2.3 wrong ATS tokens, 2.5 no re-classification on richer sighting).
 
 ## Tests
-- `.venv/bin/pytest -q`: 356 passed (2026-10-01).
-- `tests/test_e2e.py` writes to the real DB, and `tests/test_career.py` hits live APIs.
+- `.venv/bin/pytest -q`: 383 passed (2026-10-02).
+- `tests/test_e2e.py` now runs the Greenhouse applier in a real headless Chromium against
+  `tests/mock_ats.html`, offline, using an in-memory DB.

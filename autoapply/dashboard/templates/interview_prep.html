@@ -14,6 +14,15 @@
     </div>
     <a href="/applications/{{ a.id }}" class="btn btn-secondary">View Application</a>
   </div>
+  {% set b = briefs.get(a.id) %}
+  <div style="margin-top:14px;background:#f8f9fc;border-radius:6px;padding:14px;font-size:13px;line-height:1.6">
+    <div style="font-weight:600;margin-bottom:6px">Company brief</div>
+    {% if b %}
+      {% for k in ['what','product','stage','size','founded','location'] %}{% if b[k] %}<div><span style="color:#888;display:inline-block;width:70px">{{ k }}</span>{{ b[k] }}</div>{% endif %}{% endfor %}
+      {% if b.notable %}<ul style="margin:6px 0 0 18px">{% for n in b.notable[:4] %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+      {% if b.sources %}<div style="color:#888;font-size:11px;margin-top:6px">From {{ b.sources|join(', ') }}</div>{% endif %}
+    {% else %}<span style="color:#888">Not fetched yet: <code>autoapply companies brief --company "{{ a.company }}"</code></span>{% endif %}
+  </div>
   <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
     <div style="background:#ede9fe;border-radius:6px;padding:14px">
       <div style="font-weight:600;font-size:13px;color:#5b21b6;margin-bottom:8px">Technical Prep</div>

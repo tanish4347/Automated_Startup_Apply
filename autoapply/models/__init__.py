@@ -11,6 +11,7 @@ from autoapply.models.source_run import SourceRun
 from autoapply.models.form_question import FormQuestion
 from autoapply.models.attempt import ApplicationAttempt, ApplicationClaim
 from autoapply.models.answer_alias import QuestionAlias
+from autoapply.models.generated_answer import GeneratedAnswer
 
 __all__ = [
     "Base",
@@ -35,4 +36,5 @@ __all__ = [
     "ApplicationAttempt",
     "ApplicationClaim",
     "QuestionAlias",
+    "GeneratedAnswer",
 ]

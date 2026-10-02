@@ -16,6 +16,15 @@ rerouted (the posting applies elsewhere: the job is re-tagged through the link r
 re-queued for whichever applier owns the new channel). "submitted" is never inferred from the
 absence of an exception.
 
+Generated prose (answer tier 3) never auto-submits: an attempt with a tier-3 answer the candidate
+has not approved in /review parks, whatever submit_mode says. Approval is recorded on the cached
+draft (generated_answer), so the next attempt fills the approved text and may submit.
+
+Multi-step forms (Unstop: Back/Next) declare FormApplier.next_control. Each step is filled, then
+"Next" clicked. In review_only, a Next click that tries to send anything (the read-only guard blocks
+it) means the step is itself a submission: the attempt stops there and parks. In live mode every
+Next click counts as possibly-submitting, so a later error is uncertain, never failed.
+
 Platforms whose apply button IS the submission (Naukri: one click POSTs the application, see
 docs/NAUKRI_FORM.md) set FormApplier.click_is_submit. There is no form to fill before the click,
 so review_only stops before it: the posting is screenshotted and the attempt parks.
@@ -176,9 +185,16 @@ class Answer:
     tier: str | None = None               # "1a" alias | "1b" embedding | "2" entailment | None
     confidence: float = 0.0
     park_reason: str | None = None        # why it was not answered (SENSITIVE missing, free text ...)
+    needs_approval: bool = False          # tier 3 draft not yet approved in /review: never submitted
+    generated_id: int | None = None       # generated_answer row (tier 3)
 
 
 Answerer = Callable[[FormField, Job], Answer]
+
+
+class NeedsLogin(Exception):
+    """The platform's browser profile is not logged in. Nothing was sent. The attempt re-queues the
+    application and the run stops using that platform (every other job on it would hit the same wall)."""
 
 
 class Reroute(Exception):
@@ -197,6 +213,11 @@ class FormApplier(abc.ABC):
     platform: str = ""
     channels: tuple[str, ...] = ()
     click_is_submit = False   # True: the apply control itself submits; there is no form before it
+    max_steps = 1             # multi-step forms: pages filled before the final submit control
+
+    # Optional: (method, url, body) -> True for a non-GET request that only READS (a GraphQL query
+    # the form needs to render). Must refuse every write. None = plain read-only.
+    read_only_allow: Callable[[str, str, str], bool] | None = None
 
     def can_handle(self, job: Job) -> bool:
         return (job.apply_channel or "") in self.channels
@@ -208,15 +229,20 @@ class FormApplier(abc.ABC):
     def read_fields(self, bs) -> list[FormField]:
         from autoapply.questions.platform_forms import FORM_DUMP_JS
         dump = bs.page.evaluate(FORM_DUMP_JS)
+        overrides = self.label_overrides(bs)
         out = []
         for f in dump.get("fields") or []:
             from autoapply.questions.harvest import clean_label
-            label = clean_label(f.get("label"))
+            label = clean_label(overrides.get(f.get("aa") or "") or f.get("label"))
             if label:
                 out.append(FormField(label, f.get("field_type") or "text", bool(f.get("required")),
                                      [o for o in f.get("options") or [] if o] or None, f.get("aa"), f.get("control"),
                                      f.get("option_aa")))
         return out
+
+    def label_overrides(self, bs) -> dict[str, str]:
+        """data-aa -> question text, for controls whose own label is missing or a bare marker."""
+        return {}
 
     def fill(self, bs, field: FormField, value: Any) -> None:
         page = bs.page
@@ -243,8 +269,18 @@ class FormApplier(abc.ABC):
         else:
             page.locator(f'[data-aa="{field.aa}"]').fill(str(value))
 
+    def next_control(self, bs):
+        """Multi-step forms: the visible "Next" control of the current step, or None on the last step."""
+        return None
+
     def resume_field(self, fields: list[FormField]) -> FormField | None:
-        return next((f for f in fields if f.field_type == "file"), None)
+        """The file input labelled resume/CV, else the first one that is not a photo or cover letter
+        (SmartRecruiters' first file input is the profile image; Ashby's is an autofill box)."""
+        import re
+        files = [f for f in fields if f.field_type == "file"]
+        named = [f for f in files if re.search(r"resume|\bcv\b|curriculum", f.label, re.I)]
+        rest = [f for f in files if not re.search(r"image|photo|picture|avatar|cover|autofill|^application$", f.label, re.I)]
+        return (named or rest or [None])[0]
 
     @abc.abstractmethod
     def submit_control(self, bs):
@@ -291,6 +327,43 @@ def _click_is_submit(session: Session, applier: FormApplier, app: Application, a
     else:
         attempt.outcome, attempt.review_status = UNCERTAIN, "pending"
         transition_status(session, app, ApplicationStatus.PARKED)
+
+
+def _platform_writes(blocked: list[str], page_url: str) -> bool:
+    """Did a click try to send something to the platform itself (not analytics)?"""
+    from urllib.parse import urlsplit
+    host = ".".join(urlsplit(page_url).netloc.split(".")[-2:])
+    return any(host and host in urlsplit(b.split(" ", 1)[-1]).netloc for b in blocked)
+
+
+def _fill_page(session: Session, applier: FormApplier, bs, job: Job, fields: list[FormField], answerer: Answerer,
+               filled: list[dict[str, Any]], unfilled: list[dict[str, Any]]) -> None:
+    from autoapply.candidate.sensitive import ParkApplication
+    resume_fld = applier.resume_field(fields)
+    for fld in fields:
+        if fld is resume_fld:
+            path = resume_for(session, job.role_family)
+            if path:
+                applier.fill(bs, fld, path)
+                filled.append({"label": fld.label, "canonical_key": "resume", "value": Path(path).name, "tier": "vault"})
+            else:
+                unfilled.append({"label": fld.label, "reason": "no active resume in the vault", "required": fld.required})
+            continue
+        try:
+            ans = answerer(fld, job)
+        except ParkApplication as e:
+            ans = Answer(park_reason=f"SENSITIVE missing: {e}")
+        if ans.value is None:
+            unfilled.append({"label": fld.label, "canonical_key": ans.canonical_key, "required": fld.required,
+                             "reason": ans.park_reason or "no answer", "field_type": fld.field_type,
+                             "options": fld.options})
+            continue
+        applier.fill(bs, fld, ans.value)
+        row = {"label": fld.label, "canonical_key": ans.canonical_key, "value": ans.value,
+               "tier": ans.tier, "confidence": ans.confidence, "field_type": fld.field_type}
+        if ans.tier == "3":
+            row.update(generated_id=ans.generated_id, needs_approval=ans.needs_approval)
+        filled.append(row)
 
 
 @dataclass
@@ -342,45 +415,47 @@ def run_attempt(session: Session, applier: FormApplier, app: Application, answer
         from autoapply.sources.browser import BrowserSession
         bs = (browser_factory or (lambda p: BrowserSession(p)))(applier.platform).__enter__()
         if mode == REVIEW_ONLY:
-            bs.read_only()
+            if applier.read_only_allow is not None:
+                bs.read_only(applier.read_only_allow)
+            else:
+                bs.read_only()
         applier.open_form(bs, job)
         if applier.click_is_submit:
             submit_clicked = mode == LIVE   # in live mode the click is the first thing it does
             _click_is_submit(session, applier, app, attempt, bs, mode, cfg)
             return AttemptResult(attempt)
-        fields = applier.read_fields(bs)
-        attempt.form_fingerprint = fingerprint(applier.platform, fields)
-        resume_fld = applier.resume_field(fields)
-        for fld in fields:
-            if fld is resume_fld:
-                path = resume_for(session, job.role_family)
-                if path:
-                    applier.fill(bs, fld, path)
-                    filled.append({"label": fld.label, "canonical_key": "resume", "value": Path(path).name, "tier": "vault"})
-                else:
-                    unfilled.append({"label": fld.label, "reason": "no active resume in the vault", "required": fld.required})
-                continue
-            try:
-                ans = answerer(fld, job)
-            except ParkApplication as e:
-                ans = Answer(park_reason=f"SENSITIVE missing: {e}")
-            if ans.value is None:
-                unfilled.append({"label": fld.label, "canonical_key": ans.canonical_key, "required": fld.required,
-                                 "reason": ans.park_reason or "no answer", "field_type": fld.field_type,
-                                 "options": fld.options})
-                continue
-            applier.fill(bs, fld, ans.value)
-            filled.append({"label": fld.label, "canonical_key": ans.canonical_key, "value": ans.value,
-                           "tier": ans.tier, "confidence": ans.confidence, "field_type": fld.field_type})
+        all_fields: list[FormField] = []
+        step_halt = None
+        for step in range(max(1, applier.max_steps)):
+            fields = applier.read_fields(bs)
+            all_fields += fields
+            _fill_page(session, applier, bs, job, fields, answerer, filled, unfilled)
+            nxt = applier.next_control(bs) if step + 1 < applier.max_steps else None
+            if nxt is None:
+                break
+            if [u for u in unfilled if u.get("required")]:
+                break                              # a required answer is missing: the next step can't open
+            sent_before = len(getattr(bs, "blocked", []) or [])
+            if mode == LIVE:
+                submit_clicked = True              # a Next may save the step server-side
+            nxt.click()
+            bs.page.wait_for_timeout(2500)
+            sent = (getattr(bs, "blocked", []) or [])[sent_before:]
+            if mode == REVIEW_ONLY and _platform_writes(sent, bs.page.url):
+                step_halt = f"review_only: step {step + 1}'s Next tries to send data ({sent[0][:120]}); halted there"
+                break
+        attempt.form_fingerprint = fingerprint(applier.platform, all_fields)
         shot = _evidence_dir(cfg) / f"attempt_{attempt.id}.png"
         bs.page.screenshot(path=str(shot), full_page=True)
         attempt.screenshot_path = str(shot)
         attempt.final_url = bs.page.url
         missing_required = [u for u in unfilled if u.get("required")]
-        if missing_required or mode == REVIEW_ONLY:
+        unapproved = [f for f in filled if f.get("needs_approval")]
+        if missing_required or unapproved or step_halt or mode == REVIEW_ONLY:
             attempt.outcome = PARKED
-            attempt.park_reason = ("; ".join(f"{u['label']}: {u['reason']}" for u in missing_required)
-                                   if missing_required else "review_only: halted at the submit control")
+            reasons = [f"{u['label']}: {u['reason']}" for u in missing_required]
+            reasons += [f"{f['label']}: generated answer (tier 3) awaiting your approval" for f in unapproved]
+            attempt.park_reason = "; ".join(reasons) or step_halt or "review_only: halted at the submit control"
             attempt.review_status = "pending"
             transition_status(session, app, ApplicationStatus.PARKED)
         else:
@@ -394,11 +469,19 @@ def run_attempt(session: Session, applier: FormApplier, app: Application, answer
             bs.page.screenshot(path=str(shot), full_page=True)
             if evidence:
                 attempt.outcome, attempt.success_evidence = SUBMITTED, evidence
+                app.answers_submitted = filled
+                app.confirmation_text = evidence[:2000]
                 transition_status(session, app, ApplicationStatus.SUBMITTED)
             else:
                 attempt.outcome, attempt.review_status = UNCERTAIN, "pending"
                 transition_status(session, app, ApplicationStatus.PARKED)
     except CapReached:
+        raise
+    except NeedsLogin as e:
+        attempt.outcome, attempt.error = FAILED, f"NeedsLogin: {e}"[:2000]
+        release(session, app)
+        transition_status(session, app, ApplicationStatus.QUEUED, error_message=attempt.error)
+        log.warning("attempt_needs_login", app_id=app.id, platform=applier.platform)
         raise
     except Reroute as e:
         from autoapply.appliers.resolve import reroute

@@ -222,3 +222,127 @@ def run_resolver(session: Session, sources: tuple[str, ...] = AGGREGATORS, limit
     after = apply_channel_table(session)
     log.info("apply_resolver_done", **outcomes)
     return {"before": before, "after": after, "outcomes": dict(outcomes)}
+
+
+# ── links already known (no request) ─────────────────────────────────────────
+
+def reroute_known(session: Session) -> int:
+    """Naukri jobs whose stored application_url is already off naukri.com (captured at discovery
+    from the job's own applyRedirectUrl: "apply on company site"). Re-tagged without a request, so
+    no browser is opened just to find out."""
+    n = 0
+    for job in session.query(Job).filter(Job.apply_channel == "naukri", Job.is_active == 1,
+                                         Job.apply_resolved_at.is_(None)):
+        host = urlsplit(job.application_url or "").netloc.lower()
+        if host and not host.endswith("naukri.com"):
+            reroute(job, job.application_url, f"Naukri posting applies on the company site: {job.application_url[:200]}")
+            n += 1
+    session.commit()
+    return n
+
+
+# ── Himalayas: the company's own ATS board instead of the Cloudflare'd posting ─
+
+BOARD_ATS = ("greenhouse", "lever", "ashby", "smartrecruiters")
+
+
+def board_slugs(company: str, slug: str | None) -> list[str]:
+    from autoapply.services.dedup import normalize_company
+    cands = [slug, (slug or "").replace("-", ""), normalize_company(company).replace(" ", "")]
+    return [s for s in dict.fromkeys(c for c in cands if c) if len(s) >= 3]
+
+
+def match_posting(title: str, postings: list[tuple[str, str]]) -> str | None:
+    """The apply URL of the one board posting whose normalised title equals the job's, or None
+    (no match, or more than one: never guessed)."""
+    from autoapply.services.dedup import normalize_title
+    want = normalize_title(title)
+    hits = [url for t, url in postings if normalize_title(t) == want and url]
+    return hits[0] if len(set(hits)) == 1 else None
+
+
+async def _company_board(f, company, slug: str | None):
+    """(ats, token, [(title, apply_url)]) for the company's board on a supported ATS, or None.
+    A board counts only if the resolver's probe accepts it (at least one open job; Greenhouse
+    must also carry the company's name)."""
+    from autoapply.ats import harvesters
+    from autoapply.discovery.ats_resolver import CompanyView, PROBES
+    view = CompanyView(company.id if company else 0, company.name if company else "")
+    known = (company.ats_type, company.ats_token) if company is not None and company.ats_type in BOARD_ATS else None
+    tries = [known] if known and known[1] else []
+    probes = dict(PROBES)
+    for s in board_slugs(view.name, slug):
+        tries += [(ats, s) for ats in BOARD_ATS]
+    for ats, token in tries:
+        if (ats, token) != known:
+            try:
+                if not await probes[ats](f, token, view):
+                    continue
+            except Exception:
+                continue
+        try:
+            jobs = await getattr(harvesters, ats)(f, harvesters.Target(view.name, ats, token))
+        except Exception:
+            continue
+        return ats, token, [(r.title, r.application_url or r.source_url) for r in jobs]
+    return None
+
+
+def resolve_himalayas_boards(session: Session, limit: int = 500) -> dict[str, Any]:
+    """Himalayas posting pages are behind Cloudflare and its API's applicationLink points back to
+    himalayas.app. Instead: find the company's board on Greenhouse / Lever / Ashby / SmartRecruiters
+    (its Himalayas companySlug, then its name, through the resolver's validated probes; public APIs,
+    no Cloudflare), and re-tag the job only when exactly one posting on that board has the same
+    normalised title. Measured 2026-10-02: 28 of the 87 companies behind the 128 in-policy jobs have
+    a board on one of the four."""
+    import asyncio
+    from autoapply.ats.http import AsyncFetcher
+    from autoapply.discovery.ats_resolver import Resolution, apply_resolution
+    from autoapply.models.company import Company
+    before = apply_channel_table(session)
+    now = datetime.now(timezone.utc)
+    jobs = (session.query(Job).filter(Job.source == "himalayas", Job.is_active == 1, Job.location_fit == "ok",
+                                      Job.apply_resolved_at.is_(None)).order_by(Job.id).limit(limit).all())
+    groups: dict[tuple, list[Job]] = {}
+    for j in jobs:
+        slug = (j.raw_data or {}).get("companySlug") if isinstance(j.raw_data, dict) else None
+        groups.setdefault((j.company_id, j.company, slug), []).append(j)
+
+    async def run():
+        out = {}
+        async with AsyncFetcher(per_host=2, timeout=20.0, max_retries=1) as f:
+            sem = asyncio.Semaphore(6)
+
+            async def one(key):
+                cid, name, slug = key
+                company = session.get(Company, cid) if cid else None
+                async with sem:
+                    out[key] = await _company_board(f, company or Company(id=0, name=name), slug)
+            await asyncio.gather(*(one(k) for k in groups))
+        return out
+
+    boards = asyncio.run(run())
+    outcomes: Counter = Counter()
+    for key, group in groups.items():
+        board = boards.get(key)
+        company = session.get(Company, key[0]) if key[0] else None
+        if board is None:
+            for j in group:
+                j.apply_resolve_note = "Himalayas page behind Cloudflare; no Greenhouse/Lever/Ashby/SmartRecruiters board found for the company"
+            outcomes["no_board"] += len(group)
+            continue
+        ats, token, postings = board
+        if company is not None and company.ats_type not in BOARD_ATS:
+            apply_resolution(company, Resolution(ats, token, None, 0.7, f"probe {ats}:{token} (Himalayas companySlug)"), now)
+        for j in group:
+            url = match_posting(j.title, postings)
+            if url:
+                reroute(j, url, f"matched by title on the company's {ats} board ({token}): {url[:200]}", now)
+                outcomes[f"routed_{ats}"] += 1
+            else:
+                j.apply_resolve_note = f"company board {ats}:{token} has no single posting titled like this one"
+                outcomes["board_no_title_match"] += 1
+    session.commit()
+    after = apply_channel_table(session)
+    log.info("himalayas_board_resolver_done", **outcomes)
+    return {"before": before, "after": after, "outcomes": dict(outcomes)}

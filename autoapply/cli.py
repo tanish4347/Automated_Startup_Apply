@@ -198,13 +198,13 @@ def _form_fields_for(session, job, harvested: bool = False):
     """The job's form fields: live from its applier (read-only browser), or the harvested ones."""
     from autoapply.models.form_question import FormQuestion
     if not harvested:
-        from autoapply.appliers.orchestrator import HARNESS_APPLIERS, setup_appliers
+        from autoapply.appliers.registry import find_applier, setup_appliers
         setup_appliers()
-        applier = next((a for a in HARNESS_APPLIERS if a.can_handle(job)), None)
+        applier = find_applier(job)
         if applier is not None:
             from autoapply.sources.browser import BrowserSession
             with BrowserSession(applier.platform) as bs:
-                bs.read_only()
+                bs.read_only(applier.read_only_allow) if applier.read_only_allow else bs.read_only()
                 applier.open_form(bs, job)
                 return [(f.label, f.field_type, f.options) for f in applier.read_fields(bs)]
         print(f"No harness applier for apply_channel={job.apply_channel!r}; using the harvested questions.")
@@ -244,6 +244,10 @@ def cmd_vault(args: argparse.Namespace) -> None:
         print(f"\n{'category':<14}{'confirmed':>10}{'total':>7}")
         for cat, (done, total) in cov["by_category"].items():
             print(f"{cat:<14}{done:>10}{total:>7}")
+        from autoapply.answers.generate import tier3_status
+        on, why = tier3_status(session)
+        print(f"\nGenerated answers: {why[0].upper() + why[1:]}."
+              + ("" if on else "\n  Until then, free-text questions (why this company, tell us about a project) park for you."))
         print(f"\nPolicy rules set: {', '.join(cov['policy_set']) or 'none'}")
         if cov["policy_missing"]:
             print(f"Policy rules missing: {', '.join(cov['policy_missing'])}")
@@ -304,16 +308,15 @@ def _dump_form(session, platform: str, job_id: int | None) -> None:
     """Open one real application form read-only, dump every field, feed the question harvest,
     and write docs/<PLATFORM>_FORM.md. Submits nothing."""
     from pathlib import Path
-    from autoapply.appliers.orchestrator import HARNESS_APPLIERS, setup_appliers
+    from autoapply.appliers.registry import setup_appliers
     from autoapply.models.job import Job
     from autoapply.questions.harvest import HarvestedField, HarvestedForm, store_forms
     from autoapply.sources.browser import BrowserSession, detect_challenge
-    setup_appliers()
-    applier = next(a for a in HARNESS_APPLIERS if a.platform == platform)
+    applier = next(a for a in setup_appliers() if a.platform == platform)
     job = session.get(Job, job_id) if job_id else (session.query(Job).filter(Job.apply_channel == platform,
                                                    Job.is_active == 1, Job.location_fit == "ok").order_by(Job.id).first())
     with BrowserSession(platform) as bs:
-        bs.read_only()
+        bs.read_only(applier.read_only_allow) if applier.read_only_allow else bs.read_only()
         applier.open_form(bs, job)
         fields = applier.read_fields(bs)
         html = bs.page.content()
@@ -335,6 +338,77 @@ def _dump_form(session, platform: str, job_id: int | None) -> None:
     out = Path("docs") / f"{platform.upper()}_FORM.md"
     out.write_text("\n".join(lines) + "\n")
     print(f"{len(fields)} fields -> {out} (and the question harvest)")
+
+
+def cmd_appliers(args: argparse.Namespace) -> None:
+    """Appliers: the registry, link resolution, and per-job coverage of the in-policy pool."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    from autoapply.appliers import registry, resolve
+    engine = engine_from_settings(settings.db.url, settings.db.echo)
+    with get_session_factory(engine)() as session:
+        if args.action == "list":
+            from autoapply.appliers.harness import load_config, submit_mode
+            for a in registry.setup_appliers():
+                print(f"{a.platform:<16} channels={','.join(a.channels):<14} mode={submit_mode(a.platform, load_config())}"
+                      f"{'  (apply click is the submission)' if a.click_is_submit else ''}")
+            return
+        if args.action == "resolve":
+            print(f"Re-tagged without a request (stored link already off-platform): {resolve.reroute_known(session)}")
+            res = resolve.run_resolver(session, sources=("unstop",))
+            print(f"Unstop resolved natively: {res['outcomes']}")
+            res = resolve.resolve_himalayas_boards(session, limit=args.limit)
+            print(f"Himalayas via company ATS boards: {res['outcomes']}")
+        cov = registry.coverage(session)
+        print(f"\nIn-policy active jobs: {cov['total']}   handled: {cov['total'] - cov['none']}   no applier: {cov['none']}")
+        print(f"\n{'applier':<18}{'jobs':>6}")
+        for name, n in cov["by_applier"].items():
+            print(f"{name:<18}{n:>6}")
+        if cov["none_by_channel"]:
+            print("\nNo applier, by apply_channel: " + ", ".join(f"{k}={v}" for k, v in cov["none_by_channel"].items()))
+        print(f"\n{'source':<14}handled by")
+        for src, c in cov["by_source"].items():
+            print(f"{src:<14}" + ", ".join(f"{k}={v}" for k, v in c.items()))
+        if args.jobs:
+            print(f"\n{'job':>7}  {'source':<12}{'channel':<14}{'ats':<16}applier")
+            for jid, src, ch, ats, name in cov["rows"]:
+                print(f"{jid:>7}  {src:<12}{(ch or '-'):<14}{(ats or '-'):<16}{name or '(none)'}")
+
+
+def cmd_companies(args: argparse.Namespace) -> None:
+    """Company briefs: fetched once per company from its own site, cached permanently."""
+    settings = get_settings()
+    setup_logging(settings.log_level, settings.log_file)
+    from autoapply.models.company import Company
+    from autoapply.models.job import Job
+    from autoapply.services.company_brief import brief_for, summary
+    engine = engine_from_settings(settings.db.url, settings.db.echo)
+    with get_session_factory(engine)() as session:
+        q = session.query(Company)
+        if args.company:
+            q = q.filter(Company.name.ilike(f"%{args.company}%"))
+        else:   # companies behind in-policy jobs, without a brief yet
+            ids = {r[0] for r in session.query(Job.company_id).filter(Job.is_active == 1, Job.location_fit == "ok",
+                                                                      Job.company_id.isnot(None))}
+            q = q.filter(Company.id.in_(ids))
+            if not args.refresh:
+                q = q.filter(Company.company_brief_at.is_(None))
+        done = 0
+        for c in q.order_by(Company.priority.desc(), Company.id).limit(args.limit):
+            b = brief_for(session, c, refresh=args.refresh)
+            if b is None:
+                print(f"{c.name}: not fetched (daily budget used up?)")
+                break
+            s = summary(b)
+            done += 1
+            print(f"{c.name}: {len(s['sources'])} page(s){'  [' + s['fetch_error'][:80] + ']' if s.get('fetch_error') else ''}")
+            if args.company:
+                for k in ("what", "product", "stage", "size", "founded", "location"):
+                    if s.get(k):
+                        print(f"  {k:<9}{s[k][:160] if isinstance(s[k], str) else s[k]}")
+                for line in s["notable"][:4]:
+                    print(f"  - {line[:160]}")
+        print(f"\nBriefs built this run: {done}")
 
 
 def cmd_universe(args: argparse.Namespace) -> None:
@@ -424,6 +498,17 @@ def main() -> None:
     apply_p.add_parser = apply_p
     apply_p.add_argument("--limit", type=int, default=10, help="Number of applications to attempt")
 
+    apl = sub.add_parser("appliers", help="Appliers: list them, resolve apply links, coverage of the in-policy pool")
+    apl.add_argument("action", choices=["coverage", "list", "resolve"])
+    apl.add_argument("--jobs", action="store_true", help="coverage: one line per in-policy job")
+    apl.add_argument("--limit", type=int, default=500, help="resolve: Himalayas jobs to resolve")
+
+    co = sub.add_parser("companies", help="Company briefs: fetch once per company, cached permanently")
+    co.add_argument("action", choices=["brief"])
+    co.add_argument("--company", help="just this company (name, SQL LIKE); prints the brief")
+    co.add_argument("--limit", type=int, default=50, help="companies to fetch this run")
+    co.add_argument("--refresh", action="store_true", help="fetch again even if a brief is cached")
+
     ats = sub.add_parser("ats", help="ATS resolution: identify each company's ATS once, cache it")
     ats.add_argument("action", choices=["resolve", "resolve-browser", "stats"])
     ats.add_argument("--headed", action="store_true", help="resolve-browser: show the browser window")
@@ -443,6 +528,8 @@ def main() -> None:
         "discover": cmd_discover,
         "apply": cmd_apply,
         "ats": cmd_ats,
+        "appliers": cmd_appliers,
+        "companies": cmd_companies,
         "browser-login": cmd_browser_login,
         "universe": cmd_universe,
         "questions": cmd_questions,

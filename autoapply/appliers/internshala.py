@@ -28,7 +28,7 @@ import re
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
-from autoapply.appliers.harness import FormApplier, FormField
+from autoapply.appliers.harness import FormApplier, FormField, NeedsLogin  # noqa: F401 (re-exported)
 from autoapply.logging import get_logger
 from autoapply.models.job import Job
 
@@ -39,10 +39,6 @@ SUCCESS_TEXT = re.compile(r"application (has been )?submitted|you have successfu
 LOGIN_TEXT = re.compile(r"login\s*/\s*register|login with google|register to apply|login to apply", re.I)
 # Controls that belong to Internshala's page chrome, not to the application form.
 CHROME_LABELS = re.compile(r"^(search|subscribe|email address for job alerts|enter your email)", re.I)
-
-
-class NeedsLogin(Exception):
-    pass
 
 
 class InternshalaApplier(FormApplier):

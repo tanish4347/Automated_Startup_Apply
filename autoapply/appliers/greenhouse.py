@@ -1,149 +1,69 @@
-from autoapply.appliers.base import BaseApplier, ApplyResult
+"""Greenhouse applier (harness; see autoapply/appliers/ats.py).
+
+Form URL (checked read-only 2026-10-02 on Stripe, job 2658): the embed form
+  https://job-boards.greenhouse.io/embed/job_app?for=<board token>&token=<job id>
+renders the application on Greenhouse's own host for every board. The hosted job page
+(job-boards.greenhouse.io/<token>/jobs/<id>) redirects to the company's site when the company
+hosts its own careers page (Stripe does), so it is not used. Job ids come from /jobs/<id> in a
+Greenhouse URL or from gh_jid=<id> on a company careers URL; the token from the URL path, `for=`,
+or the company's resolved ats_token.
+The Stripe form: 31 fields, form#application-form, react-select comboboxes (country, location,
+school, degree, yes/no questions), reCAPTCHA Enterprise loaded invisibly (never solved: a
+challenge on submit leaves the attempt uncertain), submit button[type=submit] "Submit application".
+
+Success assertion (explicit): the URL moves to .../confirmation, or the form is gone and the page
+says "Thank you for applying" / "Application submitted". The OLD applier treated `.asterisk`
+after submit as an error; `.asterisk` is the required-field marker present on every form, so it
+is not used for anything. PROVISIONAL until a live submission is observed.
+"""
+
+from __future__ import annotations
+
+import re
+from urllib.parse import urlsplit
+
+from autoapply.appliers.ats import AtsApplier, query_param
 from autoapply.models.job import Job
-from autoapply.models.application import Application
-from autoapply.models.vault import VaultIdentity
-from autoapply.appliers.playwright_utils import get_browser_context, safe_fill, check_for_captcha
-from autoapply.appliers.question_engine import answer_custom_question
-from autoapply.logging import get_logger
 
-log = get_logger(__name__)
+SUCCESS_TEXT = re.compile(r"thank you for applying|application (has been )?(submitted|received)", re.I)
 
-class GreenhouseApplier(BaseApplier):
-    @property
-    def name(self) -> str:
-        return 'greenhouse'
 
-    def can_handle(self, job: Job) -> bool:
-        if job.ats_platform == 'greenhouse':
-            return True
-        if job.application_url and 'greenhouse.io' in job.application_url:
-            return True
-        return False
+class GreenhouseApplier(AtsApplier):
+    platform = "greenhouse"
+    hosts = ("greenhouse.io",)
 
-    def apply(self, job: Job, application: Application, profile: VaultIdentity) -> ApplyResult:
-        url = job.application_url
-        if not url:
-            return ApplyResult(success=False, error_message='No application URL provided.')
-            
-        if '/jobs/' in url and '#app' not in url:
-            url += '#app'
+    def url_for(self, job: Job) -> str | None:
+        hit = super().url_for(job)
+        if hit:
+            return hit
+        return next((u for u in (job.resolved_apply_url, job.application_url, job.source_url)
+                     if u and query_param(u, "gh_jid")), None)
 
-        log.info('greenhouse_applying', job_id=job.id, url=url)
-        answers_used = {}
+    def apply_url(self, job: Job) -> str:
+        url = self.url_for(job) or ""
+        m = re.search(r"/([\w-]+)/jobs/(\d+)", urlsplit(url).path) if "greenhouse.io" in url else None
+        token = (m.group(1) if m else None) or query_param(url, "for") or self._company_token(job)
+        job_id = (m.group(2) if m else None) or query_param(url, "token") or query_param(url, "gh_jid")
+        if not (token and job_id):
+            raise LookupError(f"greenhouse: no board token / job id in {url!r}")
+        return f"https://job-boards.greenhouse.io/embed/job_app?for={token}&token={job_id}"
 
-        with get_browser_context() as context:
-            page = context.new_page()
-            try:
-                page.goto(url, wait_until='networkidle', timeout=30000)
-                
-                if page.locator('#app').count() == 0:
-                    return ApplyResult(success=False, error_message='Application form not found')
-                
-                if check_for_captcha(page):
-                    return ApplyResult(success=False, error_message='CAPTCHA detected on load')
-                
-                names = (profile.full_name or '').split(' ', 1)
-                safe_fill(page, '#first_name', names[0] if names else '')
-                safe_fill(page, '#last_name', names[1] if len(names) > 1 else 'Applicant')
-                safe_fill(page, '#email', profile.email)
-                safe_fill(page, '#phone', profile.phone)
-                
-                # Handled fields
-                handled_texts = ['first name', 'last name', 'email', 'phone', 'resume', 'cv', 'cover letter']
-                
-                for field_div in page.locator('.custom-question, .field').all():
-                    label_el = field_div.locator('label').first
-                    if label_el.count() == 0:
-                        continue
-                        
-                    label_text = label_el.text_content().strip()
-                    lower_label = label_text.lower()
-                    
-                    if any(h in lower_label for h in handled_texts):
-                        continue
-                        
-                    input_el = field_div.locator('input[type=\"text\"], textarea, select').first
-                    if input_el.count() == 0:
-                        continue
-                        
-                    is_required = '*' in label_text or field_div.locator('.asterisk').count() > 0
-                    
-                    # Exact matches for known URLs
-                    if 'linkedin' in lower_label:
-                        input_el.fill(profile.linkedin_url or '')
-                        continue
-                    elif 'github' in lower_label or 'portfolio' in lower_label or 'website' in lower_label:
-                        url_to_use = profile.github_url or profile.portfolio_url or profile.linkedin_url
-                        input_el.fill(url_to_use or '')
-                        continue
-                        
-                    # Dynamic Question Engine
-                    if is_required:
-                        tag_name = input_el.evaluate('el => el.tagName.toLowerCase()')
-                        options = []
-                        if tag_name == 'select':
-                            options = input_el.locator('option').all_text_contents()
-                            options = [o.strip() for o in options if o.strip()]
-                            
-                        log.info('asking_question_engine', question=label_text)
-                        answer = answer_custom_question(
-                            question=label_text,
-                            question_type=tag_name,
-                            options=options,
-                            profile_data=profile.to_profile_dict(),
-                            job_description=job.description_text or job.description_raw or ''
-                        )
-                        
-                        if answer:
-                            if tag_name == 'select':
-                                try:
-                                    input_el.select_option(label=answer)
-                                    answers_used[label_text] = answer
-                                except Exception:
-                                    return ApplyResult(success=False, error_message=f'Failed to select option for {label_text}')
-                            else:
-                                input_el.fill(answer)
-                                answers_used[label_text] = answer
-                        else:
-                            return ApplyResult(success=False, error_message=f'Cannot answer required question: {label_text}')
+    @staticmethod
+    def _company_token(job: Job) -> str | None:
+        c = job.company_ref
+        if c is not None and c.ats_type == "greenhouse" and c.ats_token:
+            return c.ats_token
+        return (job.company or "").lower().replace(" ", "") or None
 
-                # Upload resume file if we have it
-                uploaded = False
-                if profile.resume_path:
-                    try:
-                        input_file = page.locator('input[type=\"file\"]')
-                        if input_file.count() > 0:
-                            input_file.first.set_input_files(profile.resume_path)
-                            uploaded = True
-                    except Exception as e:
-                        log.warning('greenhouse_resume_upload_failed', error=str(e))
-                
-                submit_btn = page.locator('#submit_app')
-                if submit_btn.is_visible():
-                    submit_btn.click()
-                    
-                    try:
-                        page.wait_for_load_state('networkidle', timeout=10000)
-                        
-                        if check_for_captcha(page):
-                            return ApplyResult(success=False, error_message='CAPTCHA detected upon submission')
-                            
-                        if page.locator('.asterisk').count() > 0 or page.locator('.error-message').count() > 0:
-                            return ApplyResult(success=False, error_message='Required custom questions missed')
-                            
-                        if 'thank' in page.url.lower() or page.locator('text=\"Thank you\"').count() > 0:
-                            return ApplyResult(
-                                success=True, 
-                                confirmation_text='Greenhouse submission successful',
-                                resume_used='pdf_uploaded' if uploaded else 'none',
-                                answers_submitted=answers_used
-                            )
-                            
-                    except Exception as e:
-                        return ApplyResult(success=False, error_message=f'Timeout waiting for submission result: {e}')
-                
-                return ApplyResult(success=False, error_message='Could not submit')
-                
-            except Exception as e:
-                log.exception('greenhouse_error', error=str(e))
-                return ApplyResult(success=False, error_message=f'Browser exception: {e}')
+    def submit_control(self, bs):
+        return bs.page.locator("#application-form button[type=submit], #submit_app").first
+
+    def success_assertion(self, bs, before_url: str) -> str | None:
+        url = bs.page.url
+        if "/confirmation" in urlsplit(url).path:
+            return f"URL moved to the confirmation page {url}"
+        form_gone = bs.page.locator("#application-form, #application_form").count() == 0
+        m = SUCCESS_TEXT.search(bs.page.inner_text("body")[:20000])
+        if m and form_gone:
+            return f"form gone and confirmation text {m.group(0)!r} at {url}"
+        return None

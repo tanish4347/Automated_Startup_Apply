@@ -5,6 +5,9 @@ pending tab  (review_only halts, missing answers): approve -> the application is
              reject -> closed (the dedup claim is kept: you decided not to apply to this posting).
              edit -> your corrected values are written back (answer engine aliases / answers),
              then approve.
+             Generated answers (tier 3) on the attempt are approved with it (an edited one is
+             replaced by your text), which is what lets a later attempt submit them; until then
+             any attempt carrying one parks, even in live mode.
 uncertain    (a live submit whose success assertion did not match): landed -> SUBMITTED;
              not landed -> re-queued.
 """
@@ -47,7 +50,10 @@ def decide(session: Session, attempt_id: int, action: str, values: dict[str, Any
             fields = [dict(f) for f in a.filled_fields or []]
             for f in fields:
                 if f["label"] in corrections:
-                    f["value"], f["tier"] = corrections[f["label"]], "review"
+                    if f.get("generated_id"):     # stays tier 3: approving below stores your text on the draft
+                        f["value"] = corrections[f["label"]]
+                    else:
+                        f["value"], f["tier"] = corrections[f["label"]], "review"
             for u in a.unfilled_fields or []:
                 if u["label"] in corrections and corrections[u["label"]] not in (None, ""):
                     fields.append({"label": u["label"], "canonical_key": u.get("canonical_key"),
@@ -55,13 +61,20 @@ def decide(session: Session, attempt_id: int, action: str, values: dict[str, Any
             a.filled_fields = fields
             try:  # write back so the same question resolves at tier 1 next time
                 from autoapply.answers.engine import record_correction
+                generated = {f["label"] for f in fields if f.get("generated_id")}   # company-specific: not a reusable answer
                 for label, value in corrections.items():
-                    if value not in (None, ""):
+                    if value not in (None, "") and label not in generated:
                         record_correction(session, label, value, platform=a.platform)
             except ImportError:
                 pass
             action = "approve"
         if action == "approve":
+            from autoapply.answers.generate import decide as decide_generated
+            for f in a.filled_fields or []:
+                if f.get("generated_id"):
+                    decide_generated(session, f["generated_id"], True, str(f.get("value") or ""))
+            a.filled_fields = [{**f, "needs_approval": False} if f.get("generated_id") else f
+                               for f in a.filled_fields or []]
             a.review_status = "approved"
             if app.status == ApplicationStatus.PARKED:
                 transition_status(session, app, ApplicationStatus.QUEUED)

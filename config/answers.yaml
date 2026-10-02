@@ -12,3 +12,12 @@ ollama:
   url: http://localhost:11434
   model: qwen3:8b
   timeout_s: 60
+
+# Tier 3 (answers/generate.py): free text with no finite option space ("why do you want to join",
+# "tell us about a project"). Retrieval = confirmed story bank + the company brief, nothing else.
+# Disabled until every story-bank question is confirmed at /intake. Every draft is checked by a
+# separate verification pass and always goes to /review before it can be submitted.
+generate:
+  model: qwen3:8b          # the same local Ollama as tier 2
+  max_words: 150
+  timeout_s: 120

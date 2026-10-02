@@ -47,3 +47,9 @@ sources:
     min_delay_s: 4.0
     max_delay_s: 10.0
     cadence_hours: 12
+
+  # Company briefs (services/company_brief.py): at most two pages per company, fetched once ever.
+  company_brief:
+    daily_requests: 300
+    min_delay_s: 2.0
+    max_delay_s: 5.0

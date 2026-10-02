@@ -375,3 +375,11 @@ def test_robots_rules_match_crawler_semantics():
     assert not r.allowed("https://x.com/application/form/a")
     assert r.allowed("https://x.com/favicon.ico?v=2")                     # longer Allow beats Disallow
     assert not r.allowed("https://x.com/internships/", "ClaudeBot")
+
+
+def test_resume_field_prefers_the_resume_over_a_photo_or_autofill_box():
+    pick = FakeApplier().resume_field
+    assert pick([FormField("Upload profile image", "file"), FormField("Resume", "file")]).label == "Resume"
+    assert pick([FormField("Application", "file"), FormField("Cover Letter", "file"), FormField("CV", "file")]).label == "CV"
+    assert pick([FormField("Attach", "file"), FormField("Attach", "file")]) is not None
+    assert pick([FormField("Email", "email")]) is None

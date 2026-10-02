@@ -82,8 +82,7 @@ def test_page_chrome_is_not_part_of_the_form(monkeypatch):
 
 
 def test_registered_for_the_internshala_channel():
-    from autoapply.appliers import orchestrator
-    orchestrator.setup_appliers()
-    assert any(a.platform == "internshala" for a in orchestrator.HARNESS_APPLIERS)
+    from autoapply.appliers import registry
+    assert any(a.platform == "internshala" for a in registry.setup_appliers())
     assert InternshalaApplier().can_handle(Job(apply_channel="internshala"))
     assert not InternshalaApplier().can_handle(Job(apply_channel="unstop"))

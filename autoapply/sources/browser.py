@@ -93,6 +93,13 @@ _FETCH_JS = """async ({url, method, headers, body}) => {
 }"""
 
 
+def _post_body(req) -> str:
+    try:
+        return req.post_data or ""
+    except Exception:   # binary (multipart upload): never allowed by any read-only exception
+        return "<binary>"
+
+
 class BrowserSession:
     """One persistent Chromium context for one platform. Use as a context manager."""
 
@@ -174,13 +181,18 @@ class BrowserSession:
                 return headers
         return None
 
-    def read_only(self) -> None:
+    def read_only(self, allow: Callable[[str, str, str], bool] | None = None) -> None:
         """Abort every request that is not GET/HEAD/OPTIONS before it leaves the browser. Used when
-        opening application forms: no click can submit anything, whatever the page does."""
+        opening application forms: no click can submit anything, whatever the page does.
+        allow(method, url, body): a narrow exception for a page that READS with POST (Ashby loads its
+        form through GraphQL queries); the applier defines it and it must refuse every write."""
         self.blocked: list[str] = []
 
         def guard(route) -> None:
-            if route.request.method in ("GET", "HEAD", "OPTIONS"):
+            req = route.request
+            if req.method in ("GET", "HEAD", "OPTIONS"):
+                route.continue_()
+            elif allow is not None and allow(req.method, req.url, _post_body(req)):
                 route.continue_()
             else:
                 self.blocked.append(f"{route.request.method} {route.request.url[:160]}")

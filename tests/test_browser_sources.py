@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import autoapply.models  # noqa: F401  (registers all tables)
-from autoapply.appliers.base import BaseApplier
+from autoapply.appliers.harness import FormApplier
 from autoapply.appliers.registry import find_applier, register_applier
 from autoapply.config import NaukriSearch, WellfoundSearch, YcWaasSearch, load_search_config
 from autoapply.models.base import Base
@@ -407,20 +407,28 @@ def test_linkedin_authwall_redirect_degrades(monkeypatch):
 # ── No LinkedIn applier, ever ────────────────────────────────────────────────
 
 def test_linkedin_applier_cannot_be_registered():
-    class LinkedInEasyApply(BaseApplier):
-        name = "linkedin_easy_apply"
+    class LinkedInEasyApply(FormApplier):
+        platform = "linkedin_easy_apply"
 
         def can_handle(self, job):
             return True
 
-        def apply(self, *a, **kw):
+        def open_form(self, bs, job):
             raise NotImplementedError
+
+        def submit_control(self, bs):
+            raise NotImplementedError
+
+        def success_assertion(self, bs, before_url):
+            return None
 
     with pytest.raises(AssertionError, match="forbidden"):
         register_applier(LinkedInEasyApply())
 
 
 def test_no_applier_for_linkedin_jobs():
+    from autoapply.appliers.registry import setup_appliers
+    setup_appliers()
     job = Job(title="ML Intern", source="linkedin", application_url="https://in.linkedin.com/jobs/view/123")
     assert find_applier(job) is None
 

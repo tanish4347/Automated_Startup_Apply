@@ -1,143 +1,79 @@
-from autoapply.services.application_service import (
-    get_queued_applications, 
-    transition_status, 
-    record_submission, 
-    record_failure,
-    reset_stalled_applications
-)
-from autoapply.candidate.manager import get_active_identity
-from autoapply.models.application import ApplicationStatus
+"""The apply run: queue applications that have an applier, then run each through the harness.
 
-# Registry imports
-from autoapply.appliers.registry import register_applier, find_applier
-from autoapply.appliers.greenhouse import GreenhouseApplier
-from autoapply.appliers.lever import LeverApplier
-from autoapply.appliers.ashby import AshbyApplier
-from autoapply.appliers.smartrecruiters import SmartRecruitersApplier
+Every applier is a harness FormApplier (registry.py): review_only unless config/apply.yaml says
+exactly `live` for its platform. There is no legacy path. Applications whose job has no applier
+are left where they are (never failed for lack of one); `autoapply appliers coverage` lists them.
+A platform whose profile is not logged in (NeedsLogin) is skipped for the rest of the run.
+"""
 
+from __future__ import annotations
+
+from autoapply.appliers.registry import find_applier, setup_appliers
 from autoapply.config import get_settings
-from autoapply.models.base import engine_from_settings, get_session_factory
-from autoapply.candidate.sensitive import ParkApplication
 from autoapply.logging import get_logger
-import time
+from autoapply.models.application import Application, ApplicationStatus
+from autoapply.models.base import engine_from_settings, get_session_factory
+from autoapply.services.application_service import reset_stalled_applications, transition_status
 
 log = get_logger(__name__)
 
-# Harness appliers (autoapply/appliers/harness.py: review_only by default, evidence, outcomes).
-HARNESS_APPLIERS: list = []
-
-
-def setup_appliers() -> None:
-    from autoapply.appliers.internshala import InternshalaApplier
-    if not any(a.platform == "internshala" for a in HARNESS_APPLIERS):
-        HARNESS_APPLIERS.append(InternshalaApplier())
-    from autoapply.appliers.registry import list_appliers
-    if "greenhouse" in list_appliers():
-        return
-    register_applier(GreenhouseApplier())
-    register_applier(LeverApplier())
-    register_applier(AshbyApplier())
-    register_applier(SmartRecruitersApplier())
-
 
 def _default_answerer():
-    try:
-        from autoapply.answers.engine import harness_answerer
-        return harness_answerer()
-    except ImportError:
-        from autoapply.appliers.harness import Answer
-        return lambda field, job: Answer(park_reason="no answer engine")
+    from autoapply.answers.engine import harness_answerer
+    return harness_answerer()
+
+
+def _with_applier(session, status: ApplicationStatus, limit: int, skip: set[str]) -> list[tuple[Application, object]]:
+    order = Application.date_queued if status == ApplicationStatus.QUEUED else Application.date_discovered
+    out = []
+    for app in session.query(Application).filter(Application.status == status).order_by(order.asc()):
+        applier = find_applier(app.job)
+        if applier is not None and applier.platform not in skip:
+            out.append((app, applier))
+            if len(out) >= limit:
+                break
+    return out
+
 
 def run_application_engine(limit: int = 10) -> None:
+    from autoapply.appliers.harness import CapReached, NeedsLogin, load_config, pause, run_attempt
+    from autoapply.appliers.resolve import reroute_known
     setup_appliers()
-    
     settings = get_settings()
-    engine = engine_from_settings(settings.db.url, settings.db.echo)
-    SessionLocal = get_session_factory(engine)
-    
-    processed = 0
-    successes = 0
-    
+    SessionLocal = get_session_factory(engine_from_settings(settings.db.url, settings.db.echo))
+    cfg = load_config()
+    answerer = _default_answerer()
+    processed, skip = 0, set()
     with SessionLocal() as session:
-        profile = get_active_identity(session)
-        
-        from autoapply.appliers.harness import CapReached, load_config, pause, run_attempt, submit_mode
-        cfg = load_config()
-        answerer = _default_answerer()
-        stalled_count = reset_stalled_applications(session, timeout_minutes=float(cfg.get("stall_timeout_min", 30)))
-        if stalled_count > 0:
-            log.info('recovered_stalled_applications', count=stalled_count)
-            
-        from autoapply.services.application_service import queue_discovered
-        queued_new = queue_discovered(session, limit=limit)
-        if queued_new:
-            log.info('queued_new_applications', count=len(queued_new))
-            
-        queued_apps = get_queued_applications(session, limit=limit)
-        log.info('application_engine_started', queue_size=len(queued_apps))
-        
-        for app in queued_apps:
-            log.info('processing_application', app_id=app.id, job_id=app.job_id)
-            job = app.job
-            harness = next((a for a in HARNESS_APPLIERS if a.can_handle(job)), None)
-            if harness is not None:
-                try:
-                    run_attempt(session, harness, app, answerer, cfg=cfg)
-                except CapReached as e:
-                    log.info('daily_cap_reached', reason=str(e))
-                    break
-                processed += 1
-                if processed < len(queued_apps):
-                    pause(cfg, processed)
+        if reset_stalled_applications(session, timeout_minutes=float(cfg.get("stall_timeout_min", 30))):
+            log.info("recovered_stalled_applications")
+        rerouted = reroute_known(session)
+        if rerouted:
+            print(f"Re-tagged {rerouted} jobs whose stored apply link is off-platform (no request made).")
+        for app, _ in _with_applier(session, ApplicationStatus.DISCOVERED, limit, skip):
+            transition_status(session, app, ApplicationStatus.QUEUED)
+        queue = _with_applier(session, ApplicationStatus.QUEUED, limit, skip)
+        log.info("application_engine_started", queue_size=len(queue))
+        for app, applier in queue:
+            if applier.platform in skip:
                 continue
-            applier = find_applier(job)
-            # The pre-harness ATS appliers submit directly: they can't halt before submit, so
-            # they run only where config/apply.yaml says submit_mode: live for their platform.
-            if applier is not None and submit_mode(applier.name, cfg) != 'live':
-                transition_status(session, app, ApplicationStatus.IN_PROGRESS)
-                transition_status(session, app, ApplicationStatus.PARKED,
-                                  error_message=f'{applier.name}: review_only, and this applier cannot halt '
-                                                'before submit; not run')
-                processed += 1
-                continue
-            transition_status(session, app, ApplicationStatus.IN_PROGRESS)
-            
-            if not applier:
-                log.warning('no_applier_found', job_id=job.id, platform=job.ats_platform, source=job.source)
-                record_failure(session, app, 'No suitable adapter found for this platform.')
-                processed += 1
-                continue
-                
-            log.info('applier_selected', applier=applier.name, job_id=job.id)
+            applier = find_applier(app.job) or applier     # a reroute earlier in the run may have re-tagged it
             try:
-                result = applier.apply(job, app, profile)
-                if result.success:
-                    record_submission(
-                        session, 
-                        app, 
-                        resume_used=result.resume_used,
-                        answers_submitted=result.answers_submitted,
-                        confirmation_text=result.confirmation_text
-                    )
-                    successes += 1
-                    log.info('application_submitted', app_id=app.id)
-                else:
-                    record_failure(session, app, result.error_message or 'Unknown failure')
-                    log.info('application_failed', app_id=app.id, error=result.error_message)
-            except ParkApplication as e:
-                log.info('application_parked', app_id=app.id, reason=str(e))
-                app.error_message = str(e)
-                transition_status(session, app, ApplicationStatus.PARKED)
-                session.commit()
-            except Exception as e:
-                log.exception('application_exception', app_id=app.id, error=str(e))
-                record_failure(session, app, f'Internal exception: {e}')
-                
+                run_attempt(session, applier, app, answerer, cfg=cfg)
+            except CapReached as e:
+                log.info("daily_cap_reached", reason=str(e))
+                print(f"Stopped: {e}")
+                break
+            except NeedsLogin as e:
+                skip.add(applier.platform)
+                print(f"{applier.platform}: skipped for this run - {e}")
+                continue
             processed += 1
-            if processed < len(queued_apps):
-                time.sleep(2)
-                
-    tiers = dict(getattr(answerer, 'state', {}).get('engine').stats) if getattr(answerer, 'state', {}).get('engine') else {}
-    log.info('application_engine_finished', processed=processed, successes=successes, answer_tiers=tiers)
+            if processed < len(queue):
+                pause(cfg, processed)
+    eng = getattr(answerer, "state", {}).get("engine")
+    tiers = dict(eng.stats) if eng else {}
+    log.info("application_engine_finished", processed=processed, answer_tiers=tiers)
+    print(f"Attempts this run: {processed}")
     if tiers:
-        print('Fields per answer tier this run: ' + ', '.join(f'{k}={v}' for k, v in sorted(tiers.items())))
+        print("Fields per answer tier this run: " + ", ".join(f"{k}={v}" for k, v in sorted(tiers.items())))

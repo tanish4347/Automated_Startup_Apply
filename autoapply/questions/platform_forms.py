@@ -25,8 +25,7 @@ from autoapply.questions.harvest import HarvestedField, HarvestedForm, clean_lab
 log = get_logger(__name__)
 
 
-class NeedsLogin(Exception):
-    pass
+from autoapply.appliers.harness import NeedsLogin  # noqa: E402,F401 (one login-wall exception everywhere)
 
 
 @dataclass
@@ -121,8 +120,10 @@ FORM_DUMP_JS = r"""() => {
 def sample_job_url(session: Session, source: str) -> tuple[int, str, str | None] | None:
     """One active, accepted posting of the platform (the kind we will actually apply to)."""
     from autoapply.models.job import Job
-    job = (session.query(Job).filter(Job.source == source, Job.is_active == 1, Job.source_url.isnot(None))
-           .order_by(Job.classification_status.desc(), Job.discovered_at.desc()).first())
+    q = session.query(Job).filter(Job.source == source, Job.is_active == 1, Job.source_url.isnot(None))
+    if source == "naukri":   # a posting that applies on Naukri itself, not "apply on company site"
+        q = q.filter(Job.application_url.like("%naukri.com%"))
+    job = q.order_by(Job.classification_status.desc(), Job.discovered_at.desc()).first()
     return (job.id, job.source_url, job.company) if job else None
 
 

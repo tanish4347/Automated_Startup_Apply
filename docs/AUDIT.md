@@ -42,7 +42,7 @@ Status legend: **FIXED** (in this commit) · **OPEN** (reported only; out of sco
 "Silent" means no exception reaches the user: the wrong value is stored or sent and the run
 reports success.
 
-### 2.1 Appliers send fabricated or misplaced data to employers — **OPEN**
+### 2.1 Appliers send fabricated or misplaced data to employers — **FIXED 2026-10-02** (the bespoke appliers were deleted; every applier fills only answer-engine values through the harness)
 This has the widest blast radius because it is external and can't be undone: once submitted, a
 recruiter sees it.
 - Greenhouse, SmartRecruiters and Workable split `full_name` on the first space. A one-word name

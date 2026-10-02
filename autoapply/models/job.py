@@ -15,7 +15,7 @@ from autoapply.models.base import Base
 
 ROLE_FAMILIES = ("swe", "ml", "ds", "data_eng", "research", "other")
 APPLY_CHANNELS = (
-    "ats_direct", "internshala", "naukri", "wellfound", "unstop", "instahyre", "linkedin_easy", "email",
+    "ats_direct", "company_site", "internshala", "naukri", "wellfound", "unstop", "instahyre", "linkedin_easy", "email",
     "google_form", "unknown",
 )
 

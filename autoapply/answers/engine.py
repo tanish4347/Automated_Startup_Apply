@@ -1,4 +1,4 @@
-"""Answer engine, tiers 1 and 2. No generative tier: free text with no finite answer space parks.
+"""Answer engine, tiers 1, 2 and 3.
 
 TIER 1, deterministic, no model:
   1a  normalise the label (questions.harvest.normalize_label) and look it up in question_alias
@@ -12,6 +12,12 @@ TIER 1, deterministic, no model:
 TIER 2, constrained entailment via Ollama (entail.py): only when tier 1 found no usable answer
   and the field has a finite answer space. The prompt holds the candidate's non-sensitive policy
   rules and the question; the reply must be one of the form's options or the field parks.
+
+TIER 3, generated prose (generate.py): free text with no finite answer space, for a job. Retrieval is
+  the confirmed story bank + the company brief only; a separate verification pass rejects any draft
+  with a claim not in that context; drafts are cached per (canonical_key, company) and always go
+  to /review before they can be submitted. Off until the story pass is complete. Story-bank keys
+  (why_company, additional_info) go to tier 3 first when it is on, so the answer names the company.
 
 Write-back, so the model shrinks out of the loop:
   - a tier-1b match on a non-SENSITIVE key adds the label as a new alias (next time: tier 1a)
@@ -46,6 +52,7 @@ log = get_logger(__name__)
 
 CONFIG = PROJECT_ROOT / "config" / "answers.yaml"
 FINITE_TYPES = {"select", "multi_select", "boolean", "radio", "checkbox"}
+STORY_KEYS = {"why_company", "additional_info"}   # story-bank keys whose answer should name the company
 
 
 @lru_cache(maxsize=None)
@@ -62,6 +69,8 @@ class Resolution:
     confidence: float = 0.0
     park_reason: str | None = None
     matched: str | None = None       # the alias / phrasing it matched
+    needs_approval: bool = False     # tier 3: pending the candidate's approval
+    generated_id: int | None = None
 
 
 # ── aliases ──────────────────────────────────────────────────────────────────
@@ -165,13 +174,14 @@ def match_option(value: str, options: list[str]) -> str | None:
 
 class AnswerEngine:
     def __init__(self, session: Session, cfg: dict[str, Any] | None = None, entailer=None, index=None,
-                 writeback: bool = True):
+                 writeback: bool = True, generator=None):
         self.session = session
         self.cfg = load_config() if cfg is None else cfg
         self.writeback = writeback
         self.stats: Counter = Counter()
         self._index = index
         self._entailer = entailer
+        self._generator = generator
         if not session.query(QuestionAlias.id).first():
             seed_aliases(session)
 
@@ -216,9 +226,15 @@ class AnswerEngine:
         return None, sensitive
 
     def resolve(self, label: str, field_type: str = "text", options: list[str] | None = None,
-                required: bool = False) -> Resolution:
+                required: bool = False, job=None) -> Resolution:
         options = [o for o in options or [] if o and o.strip() and not re.match(r"^(select|choose)\b", o, re.I)]
         ident = self.identify(label)
+        from autoapply.answers.generate import is_open_question
+        open_q = job is not None and is_open_question(label, field_type, options)
+        if open_q and ident.canonical_key in STORY_KEYS:
+            r = self._tier3(label, field_type, ident, job)
+            if r.value is not None:
+                return self._count(r)
         if ident.canonical_key:
             value, sensitive = self.vault_value(ident.canonical_key)
             if value is not None:
@@ -240,10 +256,13 @@ class AnswerEngine:
             r = self._tier2(label, list(finite), ident)
             if r is not None:
                 return self._count(r)
+        if open_q and not is_sensitive_key(ident.canonical_key):
+            r = self._tier3(label, field_type, ident, job)
+            return self._count(r)
         if ident.canonical_key is None:
             self._new_question(label, field_type)
         reason = ("no confirmed answer in the vault" if ident.canonical_key
-                  else "free text: parks in this phase (no generative tier)" if not finite
+                  else "free text: parks (tier 3 runs only for a job's form)" if not finite
                   else "unknown question; tier 2 could not decide it")
         return self._count(Resolution(canonical_key=ident.canonical_key, tier=ident.tier, confidence=ident.confidence,
                                       park_reason=reason, matched=ident.matched))
@@ -274,6 +293,25 @@ class AnswerEngine:
             self._new_question(label, "select", suggestion=answer)
         return Resolution(answer, ident.canonical_key, "2", 0.7, matched="policy rules")
 
+    def _tier3(self, label: str, field_type: str, ident: Resolution, job) -> Resolution:
+        from autoapply.answers.entail import SensitiveLeak
+        from autoapply.answers.generate import default_generator, generate_answer
+        key = ident.canonical_key or self._new_question(label, field_type) or custom_key(label)
+        if self._generator is None:
+            self._generator = default_generator(self.cfg)
+        try:
+            g = generate_answer(self.session, label, key, job, self._generator, self.cfg)
+        except SensitiveLeak as e:
+            log.error("tier3_refused", reason=str(e))
+            return Resolution(canonical_key=key, tier="3", park_reason=f"tier 3 refused: {e}")
+        except Exception as e:
+            log.warning("tier3_failed", error=str(e)[:200])
+            return Resolution(canonical_key=key, tier="3", park_reason=f"tier 3 failed: {type(e).__name__}")
+        if g.value is None:
+            return Resolution(canonical_key=key, tier="3", park_reason=g.park_reason, generated_id=g.generated_id)
+        return Resolution(g.value, key, "3", 0.5, matched="story bank + company brief",
+                          needs_approval=g.status != "approved", generated_id=g.generated_id)
+
     # write-back
     def _learn(self, label: str, ident: Resolution) -> None:
         if self.writeback and ident.tier in ("1b", "1a-rule") and not is_sensitive_key(ident.canonical_key):
@@ -285,7 +323,7 @@ class AnswerEngine:
             return None
         from autoapply.models.vault import VaultAnswer
         norm = normalize_label(label)
-        key = "custom." + "_".join(norm.split()[:8])[:100]
+        key = custom_key(label)
         if not norm or self.session.query(VaultAnswer.id).filter_by(canonical_key=key).first():
             return key
         self.session.add(VaultAnswer(canonical_key=key, question=label[:1000], category="custom", field_type=field_type,
@@ -301,6 +339,10 @@ class AnswerEngine:
 
     def commit(self) -> None:
         self.session.commit()
+
+
+def custom_key(label: str) -> str:
+    return "custom." + "_".join(normalize_label(label).split()[:8])[:100]
 
 
 def record_correction(session: Session, label: str, value: Any, platform: str | None = None) -> str | None:
@@ -331,9 +373,9 @@ def harness_answerer(session: Session | None = None):
             sess = session or get_session_factory(engine_from_settings(get_settings().db.url))()
             state["engine"] = AnswerEngine(sess)
         eng = state["engine"]
-        r = eng.resolve(field.label, field.field_type, field.options, field.required)
+        r = eng.resolve(field.label, field.field_type, field.options, field.required, job=job)
         eng.commit()
-        return Answer(r.value, r.canonical_key, r.tier, r.confidence, r.park_reason)
+        return Answer(r.value, r.canonical_key, r.tier, r.confidence, r.park_reason, r.needs_approval, r.generated_id)
 
     answer.state = state
     return answer

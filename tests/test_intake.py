@@ -142,25 +142,24 @@ def test_cv_import_never_writes_a_sensitive_answer(seeded):
 
 # ── answer engine: verbatim or park, never generated ─────────────────────────
 
-def test_answer_engine_returns_sensitive_verbatim_or_parks(seeded, monkeypatch):
-    from autoapply.appliers import question_engine
-    monkeypatch.setenv("GEMINI_API_KEY", "must-not-be-used")
+def test_answer_engine_returns_sensitive_verbatim_or_parks(seeded):
+    from autoapply.answers.engine import AnswerEngine
     import_cv(seeded, CV)
     ident = seeded.query(VaultIdentity).one()
 
-    def llm_called(*a, **kw):
-        raise AssertionError("a SENSITIVE question reached the model")
-    monkeypatch.setattr("google.genai.Client", llm_called, raising=False)
+    class NoModel:
+        def available(self):
+            raise AssertionError("a SENSITIVE question reached the model")
 
+    q = "Will you now or in the future require visa sponsorship?"
+    eng = AnswerEngine(seeded, entailer=NoModel(), writeback=False)
     with pytest.raises(ParkApplication):   # nothing entered yet
-        question_engine.answer_custom_question("Will you now or in the future require visa sponsorship?", "select",
-                                               ["Yes", "No"], ident.to_profile_dict(), "")
+        eng.resolve(q, "select", ["Yes", "No"])
     intake.apply(seeded, f"answer:{seeded.query(VaultAnswer).filter_by(canonical_key='visa_sponsorship').one().id}",
                  "confirm", {"value": "No"})
     seeded.refresh(ident)
     profile = ident.to_profile_dict()
-    assert question_engine.answer_custom_question("Will you now or in the future require visa sponsorship?",
-                                                  "select", ["Yes", "No"], profile, "") == "No"
+    assert eng.resolve(q, "select", ["Yes", "No"]).value == "No"
     # the model-visible part of the profile holds no sensitive answer, grade or graduation date
     visible = {k: v for k, v in profile.items() if k != "sensitive"}
     assert "No" not in [a["answer"] for a in visible["answers"]]

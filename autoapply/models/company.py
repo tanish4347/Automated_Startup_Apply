@@ -53,6 +53,10 @@ class Company(Base):
     seed_sources = Column(JSON, nullable=True)  # every universe seeder that produced it
     priority = Column(Integer, nullable=False, default=PRIORITY_NORMAL)
     about_text = Column(Text, nullable=True)
+    # Fetched once from the company's own site, cached permanently (services/company_brief.py);
+    # shared by answer tier 3 and interview prep.
+    company_brief = Column(JSON, nullable=True)
+    company_brief_at = Column(DateTime(timezone=True), nullable=True)
     last_crawled_at = Column(DateTime(timezone=True), nullable=True)
     last_job_count = Column(Integer, nullable=True)
     crawl_error = Column(Text, nullable=True)
