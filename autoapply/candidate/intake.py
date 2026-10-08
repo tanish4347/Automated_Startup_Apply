@@ -81,7 +81,7 @@ def _answer_inputs(a: VaultAnswer) -> list[dict[str, Any]]:
 def _answer_pass(a: VaultAnswer) -> str:
     if a.intake_pass == "cv" and (a.source == "CV" or a.suggested_answer):
         return "cv"
-    return {"cv": "gap"}.get(a.intake_pass or "gap", a.intake_pass or "gap")
+    return {"cv": "gap", "none": "none"}.get(a.intake_pass or "gap", a.intake_pass or "gap")
 
 
 def build_cards(session: Session) -> list[Card]:
@@ -90,7 +90,7 @@ def build_cards(session: Session) -> list[Card]:
         VaultAnswer.weight.desc().nullslast(), VaultAnswer.id).all()
     for a in answers:
         p = _answer_pass(a)
-        if p == "policy":
+        if p in ("policy", "none"):
             continue  # asked as structured rules in pass c
         note = None
         if a.suggested_answer:

@@ -70,7 +70,28 @@ def category_of(key: str, field_type: str) -> str:
     return "story" if field_type == "textarea" else "custom"
 
 
-def intake_pass(key: str, field_type: str, category: str) -> str:
+def classify_card(key: str, field_type: str, category: str, question: str) -> str:
+    from autoapply.candidate.sensitive import is_sensitive_key
+    q = (question or "").strip().lower()
+    if q in {"attach", "submit", "upload", "continue", "next", "save", "search", "type"}:
+        return "INVALID_NOISE"
+    if field_type == "file":
+        return "DOCUMENT"
+    base = key.split(".")[0]
+    if base in POLICY_KEYS:
+        return "POLICY"
+    if key in CV_KEYS or base in CV_KEYS:
+        return "CANDIDATE_FACT"
+    if key.startswith("custom."):
+        if is_sensitive_key(key):
+            return "CANDIDATE_FACT"
+        return "EMPLOYER_FORM_FIELD"
+    return "CANDIDATE_FACT"
+
+def intake_pass(key: str, field_type: str, category: str, question: str = "") -> str:
+    cls = classify_card(key, field_type, category, question)
+    if cls in ("INVALID_NOISE", "EMPLOYER_FORM_FIELD", "DOCUMENT"):
+        return "none"
     base = key.split(".")[0]
     if base in POLICY_KEYS:
         return "policy"
@@ -119,7 +140,7 @@ def seed_catalog(session: Session, path: Path = QUESTIONS_MD) -> dict[str, int]:
         row.identity = row.identity or ident
         row.category, row.question = cat, e.question
         row.field_type, row.weight = e.field_type, e.weight
-        row.intake_pass = row.intake_pass if row.answer else intake_pass(e.key, e.field_type, cat)
+        row.intake_pass = intake_pass(e.key, e.field_type, cat, e.question) if (not row.answer or row.intake_pass == "gap") else row.intake_pass
         if sensitive:
             row.sensitivity = SENSITIVE
     session.commit()

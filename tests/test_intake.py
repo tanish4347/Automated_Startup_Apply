@@ -252,3 +252,27 @@ def test_intake_endpoints(tmp_path, monkeypatch):
     assert r.status_code == 200 and r.json()["progress"]["done"] == 1   # a SENSITIVE write, allowed: it's the candidate
     with Session() as s:
         assert s.query(VaultAnswer).filter_by(canonical_key="gpa").one().answer == "8.41/10"
+
+def test_noise_and_employer_fields_not_in_intake(seeded):
+    from autoapply.candidate.catalog import classify_card
+    assert classify_card('custom.attach', 'file', 'custom', 'Attach') == 'INVALID_NOISE'
+    assert classify_card('custom.company_name', 'text', 'custom', 'Company Name') == 'EMPLOYER_FORM_FIELD'
+    
+    from autoapply.models.vault import VaultAnswer
+    from autoapply.candidate.intake import build_cards
+    
+    # manually insert attach if missing
+    attach = seeded.query(VaultAnswer).filter_by(canonical_key='custom.attach').first()
+    if not attach:
+        attach = VaultAnswer(canonical_key='custom.attach', question='Attach', field_type='file', category='custom', intake_pass='none', status='NEEDS REVIEW')
+        seeded.add(attach)
+        seeded.commit()
+
+    attach2 = seeded.query(VaultAnswer).filter_by(canonical_key='custom.attach').first()
+    assert attach2 is not None
+    assert attach2.intake_pass == 'none'
+    
+    cards = build_cards(seeded)
+    for c in cards:
+        assert c.id != f'answer:{attach2.id}'
+        assert c.question.lower() not in ('attach', 'submit', 'upload', 'continue', 'next', 'save')
