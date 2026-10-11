@@ -80,7 +80,7 @@ class Entailer:
     def available(self) -> bool:
         if self._available is None:
             try:
-                r = self._client.get(f"{self.url}/api/tags", timeout=3)
+                r = self._client.get(f"{self.url}/api/tags", timeout=0.1)
                 names = {m.get("name") for m in r.json().get("models", [])} if r.status_code == 200 else set()
                 self._available = r.status_code == 200 and (self.model in names or f"{self.model}:latest" in names)
                 if r.status_code == 200 and not self._available:

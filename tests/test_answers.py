@@ -105,7 +105,7 @@ def test_tier_1c_confirmed_verbatim_needs_review_ignored(session):
     assert e.resolve("GitHub profile", "text").value is None            # NEEDS REVIEW = missing
     confirm(session, "github_url", "https://github.com/asha")
     r = e.resolve("GitHub profile", "text")
-    assert (r.value, r.tier, r.canonical_key) == ("https://github.com/asha", "1a", "github_url")
+    assert (r.value, r.tier, r.canonical_key) == ("https://github.com/asha", "FACT", "github_url")
 
 
 def test_stored_answer_is_mapped_onto_the_forms_options(session):
@@ -144,7 +144,7 @@ def test_no_sensitive_value_can_reach_a_prompt(session):
     assert set(rules) == {"can_work_onsite_in", "will_relocate"}   # sensitive policy rows never included
     ent = FakeEntailer("No")
     r = eng(session, entailer=ent).resolve("Can you work from our Bangalore office?", "select", ["Yes", "No"])
-    assert r.value == "No" and r.tier == "2"
+    assert r.value == "No" and r.tier == "LLM"
     for prompt in ent.prompts:
         assert not any(v.lower() in prompt.lower() for v in forbidden)
         assert "Mumbai" in prompt                                   # the rule it decided from
@@ -222,6 +222,6 @@ def test_explain_fills_and_writes_nothing(session):
     before = session.query(QuestionAlias).count(), session.query(VaultAnswer).count()
     rows = E.explain(session, [("Email", "email", None), ("A brand new question?", "text", None),
                                ("Do you require visa sponsorship?", "select", ["Yes", "No"])])
-    assert [r["tier"] for r in rows] == ["1a", "parked", "parked"]
+    assert [r["tier"] for r in rows] == ["FACT", "parked", "parked"]
     assert rows[0]["value"] == "asha@example.edu" and "SENSITIVE" in rows[2]["reason"]
     assert (session.query(QuestionAlias).count(), session.query(VaultAnswer).count()) == before

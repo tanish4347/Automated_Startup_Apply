@@ -555,7 +555,7 @@ def test_engine_uses_tier3_for_open_questions_and_review_approves(story, tmp_pat
     j = _job(story)
     eng = AnswerEngine(story, generator=gen, entailer=type("E", (), {"available": lambda s: False})())
     r = eng.resolve("Why do you want to join Acme?", "textarea", None, job=j)
-    assert (r.tier, r.value, r.needs_approval) == ("3", GOOD, True)
+    assert (r.tier, r.value, r.needs_approval) == ("LLM", GOOD, True)
     assert eng.resolve("Why do you want to join Acme?", "textarea", None).value != GOOD   # no job: no tier 3
     app = _app(story, source="unstop", apply_channel="unstop", title="Data Intern")
     page = Page("https://unstop.com/competitions/3/register")

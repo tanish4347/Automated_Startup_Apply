@@ -275,6 +275,20 @@ def create_app(settings=None):
     def profile(request: Request, db: Session = Depends(get_db), saved: str = ""):
         identity = db.query(VaultIdentity).first()
         answers = identity.answers if identity else []
+        compensation = {}
+        compensation_fields = [
+            {"key": "compensation.monthly_salary", "label": "Salary per month", "amount_field": "monthly_salary_amount", "currency_field": "monthly_salary_currency", "period_label": "per month"},
+            {"key": "compensation.annual_salary", "label": "Salary per year", "amount_field": "annual_salary_amount", "currency_field": "annual_salary_currency", "period_label": "per year"},
+            {"key": "compensation.stipend", "label": "Stipend received", "amount_field": "stipend_amount", "currency_field": "stipend_currency", "period_label": "per month"},
+            {"key": "compensation.expected_ctc", "label": "Expected CTC", "amount_field": "expected_ctc_amount", "currency_field": "expected_ctc_currency", "period_label": "per year"},
+            {"key": "compensation.current_ctc", "label": "Current CTC", "amount_field": "current_ctc_amount", "currency_field": "current_ctc_currency", "period_label": "per year"},
+            {"key": "compensation.minimum_stipend", "label": "Minimum stipend", "amount_field": "minimum_stipend_amount", "currency_field": "minimum_stipend_currency", "period_label": "per month"},
+        ]
+        for key in ("compensation.monthly_salary", "compensation.annual_salary", "compensation.stipend",
+                    "compensation.expected_ctc", "compensation.current_ctc", "compensation.minimum_stipend"):
+            row = db.query(VaultAnswer).filter_by(canonical_key=key).first()
+            compensation[key] = (row.value_json if row and isinstance(row.value_json, dict)
+                                 else {"amount": row.answer or "", "currency": ""} if row else {})
         cv_answers = [a for a in answers if a.category == "CV Extracted"]
         
         # calculate completeness
@@ -293,6 +307,9 @@ def create_app(settings=None):
         return templates.TemplateResponse(request, "profile.html", {
             "page": "profile",
             "identity": identity,
+            "educations": identity.educations if identity else [],
+            "compensation": compensation,
+            "compensation_fields": compensation_fields,
             "cv_answers": cv_answers,
             "completeness": completeness,
             "saved": saved,
@@ -306,9 +323,49 @@ def create_app(settings=None):
             identity = VaultIdentity()
             db.add(identity)
             db.flush()
-        for f in ["first_name","middle_name","last_name","preferred_name","email","phone","city","country","pronouns",
+        for f in ["first_name","middle_name","last_name","preferred_name","email","phone","city","country",
+                  "permanent_city","permanent_country","pronouns",
                   "linkedin_url","github_url","portfolio_url","codeforces_url","leetcode_url","kaggle_url","google_scholar_url","other_links"]:
-            setattr(identity, f, form.get(f, "").strip() or None)
+            if f in form:
+                setattr(identity, f, form.get(f, "").strip() or None)
+        if any(f in form for f in ("first_name", "email", "city", "permanent_city")):
+            identity.source, identity.status = "USER ENTERED", "CONFIRMED"
+
+        # Each compensation answer stores its unit independently. No monthly/annual conversion
+        # or inference is performed; a currency is required when an amount is supplied.
+        from autoapply.candidate.sensitive import SENSITIVE, USER
+        compensation_fields = {
+            "compensation.monthly_salary": ("monthly_salary_amount", "monthly_salary_currency", "month"),
+            "compensation.annual_salary": ("annual_salary_amount", "annual_salary_currency", "year"),
+            "compensation.stipend": ("stipend_amount", "stipend_currency", "month"),
+            "compensation.expected_ctc": ("expected_ctc_amount", "expected_ctc_currency", "year"),
+            "compensation.current_ctc": ("current_ctc_amount", "current_ctc_currency", "year"),
+            "compensation.minimum_stipend": ("minimum_stipend_amount", "minimum_stipend_currency", "month"),
+        }
+        import re
+        for key, (amount_field, currency_field, period) in compensation_fields.items():
+            if amount_field not in form:
+                continue
+            amount = form.get(amount_field, "").strip().replace(",", "")
+            currency = form.get(currency_field, "").strip().upper()
+            row = db.query(VaultAnswer).filter_by(canonical_key=key).first()
+            if not amount:
+                if row:
+                    row.answer, row.value_json, row.status = None, None, "NEEDS REVIEW"
+                    row.confirmed_by_user, row.confirmed_at = False, None
+                continue
+            if not re.fullmatch(r"\d+(?:\.\d{1,2})?", amount) or not re.fullmatch(r"[A-Z]{3}", currency):
+                raise HTTPException(status_code=422, detail=f"Enter a valid amount and 3-letter currency for {key}.")
+            if row is None:
+                row = VaultAnswer(identity_id=identity.id, canonical_key=key, category="compensation",
+                                  question=key.split(".")[-1].replace("_", " ").title(),
+                                  field_type="number", intake_pass="gap")
+                db.add(row)
+            row.answer, row.value_json = amount, {"amount": amount, "currency": currency, "period": period}
+            row.source, row.status, row.sensitivity = USER, "CONFIRMED", SENSITIVE
+            row.value_type, row.confidence, row.scope = "money", 1.0, "candidate"
+            row.conditions, row.confirmed_by_user = {"period": period}, True
+            row.confirmed_at = datetime.now(timezone.utc)
         db.commit()
         return RedirectResponse("/profile?saved=1", status_code=303)
 
@@ -316,14 +373,19 @@ def create_app(settings=None):
     async def education_save(request: Request, db: Session = Depends(get_db)):
         form = await request.form()
         identity = db.query(VaultIdentity).first()
-        if not identity: return RedirectResponse("/profile", status_code=303)
+        if not identity:
+            identity = VaultIdentity(source="USER ENTERED", status="CONFIRMED")
+            db.add(identity)
+            db.flush()
         eid = form.get("edu_id", "").strip()
         edu = db.query(VaultEducation).filter(VaultEducation.id == int(eid)).first() if eid else None
         if not edu:
             edu = VaultEducation(identity_id=identity.id)
             db.add(edu)
-        for f in ["institution","degree","major","minor","specialization","start_date","end_date","cgpa","scale","enrollment_status"]:
+        for f in ["institution","degree","degree_level","department","major","minor","specialization",
+                  "start_date","end_date","cgpa","scale"]:
             setattr(edu, f, form.get(f, "").strip() or None)
+        edu.source, edu.status = "USER ENTERED", "CONFIRMED"
         db.commit()
         return RedirectResponse("/profile#education", status_code=303)
 

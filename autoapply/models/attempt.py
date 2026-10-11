@@ -59,6 +59,25 @@ class ApplicationAttempt(Base):
     reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
 
+class ApplicationAttemptEvent(Base):
+    """Append-only proof and stage history for one application attempt."""
+
+    __tablename__ = "application_attempt_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    attempt_id = Column(Integer, ForeignKey("application_attempts.id", ondelete="CASCADE"),
+                         nullable=False, index=True)
+    stage = Column(String(24), nullable=False, index=True)
+    action = Column(String(80), nullable=True)
+    expected = Column(JSON, nullable=True)
+    observed = Column(JSON, nullable=True)
+    verified = Column(String(16), nullable=True)  # passed | failed | unavailable | not_applicable
+    recovery_level = Column(Integer, nullable=True)
+    strategy = Column(String(120), nullable=True)
+    error = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+
 class ApplicationClaim(Base):
     __tablename__ = "application_claims"
 

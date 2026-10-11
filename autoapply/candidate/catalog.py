@@ -73,24 +73,73 @@ def category_of(key: str, field_type: str) -> str:
 def classify_card(key: str, field_type: str, category: str, question: str) -> str:
     from autoapply.candidate.sensitive import is_sensitive_key
     q = (question or "").strip().lower()
+    
+    # 1. Invalid/Noise
     if q in {"attach", "submit", "upload", "continue", "next", "save", "search", "type"}:
         return "INVALID_NOISE"
+        
+    # 2. Documents
     if field_type == "file":
         return "DOCUMENT"
+        
     base = key.split(".")[0]
-    if base in POLICY_KEYS:
-        return "POLICY"
+    
+    # 3. Contextual Application Decisions
+    CONTEXTUAL_KEYS = {
+        "internship_duration_preferred",
+        "internship_start_date",
+        "internship_end_date",
+        "internship_availability_full",
+        "internship_full_time",
+        "internship_academic_commitments",
+        "internship_noc_available",
+        "internship_academic_credit",
+        "internship_can_extend",
+        "unpaid_ok",
+        "other_compensation_expectations",
+        "relocation_costs_bearer",
+        "location_current_proximity",
+        "previous_employment",
+        "previous_application",
+        "department",
+        "role_preference",
+        "relatives_working_here",
+        "non_compete_signed",
+        "nda_ok",
+        "workplace_accommodations", 
+        "consent_data_storage",
+        "additional_relevant_info",
+        "why_company", 
+        "how_heard", 
+        "referral",
+        "previously_employed",
+        "additional_info",
+        "ai_policy_ack",
+        "privacy_consent"
+    }
+    
+    if key in CONTEXTUAL_KEYS or base in CONTEXTUAL_KEYS:
+        return "CONTEXTUAL_APPLICATION_DECISION"
+        
+    # 4. General Policy
+    if base in POLICY_KEYS or key in {"relocation_assistance_required"}:
+        return "GENERAL_POLICY"
+        
+    # 5. Employer Form Field
     if key in CV_KEYS or base in CV_KEYS:
-        return "CANDIDATE_FACT"
+        return "STATIC_CANDIDATE_FACT"
+        
     if key.startswith("custom."):
         if is_sensitive_key(key):
-            return "CANDIDATE_FACT"
+            return "STATIC_CANDIDATE_FACT"
         return "EMPLOYER_FORM_FIELD"
-    return "CANDIDATE_FACT"
+        
+    # 6. Static Candidate Fact (default for CV keys, identity, education, etc.)
+    return "STATIC_CANDIDATE_FACT" 
 
 def intake_pass(key: str, field_type: str, category: str, question: str = "") -> str:
     cls = classify_card(key, field_type, category, question)
-    if cls in ("INVALID_NOISE", "EMPLOYER_FORM_FIELD", "DOCUMENT"):
+    if cls in ("INVALID_NOISE", "EMPLOYER_FORM_FIELD", "DOCUMENT", "CONTEXTUAL_APPLICATION_DECISION"):
         return "none"
     base = key.split(".")[0]
     if base in POLICY_KEYS:

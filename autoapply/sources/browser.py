@@ -24,7 +24,10 @@ from __future__ import annotations
 
 import abc
 import json
+import os
 import re
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterator
@@ -35,6 +38,15 @@ from autoapply.politeness import Budget, BudgetExhausted, Pacer, SourcePolicy, p
 from autoapply.sources.base import BaseSource, SourceResult
 
 log = get_logger(__name__)
+
+_PROFILE_LOCKS: dict[str, threading.Lock] = {}
+_PROFILE_LOCKS_GUARD = threading.Lock()
+
+
+def _thread_profile_lock(path: Path) -> threading.Lock:
+    key = str(path.resolve()).casefold()
+    with _PROFILE_LOCKS_GUARD:
+        return _PROFILE_LOCKS.setdefault(key, threading.Lock())
 
 PROFILE_ROOT = DATA_DIR / "browser_profiles"
 USER_AGENT = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -116,48 +128,114 @@ class BrowserSession:
         self.record_calls = record_calls
         self.requests_seen: list[tuple[str, dict[str, str]]] = []  # (url, headers) of xhr/fetch
         self._pw = self._ctx = self.page = None
+        self._thread_lock = None
+        self._lock_file = None
 
     def __enter__(self) -> "BrowserSession":
-        from playwright.sync_api import sync_playwright
         self.profile_dir.mkdir(parents=True, exist_ok=True)
-        from autoapply.sources.session_cookies import carry_over
-        session_cookies = carry_over(self.profile_dir)   # read before Chrome discards them at startup
-        self._pw = sync_playwright().start()
-        self._ctx = self._pw.chromium.launch_persistent_context(
-            str(self.profile_dir), headless=self.headless, channel="chromium", user_agent=USER_AGENT,
-            locale="en-IN", viewport={"width": 1366, "height": 900},
-        )
-        if session_cookies:
+        self._thread_lock = _thread_profile_lock(self.profile_dir)
+        if not self._thread_lock.acquire(timeout=15):
+            raise TimeoutError(f"browser profile busy for {self.platform} after 15 seconds")
+        try:
+            self._acquire_process_lock()
+            from playwright.sync_api import sync_playwright
+            from autoapply.sources.session_cookies import carry_over
+            session_cookies = carry_over(self.profile_dir)   # read before Chrome discards them at startup
+            self._pw = sync_playwright().start()
+            self._ctx = self._pw.chromium.launch_persistent_context(
+                str(self.profile_dir), headless=self.headless, channel="chromium", user_agent=USER_AGENT,
+                locale="en-IN", viewport={"width": 1366, "height": 900},
+            )
+            if session_cookies:
+                try:
+                    self._ctx.add_cookies(session_cookies)
+                except Exception as e:
+                    log.warning("session_cookies_not_added", platform=self.platform, error=str(e)[:120])
+            self.page = self._ctx.pages[0] if self._ctx.pages else self._ctx.new_page()
+            self._ctx.on("request", self._on_request)
+            self._ctx.on("response", self._on_response)
+            return self
+        except Exception:
+            if self._pw is not None:
+                self._pw.stop()
+                self._pw = None
+            self._release_process_lock()
+            self._thread_lock.release()
+            self._thread_lock = None
+            raise
+
+    def _acquire_process_lock(self) -> None:
+        """Serialize Chromium's one-writer persistent profile across processes."""
+        lock_path = self.profile_dir / ".autoapply-profile.lock"
+        self._lock_file = open(lock_path, "a+b")
+        self._lock_file.seek(0, 2)
+        if self._lock_file.tell() == 0:
+            self._lock_file.write(b"0")
+            self._lock_file.flush()
+        deadline = time.monotonic() + 15
+        while True:
             try:
-                self._ctx.add_cookies(session_cookies)
-            except Exception as e:
-                log.warning("session_cookies_not_added", platform=self.platform, error=str(e)[:120])
-        self.page = self._ctx.pages[0] if self._ctx.pages else self._ctx.new_page()
-        self._ctx.on("request", self._on_request)
-        self._ctx.on("response", self._on_response)
-        return self
+                self._lock_file.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(self._lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return
+            except (OSError, BlockingIOError):
+                if time.monotonic() >= deadline:
+                    self._lock_file.close()
+                    self._lock_file = None
+                    raise TimeoutError(f"browser profile busy for {self.platform} after 15 seconds")
+                time.sleep(0.1)
+
+    def _release_process_lock(self) -> None:
+        if self._lock_file is None:
+            return
+        try:
+            self._lock_file.seek(0)
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(self._lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(self._lock_file.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+        self._lock_file.close()
+        self._lock_file = None
 
     def __exit__(self, *exc: Any) -> None:
         try:
             if self._ctx is not None:
                 self._ctx.close()
         finally:
-            if self._pw is not None:
-                self._pw.stop()
+            try:
+                if self._pw is not None:
+                    self._pw.stop()
+            finally:
+                self._release_process_lock()
+                if self._thread_lock is not None:
+                    self._thread_lock.release()
+                    self._thread_lock = None
 
     # recording
     def _on_request(self, request) -> None:
-        if request.resource_type in ("xhr", "fetch"):
-            self.requests_seen.append((request.url, dict(request.headers)))
-            del self.requests_seen[:-200]
+        try:
+            if request.resource_type in ("xhr", "fetch"):
+                self.requests_seen.append((request.url, dict(request.headers)))
+                del self.requests_seen[:-200]
+        except Exception:
+            pass
 
     def _on_response(self, response) -> None:
-        req = response.request
-        if not self.record_calls or req.resource_type not in ("xhr", "fetch"):
-            return
-        if "json" not in (response.headers.get("content-type") or ""):
-            return
         try:
+            req = response.request
+            if not self.record_calls or req.resource_type not in ("xhr", "fetch"):
+                return
+            if "json" not in (response.headers.get("content-type") or ""):
+                return
             if self.calls_path.exists() and self.calls_path.stat().st_size > _MAX_CALL_LOG_BYTES:
                 return
             try:
@@ -171,7 +249,7 @@ class BrowserSession:
             self.calls_path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.calls_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(entry) + "\n")
-        except Exception as e:  # recording must never break a run
+        except Exception as e:
             log.debug("call_record_failed", error=str(e))
 
     def request_headers(self, url_part: str) -> dict[str, str] | None:
@@ -189,16 +267,22 @@ class BrowserSession:
         self.blocked: list[str] = []
 
         def guard(route) -> None:
-            req = route.request
-            if req.method in ("GET", "HEAD", "OPTIONS"):
-                route.continue_()
-            elif allow is not None and allow(req.method, req.url, _post_body(req)):
-                route.continue_()
-            else:
-                self.blocked.append(f"{route.request.method} {route.request.url[:160]}")
-                route.abort()
+            try:
+                req = route.request
+                if req.method in ("GET", "HEAD", "OPTIONS"):
+                    route.continue_()
+                elif allow is not None and allow(req.method, req.url, _post_body(req)):
+                    route.continue_()
+                else:
+                    self.blocked.append(f"{req.method} {req.url[:160]}")
+                    route.abort()
+            except Exception as e:
+                log.debug("route_guard_error", error=str(e))
+                try: route.abort()
+                except: pass
 
         self._ctx.route("**/*", guard)
+        self._ctx.on("dialog", lambda dialog: dialog.dismiss())
 
     def check(self, status: int | None = None) -> None:
         reason = detect_challenge(status=status, title=self.page.title(), html=self.page.content())

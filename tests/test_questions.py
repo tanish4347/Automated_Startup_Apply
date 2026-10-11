@@ -60,7 +60,7 @@ def test_ashby_graphql_form():
 
 
 def test_lever_apply_page_form():
-    fields = parse_lever_form((FIX / "lever_cred_apply.html").read_text())
+    fields = parse_lever_form((FIX / "lever_cred_apply.html").read_text(encoding="utf-8"))
     by = {f.label: f for f in fields}
     assert by["Resume/CV"].field_type == "file" and by["Resume/CV"].required
     assert by["Email"].field_type == "email" and by["Full name"].required
@@ -79,7 +79,8 @@ def test_pick_jobs_prefers_internships():
     assert pick_jobs([("1", "Senior SRE"), ("2", "ML Intern"), ("3", "Staff PM")], 2) == ["2", "1"]
 
 
-def test_harvest_ats_one_entry_per_company():
+@pytest.mark.asyncio
+async def test_harvest_ats_one_entry_per_company():
     gh = json.dumps(load_json("greenhouse_observeai.json"))
 
     def handler(request):
@@ -88,11 +89,8 @@ def test_harvest_ats_one_entry_per_company():
                                                       {"id": 3, "title": "PM"}]})
         return httpx.Response(200, text=gh, headers={"content-type": "application/json"})
 
-    async def go():
-        async with AsyncFetcher(max_retries=0, transport=httpx.MockTransport(handler)) as f:
-            return await harvest_ats("greenhouse", [("observeai", "Observe.AI")], fetcher=f)
-
-    forms = asyncio.run(go())
+    async with AsyncFetcher(max_retries=0, transport=httpx.MockTransport(handler)) as f:
+        forms = await harvest_ats("greenhouse", [("observeai", "Observe.AI")], fetcher=f)
     assert len(forms) == 2 and {f.company_key for f in forms} == {"observeai"}  # 2 postings, one company
 
 

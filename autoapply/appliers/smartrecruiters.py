@@ -4,8 +4,8 @@ Checked read-only 2026-10-02 on job 20289 (InfiniteQuant): the posting page
 jobs.smartrecruiters.com/<company>/<id> carries a#st-apply "I'm interested", a plain link to the
 one-click apply app (jobs.smartrecruiters.com/oneclick-ui/company/<id>/publication/<uuid>). The
 applier follows that href (a GET; the same navigation the click makes). The apply app is built from
-web components (open shadow roots: FORM_DUMP_JS walks them) and is behind DataDome: a challenge
-raises ChallengeDetected and is never solved.
+web components. Generic discovery uses Playwright's native locators across open shadow roots,
+frames, and ARIA controls; a DataDome challenge raises ChallengeDetected and is never solved.
 
 Submit: the apply app's submit button (button[type=submit] / "Submit").
 Success assertion (explicit): the apply app moves to a success/confirmation route, or the page
@@ -27,6 +27,7 @@ SUCCESS_TEXT = re.compile(r"thank you for (applying|your application)|applicatio
 class SmartRecruitersApplier(AtsApplier):
     platform = "smartrecruiters"
     hosts = ("smartrecruiters.com",)
+    max_steps = 5
 
     def apply_url(self, job: Job) -> str:
         url = self.url_for(job)
@@ -43,11 +44,16 @@ class SmartRecruitersApplier(AtsApplier):
                 raise PostingClosed("smartrecruiters: no \"I'm interested\" link on the posting (closed?)")
             url = urljoin(bs.page.url, link.get_attribute("href") or "")
         bs.goto(url)
-        bs.page.wait_for_timeout(4000)
+        # The harness waits for meaningful controls with bounded stabilization polling.
+
+    def next_control(self, bs):
+        # Match intermediate step buttons
+        btn = bs.page.locator("button, a").filter(has_text=re.compile(r"^\s*(next|continue|add information|review)\s*$", re.I)).first
+        return btn if btn.count() > 0 else None
 
     def submit_control(self, bs):
-        return bs.page.locator("button[type=submit]").or_(
-            bs.page.get_by_role("button", name=re.compile(r"^\s*submit", re.I))).first
+        # The final submission button
+        return bs.page.locator("button").filter(has_text=re.compile(r"^\s*(submit|send application)\s*$", re.I)).first
 
     def success_assertion(self, bs, before_url: str) -> str | None:
         path = urlsplit(bs.page.url).path

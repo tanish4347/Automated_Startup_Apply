@@ -55,14 +55,20 @@ class NaukriApplier(FormApplier):
             raise LookupError("naukri: walk-in posting; there is no online application")
         if d.get("hideApplyButton"):
             raise LookupError("naukri: the posting hides its Apply button")
-        bs.page.wait_for_timeout(2000)
         if bs.page.locator("#login_Layer:visible").count():
             raise NeedsLogin("Naukri is not logged in. Run `autoapply browser-login naukri`, sign in, close the window.")
         if bs.page.locator("#already-applied").count():
             raise LookupError("naukri: already applied to this posting on Naukri")
         if bs.page.locator("#company-site-button").count():
             raise LookupError("naukri: 'Apply on company site' shown but the job JSON had no redirect URL")
-        if bs.page.locator("#apply-button:visible").count() == 0:
+        try:
+            button = bs.page.locator("#apply-button:visible")
+            waiter = getattr(button, "wait_for", None)
+            if waiter:
+                waiter(state="visible", timeout=8000)
+            elif button.count() == 0:
+                raise LookupError("naukri: no visible Apply button")
+        except Exception:
             raise LookupError("naukri: no visible Apply button")
 
     def read_fields(self, bs):

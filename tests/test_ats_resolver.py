@@ -207,12 +207,12 @@ def test_run_resolver_end_to_end(session, monkeypatch):
 
 def test_personio_and_teamtailor_parsers():
     t = Target(company="Personio", ats_type="personio", token="personio")
-    jobs = parse_personio((FIXTURES / "personio.xml").read_text(), t, "personio.jobs.personio.de")
+    jobs = parse_personio((FIXTURES / "personio.xml").read_text(encoding="utf-8"), t, "personio.jobs.personio.de")
     assert [j.title for j in jobs] == ["Staff Software Engineer, Data Platform", "Machine Learning Intern"]
     assert jobs[0].location == "Munich, Berlin" and jobs[0].source_url == "https://personio.jobs.personio.de/job/1834171"
     assert jobs[1].description_text.startswith("Your mission") and "NLP" in jobs[1].description_text
 
-    tt = parse_teamtailor((FIXTURES / "teamtailor.rss").read_text(), Target("Teamtailor", "teamtailor", "career"))
+    tt = parse_teamtailor((FIXTURES / "teamtailor.rss").read_text(encoding="utf-8"), Target("Teamtailor", "teamtailor", "career"))
     assert len(tt) == 2 and tt[0].work_mode == "hybrid" and tt[0].location == "London, United Kingdom"
     assert tt[0].source_url.startswith("https://career.teamtailor.com/jobs/") and len(tt[0].description_text) > 200
 

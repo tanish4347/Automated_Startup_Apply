@@ -71,8 +71,8 @@ class AtsApplier(FormApplier):
             raise PostingClosed(f"{self.platform}: posting closed ({CLOSED_TEXT.search(body).group(0)!r})")
 
     def after_open(self, bs) -> None:
-        """Wait for a client-rendered form."""
-        bs.page.wait_for_timeout(2500)
+        """Form readiness is handled by bounded FormDiscovery polling."""
+        return None
 
     def read_fields(self, bs) -> list[FormField]:
         # react-select renders a second, unlabelled input next to each combobox ("Select...")

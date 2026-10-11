@@ -62,7 +62,8 @@ class AshbyApplier(AtsApplier):
         return f"https://jobs.ashbyhq.com/{m.group(1)}/{m.group(2)}/application"
 
     def after_open(self, bs) -> None:
-        bs.page.wait_for_timeout(4000)
+        # FormDiscovery performs bounded polling after navigation.
+        return None
 
     def read_fields(self, bs) -> list[FormField]:
         from autoapply.questions.harvest import clean_label
@@ -73,13 +74,43 @@ class AshbyApplier(AtsApplier):
                                         g["option_aa"][0], "yesno", g["option_aa"]))
         return fields
 
-    def fill(self, bs, field: FormField, value) -> None:
+    def fill(self, bs, field: FormField, value):
         if field.control == "yesno":
+            from autoapply.answers.type_adapter import match_dropdown_option
+            matched = match_dropdown_option(value, field.options or [])
+            if not matched:
+                raise ValueError(f"option {value!r} is not offered by {field.label!r}")
             for opt, aa in zip(field.options or [], field.option_aa or []):
-                if opt.strip().lower() == str(value).strip().lower():
+                if opt == matched:
                     bs.page.locator(f'[data-aa="{aa}"]').click()
-            return
+                    return self.verify_fill(bs, field, matched)
+            raise LookupError(f"option target for {field.label!r} is stale")
         super().fill(bs, field, value)
+
+    def verify_fill(self, bs, field: FormField, value):
+        if field.control == "yesno" and field.options and field.option_aa:
+            from autoapply.answers.type_adapter import match_dropdown_option
+            expected = match_dropdown_option(value, field.options)
+            if not expected:
+                raise ValueError(f"selected option is not offered by {field.label!r}")
+            selected_options = []
+            for option, aa in zip(field.options, field.option_aa):
+                state = bs.page.locator(f'[data-aa="{aa}"]').evaluate("el => ({checked:el.checked || "
+                    "!!el.querySelector('input:checked'), aria:el.getAttribute('aria-checked') || "
+                    "el.getAttribute('aria-selected') || el.getAttribute('aria-pressed') || "
+                    "el.getAttribute('data-state'), cls:typeof el.className==='string'?el.className:''})")
+                classes = set((state.get("cls") or "").lower().split())
+                selected = (bool(state.get("checked")) or state.get("aria") in ("true", "checked", "selected") or
+                            bool(classes & {"selected", "checked", "active", "is-selected", "is-checked"}))
+                if selected:
+                    selected_options.append(option)
+                if option == expected:
+                    if not selected:
+                        raise ValueError(f"yes/no selection was not verified for {field.label!r}")
+                elif selected:
+                    raise ValueError(f"multiple yes/no values appear selected for {field.label!r}")
+            return {"selected": selected_options}
+        super().verify_fill(bs, field, value)
 
     def submit_control(self, bs):
         return bs.page.locator("button.ashby-application-form-submit-button").first

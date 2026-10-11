@@ -58,9 +58,14 @@ class UnstopApplier(FormApplier):
         regn_url = comp.get("regn_url")
         if comp.get("regn_type") not in (None, 1) and regn_url and "unstop.com" not in regn_url:
             raise Reroute(regn_url, f"Unstop posting applies externally (regn_type={comp.get('regn_type')}): {regn_url}")
-        bs.page.wait_for_timeout(1500)
         btn = bs.page.locator("#un-register-btn").first
-        if btn.count() == 0:
+        try:
+            waiter = getattr(btn, "wait_for", None)
+            if waiter:
+                waiter(state="visible", timeout=8000)
+            elif btn.count() == 0:
+                raise LookupError("unstop: missing register button")
+        except Exception:
             raise PostingClosed("unstop: no register button on the posting")
         text = btn.inner_text().strip()
         if CLOSED_BUTTON.search(text):
@@ -75,7 +80,6 @@ class UnstopApplier(FormApplier):
             raise NeedsLogin("Unstop is not logged in. Run `autoapply browser-login unstop`, sign in, close the window.")
         bs.page.keyboard.press("Escape")
         btn.click()
-        bs.page.wait_for_timeout(4000)
         host = urlsplit(bs.page.url).netloc
         if host and not host.endswith("unstop.com"):
             raise Reroute(bs.page.url, f"Unstop register click left the platform for {bs.page.url}")

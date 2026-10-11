@@ -1,0 +1,1202 @@
+[
+  {
+    "platform": "ashby",
+    "label": "(Optional) If you were referred by a Cohere employee, please tell us who!",
+    "legacy_key": "referral",
+    "expected_key": "referral"
+  },
+  {
+    "platform": "ashby",
+    "label": "(Optionally) include a short description of the work you're proudest of",
+    "legacy_key": "custom.optionally_include_a_short_description_of",
+    "expected_key": "custom.optionally_include_a_short_description_of"
+  },
+  {
+    "platform": "ashby",
+    "label": "1. Describe one production LLM or retrieval-based system you worked on. Please include: • the user problem • the data sources or context sources used • how retrieval, context selection, or query understanding worked • one failure mode you saw • what you personally owned • the measurable impact",
+    "legacy_key": "custom.1_describe_one_production_llm_or",
+    "expected_key": "custom.1_describe_one_production_llm_or"
+  },
+  {
+    "platform": "ashby",
+    "label": "A “U.S. person” is a citizen, legal permanent resident, or legal temporary resident (i.e., a refugee or asylee) of the United States. Which of the following best describes your “U.S. person” status?",
+    "legacy_key": "custom.a_u_s_person_is_a",
+    "expected_key": "custom.a_u_s_person_is_a"
+  },
+  {
+    "platform": "ashby",
+    "label": "AI Policy for Application",
+    "legacy_key": "ai_policy_ack",
+    "expected_key": "ai_policy_ack"
+  },
+  {
+    "platform": "ashby",
+    "label": "Additional Attachments",
+    "legacy_key": "custom.additional_attachments",
+    "expected_key": "custom.additional_attachments"
+  },
+  {
+    "platform": "ashby",
+    "label": "Additional Information",
+    "legacy_key": "additional_info",
+    "expected_key": "additional_info"
+  },
+  {
+    "platform": "ashby",
+    "label": "Alt. Phone",
+    "legacy_key": "phone",
+    "expected_key": "phone"
+  },
+  {
+    "platform": "ashby",
+    "label": "Anything else? (Optional)",
+    "legacy_key": "additional_info",
+    "expected_key": "additional_info"
+  },
+  {
+    "platform": "ashby",
+    "label": "Applicant Arbitration Agreement Acknowledgement",
+    "legacy_key": "custom.applicant_arbitration_agreement_acknowledgement",
+    "expected_key": "custom.applicant_arbitration_agreement_acknowledgement"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are there areas of research you are particularly interested in? If so, please let us know which areas.",
+    "legacy_key": "custom.are_there_areas_of_research_you",
+    "expected_key": "custom.are_there_areas_of_research_you"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you Eligible to work in the US for any employer ?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you a member of, or involved with, any of the following communities or organizations?",
+    "legacy_key": "custom.are_you_a_member_of_or",
+    "expected_key": "custom.are_you_a_member_of_or"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able and willing to work from our Toronto office 3 days a week?",
+    "legacy_key": "custom.are_you_able_and_willing_to",
+    "expected_key": "custom.are_you_able_and_willing_to"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to be in New York City for the full duration of the summer program?",
+    "legacy_key": "custom.are_you_able_to_be_in",
+    "expected_key": "custom.are_you_able_to_be_in"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to come into the office three days per week?",
+    "legacy_key": "custom.are_you_able_to_come_into",
+    "expected_key": "custom.are_you_able_to_come_into"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work 5 days a week in the Somerville office?",
+    "legacy_key": "custom.are_you_able_to_work_5",
+    "expected_key": "custom.are_you_able_to_work_5"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work from our SF office five days per week?",
+    "legacy_key": "custom.are_you_able_to_work_from____",
+    "expected_key": "custom.are_you_able_to_work_from____"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work from our San Francisco HQ 3 days per week?",
+    "legacy_key": "custom.are_you_able_to_work_from__",
+    "expected_key": "custom.are_you_able_to_work_from__"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work from our US office three days per week?",
+    "legacy_key": "custom.are_you_able_to_work_from_",
+    "expected_key": "custom.are_you_able_to_work_from_"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work from the Plaid office associated with this role at least 3 days per week, with or without a reasonable accommodation?",
+    "legacy_key": "custom.are_you_able_to_work_from___",
+    "expected_key": "custom.are_you_able_to_work_from___"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work in San Francisco 5 days a week?",
+    "legacy_key": "custom.are_you_able_to_work_in",
+    "expected_key": "custom.are_you_able_to_work_in"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you able to work in the office listed on the job description?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work in the U.S.?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work in the United States without restriction?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work in the country where the job is located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work in the country you are currently located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work lawfully in the US?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work lawfully in the United States for Company?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work lawfully in the United States for Ibotta?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you authorized to work lawfully in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you available for a Winter Co-Op? (January - April 2027)",
+    "legacy_key": "custom.are_you_available_for_a_winter",
+    "expected_key": "custom.are_you_available_for_a_winter"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you available for a full-time internship?",
+    "legacy_key": "custom.are_you_available_for_a_full",
+    "expected_key": "custom.are_you_available_for_a_full"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you available to start on either Monday, May 24th, 2026 or Monday, June 14th, 2027?",
+    "legacy_key": "start_date",
+    "expected_key": "start_date"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you based in a EU or equivalent timezone?",
+    "legacy_key": "timezone",
+    "expected_key": "timezone"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you based in a US or equivalent timezone?",
+    "legacy_key": "timezone",
+    "expected_key": "timezone"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you based within US East Coast or Central timezone?",
+    "legacy_key": "timezone",
+    "expected_key": "timezone"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently a junior/third-year student expecting to graduate in Fall/Winter 2027 or Spring 2028?",
+    "legacy_key": "custom.are_you_currently_a_junior_third",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently a university student who will graduate Fall of 2027 or Spring 2028?",
+    "legacy_key": "custom.are_you_currently_a_university_student",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "(Optional) Personal Preferences",
+    "legacy_key": "custom.personal_preferences",
+    "expected_key": "custom.personal_preferences"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "A business customer emails because their scheduled payment to your platform failed for the most recent cycle, and they're worried it means people who depend on that payment won't get paid correctly. They're frustrated because they're confident the account information on file is correct. You don't yet know why the payment failed or what's needed to fix it. Write the email reply you'd send right now.",
+    "legacy_key": "custom.a_business_customer_emails_because_their",
+    "expected_key": "custom.a_business_customer_emails_because_their"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "A successful internship may lead to consideration for a full-time opportunity. If you were to receive a full-time offer, when would you be available to start?",
+    "legacy_key": "start_date",
+    "expected_key": "start_date"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Additional Projects (Optional)",
+    "legacy_key": "custom.additional_projects",
+    "expected_key": "custom.additional_projects"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Agreement to Arbitrate",
+    "legacy_key": "custom.agreement_to_arbitrate",
+    "expected_key": "custom.agreement_to_arbitrate"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Applicant Privacy Notice",
+    "legacy_key": "privacy_consent",
+    "expected_key": "privacy_consent"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Applicant Privacy Statement",
+    "legacy_key": "privacy_consent",
+    "expected_key": "privacy_consent"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you OK with being paid in crypto? (Payment in crypto is subject to applicable legislation)",
+    "legacy_key": "custom.are_you_ok_with_being_paid",
+    "expected_key": "custom.are_you_ok_with_being_paid"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you a person of transgender experience?",
+    "legacy_key": "custom.are_you_a_person_of_transgender",
+    "expected_key": "custom.are_you_a_person_of_transgender"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you a student in F-1 status who plans to work pursuant to curricular practical training (CPT), or optional practical training (OPT)?",
+    "legacy_key": "custom.are_you_a_student_in_f",
+    "expected_key": "custom.are_you_a_student_in_f"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you a veteran or active member of the United States Armed Forces?",
+    "legacy_key": "veteran_status",
+    "expected_key": "veteran_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you a veteran or active member of the United States Armed Forces? (select one)",
+    "legacy_key": "veteran_status",
+    "expected_key": "veteran_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you a veteran/have you served in the military?",
+    "legacy_key": "veteran_status",
+    "expected_key": "veteran_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you able to work from Figma’s SF Hub?",
+    "legacy_key": "custom.are_you_able_to_work_from",
+    "expected_key": "custom.are_you_able_to_work_from"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you able to work in our Austin office 3–5 days a week?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you authorized to work in the country for which you applied?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you available for a 12-week full-time (40 hours per week) internship during your select term(s)?",
+    "legacy_key": "custom.are_you_available_for_a_12",
+    "expected_key": "custom.are_you_available_for_a_12"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you available to work full-time, on-site in San Francisco, during the Winter Cohort Terms (January to April)?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently authorized to work in the U.S.?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently based in any of these countries? Please note these are the only countries where we are accepting applications",
+    "legacy_key": "custom.are_you_currently_based_in_any",
+    "expected_key": "custom.are_you_currently_based_in_any"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently based in or willing to relocate to the Bay Area for this position?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently based in the Phoenix metro area?",
+    "legacy_key": "custom.are_you_currently_based_in_the",
+    "expected_key": "custom.are_you_currently_based_in_the"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently eligible to work legally in the United States of America?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently enrolled in a bachelor's, associate's or master's degree program?",
+    "legacy_key": "custom.are_you_currently_enrolled_in_a_",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently enrolled in a university or program and will return to the program upon completion of internship?",
+    "legacy_key": "custom.are_you_currently_enrolled_in_a",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently located in Bangalore?",
+    "legacy_key": "custom.are_you_currently_located_in_bangalore",
+    "expected_key": "custom.are_you_currently_located_in_bangalore"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently located in SF/NYC or open to relocation, if not?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently located in the New York City area and able to commit to a 3 day a week hybrid onsite scheduled?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently located in the US?",
+    "legacy_key": "custom.are_you_currently_located_in_the",
+    "expected_key": "custom.are_you_currently_located_in_the"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently or were you previously engaged by Upwork through HWS (formerly known as TIP) as an independent contractor or payrolled worker?",
+    "legacy_key": "custom.are_you_currently_or_were_you",
+    "expected_key": "custom.are_you_currently_or_were_you"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you currently subject to any agreement with a former employer/third party (such as a non-solicitation or non-compete agreement) that may potentially limit your ability to perform the duties of the position you are applying for? If yes, you may be asked to provide a copy for review. Please note, answering \"yes\" will not disqualify your application from consideration.",
+    "legacy_key": "custom.are_you_currently_subject_to_any",
+    "expected_key": "custom.are_you_currently_subject_to_any"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you happy for ORCAserv to keep your application details on file for 6 months? (You are able to opt out at anytime by contacting recruitment@mcft.com requesting we delete your details.",
+    "legacy_key": "custom.are_you_happy_for_orcaserv_to",
+    "expected_key": "custom.are_you_happy_for_orcaserv_to"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the United States for our Company?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the country in which this role is located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the country where the job is located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the country where you are applying?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally authorized to work in the country where you are located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally permitted to work in the UK?",
+    "legacy_key": "work_authorization.uk",
+    "expected_key": "work_authorization.uk"
+  },
+  {
+    "platform": "greenhouse",
+    "label": "Are you legally work authorized to work in the US?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "(Optional) If you selected other or would like to expand on the above, feel free to do so below:",
+    "legacy_key": "custom.if_you_selected_other_or_would",
+    "expected_key": "custom.if_you_selected_other_or_would"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you Legally Authorized to Work in the United States? In compliance with federal law, all persons hired will be required to verify identity and eligibility to work in the United States and to complete the required employment eligibility verification document form upon hire",
+    "legacy_key": "custom.are_you_legally_authorized_to_work",
+    "expected_key": "custom.are_you_legally_authorized_to_work"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you a member of any of the following student groups?",
+    "legacy_key": "custom.are_you_a_member_of_any",
+    "expected_key": "custom.are_you_a_member_of_any"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you a transitioning service member?",
+    "legacy_key": "custom.are_you_a_transitioning_service_member",
+    "expected_key": "custom.are_you_a_transitioning_service_member"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you able to perform the essential functions of the job for which you are applying, with or without a reasonable accommodation?",
+    "legacy_key": "custom.are_you_able_to_perform_the",
+    "expected_key": "custom.are_you_able_to_perform_the"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you able to work 5 days a week in the Birmingham, Alabama office?",
+    "legacy_key": "custom.are_you_able_to_work_5",
+    "expected_key": "custom.are_you_able_to_work_5"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you actively interviewing? If so, please share what stage you are in with your other considerations, as well as your ideal timeline to have a final decision made.",
+    "legacy_key": "custom.are_you_actively_interviewing_if_so",
+    "expected_key": "custom.are_you_actively_interviewing_if_so"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you an Overseas Citizen of India (OCI) cardholder holding a foreign passport?",
+    "legacy_key": "custom.are_you_an_overseas_citizen_of",
+    "expected_key": "custom.are_you_an_overseas_citizen_of"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you authorized to work in the US?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you authorized to work lawfully in the United States for Immuta?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you available to commit to a full-time apprenticeship for 6 months?",
+    "legacy_key": "custom.are_you_available_to_commit_to",
+    "expected_key": "custom.are_you_available_to_commit_to"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you based out of Bangalore ?",
+    "legacy_key": "custom.are_you_based_out_of_bangalore",
+    "expected_key": "custom.are_you_based_out_of_bangalore"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you comfortable for an unpaid internship?",
+    "legacy_key": "custom.are_you_comfortable_for_an_unpaid",
+    "expected_key": "custom.are_you_comfortable_for_an_unpaid"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you currently enrolled in a PhD program, completing by May of 2028?",
+    "legacy_key": "custom.are_you_currently_enrolled_in_a___",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you currently pursuing a Bachelor's degree? And will you be continuing to pursue that degree following summer 2027?",
+    "legacy_key": "custom.are_you_currently_pursuing_a_bachelor",
+    "expected_key": "custom.are_you_currently_pursuing_a_bachelor"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you enrolled in a Bachelor's, Master’s or PhD program from an accredited college or university?",
+    "legacy_key": "custom.are_you_enrolled_in_a_bachelor",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you fluent in Japanese? We require fluency in Japanese, please do not apply if you cannot speak Japanese.",
+    "legacy_key": "languages",
+    "expected_key": "languages"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you lawfully authorized to work in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorised to work in India?",
+    "legacy_key": "work_authorization.india",
+    "expected_key": "work_authorization.india"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work for any employer in the US?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work for any employer in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work in Canada(e.g., citizen, permanent resident, or valid work permit/visa holder)?",
+    "legacy_key": "work_authorization.canada",
+    "expected_key": "work_authorization.canada"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work in the United States for any company?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work in the country for which you are applying?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally authorized to work without sponsorship in Singapore? We cannot sponsor at this time. Please do not apply if sponsorship is required.",
+    "legacy_key": "visa_sponsorship.singapore",
+    "expected_key": "visa_sponsorship.singapore"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you legally entitled to work in Canada?",
+    "legacy_key": "custom.are_you_legally_entitled_to_work",
+    "expected_key": "custom.are_you_legally_entitled_to_work"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you local to or willing to relocate?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you presently a registered student?",
+    "legacy_key": "custom.are_you_presently_a_registered_student",
+    "expected_key": "custom.are_you_presently_a_registered_student"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you presently authorized to work in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you registered under NAPS (National Apprenticeship Promotion Scheme)? If yes, please mention the duration for which you worked under your NAPS registration.",
+    "legacy_key": "custom.are_you_registered_under_naps_national",
+    "expected_key": "custom.are_you_registered_under_naps_national"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you willing and able to relocate to the Elk Valley for the duration of your co-op term?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "lever",
+    "label": "Are you willing to relocate to Bangalore?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "lever",
+    "label": "As part of any recruiting and hiring process, Protective collects and processes personal information relating to job applicants. The Company is committed to being transparent about how it collects and uses that information and to meeting its information protection obligations. In the recruitment and hiring process the “personal information” we collect includes: General Identifying and Contact Information (e.g., name, mailing address, phone number, email address), Employment History Information, Education History Information. Please be aware that the personal information you provide during the application process may be shared internally with employees of Protective as well as our designated third-party vendors for the purposes of the recruitment and hiring process, including contacting you regarding your application and assessing your qualifications for job openings with Protective. California applicants should review the state-specific notice provided in accordance with the California",
+    "legacy_key": "custom.as_part_of_any_recruiting_and",
+    "expected_key": "custom.as_part_of_any_recruiting_and"
+  },
+  {
+    "platform": "lever",
+    "label": "As part of our commitment to creating a diverse and inclusive workplace, we invite you to voluntarily disclose your gender. This information is collected for record-keeping and statistical purposes only and will not be used in any hiring decisions or affect your job application process in any way. Please note that Meesho is an Equal Opportunity Employer, and all applicants will be considered for employment without regard to gender, race, ethnicity, disability, or any other characteristic protected by law. Your response will be kept confidential and will only be accessible to limited authorized personnel on need to know basis. Please select the option that best describes your gender:",
+    "legacy_key": "custom.as_part_of_our_commitment_to",
+    "expected_key": "custom.as_part_of_our_commitment_to"
+  },
+  {
+    "platform": "lever",
+    "label": "As part of our interview process, we may use AI notetakers to transcribe conversations for accuracy and efficiency. Please see our candidate privacy policy for more information on how we process your data. Your decision to opt in or out of this tooling will not impact your candidacy.",
+    "legacy_key": "custom.as_part_of_our_interview_process",
+    "expected_key": "custom.as_part_of_our_interview_process"
+  },
+  {
+    "platform": "lever",
+    "label": "At Palantir we have two main Software Engineering roles: Forward Deployed Software Engineer and Software Engineer. Which of these roles resonates the most with your job search and why? More details found here: https://blog.palantir.com/dev-versus-delta-demystifying-engineering-roles-at-palantir-ad44c2a6e87",
+    "legacy_key": "custom.at_palantir_we_have_two_main",
+    "expected_key": "custom.at_palantir_we_have_two_main"
+  },
+  {
+    "platform": "lever",
+    "label": "Can you join us immediatedly?",
+    "legacy_key": "custom.can_you_join_us_immediatedly",
+    "expected_key": "custom.can_you_join_us_immediatedly"
+  },
+  {
+    "platform": "lever",
+    "label": "Caso tenha se identificado como PcD, você concorda em, durante o processo seletivo, enviar laudo comprobatório do enquadramento na Lei de Cotas, para tratativa da Neon segundo os critérios da LGPD?*",
+    "legacy_key": "custom.caso_tenha_se_identificado_como_pcd",
+    "expected_key": "custom.caso_tenha_se_identificado_como_pcd"
+  },
+  {
+    "platform": "lever",
+    "label": "City",
+    "legacy_key": "location_current",
+    "expected_key": "application.location"
+  },
+  {
+    "platform": "lever",
+    "label": "Current Compensation (Yearly)",
+    "legacy_key": "custom.current_compensation_yearly",
+    "expected_key": "custom.current_compensation_yearly"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Education",
+    "legacy_key": "custom.education",
+    "expected_key": "application.education"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Education dates",
+    "legacy_key": "custom.education_dates",
+    "expected_key": "custom.education_dates"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Education institution",
+    "legacy_key": "university",
+    "expected_key": "education.university"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Email",
+    "legacy_key": "email",
+    "expected_key": "email"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Experience",
+    "legacy_key": "custom.experience",
+    "expected_key": "custom.experience"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Facebook profile",
+    "legacy_key": "custom.facebook_profile",
+    "expected_key": "custom.facebook_profile"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "First and last name",
+    "legacy_key": "last_name",
+    "expected_key": "last_name"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "LinkedIn profile",
+    "legacy_key": "linkedin_url",
+    "expected_key": "linkedin_url"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Message to the hiring manager",
+    "legacy_key": "additional_info",
+    "expected_key": "additional_info"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Phone number",
+    "legacy_key": "phone",
+    "expected_key": "phone"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Place of residence",
+    "legacy_key": "location_current",
+    "expected_key": "location_current"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Resume",
+    "legacy_key": "resume",
+    "expected_key": "resume"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "Website",
+    "legacy_key": "portfolio_url",
+    "expected_key": "portfolio_url"
+  },
+  {
+    "platform": "smartrecruiters",
+    "label": "X (Twitter) profile",
+    "legacy_key": "twitter_url",
+    "expected_key": "twitter_url"
+  },
+  {
+    "platform": "unstop",
+    "label": "+91",
+    "legacy_key": "phone",
+    "expected_key": "phone"
+  },
+  {
+    "platform": "unstop",
+    "label": "Differently Abled",
+    "legacy_key": "disability_status",
+    "expected_key": "disability_status"
+  },
+  {
+    "platform": "unstop",
+    "label": "First Name",
+    "legacy_key": "first_name",
+    "expected_key": "first_name"
+  },
+  {
+    "platform": "unstop",
+    "label": "Gender",
+    "legacy_key": "gender",
+    "expected_key": "gender"
+  },
+  {
+    "platform": "unstop",
+    "label": "Last Name (if applicable)",
+    "legacy_key": "last_name",
+    "expected_key": "last_name"
+  },
+  {
+    "platform": "unstop",
+    "label": "Location",
+    "legacy_key": "location_current",
+    "expected_key": "application.location"
+  },
+  {
+    "platform": "unstop",
+    "label": "Organization Name",
+    "legacy_key": "custom.organization_name",
+    "expected_key": "custom.organization_name"
+  },
+  {
+    "platform": "unstop",
+    "label": "Skills",
+    "legacy_key": "custom.skills",
+    "expected_key": "custom.skills"
+  },
+  {
+    "platform": "unstop",
+    "label": "Terms & Conditions",
+    "legacy_key": "custom.terms_conditions",
+    "expected_key": "custom.terms_conditions"
+  },
+  {
+    "platform": "unstop",
+    "label": "Type",
+    "legacy_key": "custom.type",
+    "expected_key": "custom.type"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently authorized to be legally employed in the United States?",
+    "legacy_key": "custom.are_you_currently_authorized_to_be",
+    "expected_key": "custom.are_you_currently_authorized_to_be"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently authorized to work for any employer in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently authorized to work in Canada?",
+    "legacy_key": "work_authorization.canada",
+    "expected_key": "work_authorization.canada"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently authorized to work in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently authorized to work lawfully in the United States?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently based in the New York City area, or are you willing to relocate here prior to starting this role?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently based in the SF Bay Area, or ready to relocate?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently engage in any side businesses, hold board positions, serve in nonprofit roles, maintain academic commitments, or have any other obligations that you anticipate continuing while employed with us? If yes, please provide details.",
+    "legacy_key": "custom.are_you_currently_engage_in_any",
+    "expected_key": "custom.are_you_currently_engage_in_any"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently enrolled in a degree program at a registered college or university?",
+    "legacy_key": "custom.are_you_currently_enrolled_in_a__",
+    "expected_key": "application.education_status"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you currently located in, or willing to relocate to, the Greater New York City area and work from our NYC office for the duration of the internship?",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you eligible to work in the EU?",
+    "legacy_key": "work_authorization.eu",
+    "expected_key": "work_authorization.eu"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you excited to work in-office five days a week?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you excited to work in-office in San Francisco five days a week?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you expected to graduate with a Bachelor's degree in Fall 2027 or Spring 2028?",
+    "legacy_key": "custom.are_you_expected_to_graduate_with",
+    "expected_key": "custom.are_you_expected_to_graduate_with"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you happy to work from our office at least 3 days a week?",
+    "legacy_key": "custom.are_you_happy_to_work_from",
+    "expected_key": "custom.are_you_happy_to_work_from"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorised to work in the country you wish to work in without the need for visa sponsorship?",
+    "legacy_key": "visa_sponsorship",
+    "expected_key": "visa_sponsorship"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in that country without company support?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the United States for any employer?",
+    "legacy_key": "work_authorization.us",
+    "expected_key": "work_authorization.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the United States without employer sponsorship, now or in the future?",
+    "legacy_key": "visa_sponsorship.us",
+    "expected_key": "visa_sponsorship.us"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the country in which the job you are applying for is located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the country in which you are applying?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the country where this job is located?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the country you are based in?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in the location where this role is based?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you legally authorized to work in this country of employment?",
+    "legacy_key": "work_authorization",
+    "expected_key": "work_authorization"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you okay spending this internship in San Francisco?",
+    "legacy_key": "custom.are_you_okay_spending_this_internship",
+    "expected_key": "custom.are_you_okay_spending_this_internship"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you open to working in-person in either San Francisco, Seattle, or New York?",
+    "legacy_key": "custom.are_you_open_to_working_in_",
+    "expected_key": "custom.are_you_open_to_working_in_"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you over the age of 18?",
+    "legacy_key": "age_18_plus",
+    "expected_key": "age_18_plus"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing and able to come into our downtown SF office 3 days per week?",
+    "legacy_key": "custom.are_you_willing_and_able_to",
+    "expected_key": "custom.are_you_willing_and_able_to"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing and able to commute to our 2nd Street office each week on Tuesday, Wednesday and Thursday?",
+    "legacy_key": "custom.are_you_willing_and_able_to__",
+    "expected_key": "custom.are_you_willing_and_able_to__"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing and able to commute to our San Diego office (in La Jolla) each week on Tuesday, Wednesday and Thursday?",
+    "legacy_key": "custom.are_you_willing_and_able_to___",
+    "expected_key": "custom.are_you_willing_and_able_to___"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing and able to work from our NYC office 5 days a week?",
+    "legacy_key": "custom.are_you_willing_and_able_to_",
+    "expected_key": "custom.are_you_willing_and_able_to_"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing and able to work nights and weekends?",
+    "legacy_key": "custom.are_you_willing_and_able_to____",
+    "expected_key": "custom.are_you_willing_and_able_to____"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing to relocate to NYC for this opportunity? No relocation support will be provided.",
+    "legacy_key": "relocation",
+    "expected_key": "relocation"
+  },
+  {
+    "platform": "ashby",
+    "label": "Are you willing to work from the office location of the job?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "ashby",
+    "label": "At Zapier, we don't just embrace automation and Al - our mission is to help others do the same. We expect the smart use of these tools when you join us, so we understand if you used Al to shape your application.",
+    "legacy_key": "custom.at_zapier_we_don_t_just",
+    "expected_key": "custom.at_zapier_we_don_t_just"
+  },
+  {
+    "platform": "ashby",
+    "label": "Based on your current impression, how would you rate Plaid’s position in AI compared to other tech companies?",
+    "legacy_key": "custom.based_on_your_current_impression_how",
+    "expected_key": "custom.based_on_your_current_impression_how"
+  },
+  {
+    "platform": "ashby",
+    "label": "Building/Unit/Apartment",
+    "legacy_key": "custom.building_unit_apartment",
+    "expected_key": "custom.building_unit_apartment"
+  },
+  {
+    "platform": "ashby",
+    "label": "Can you confirm if you are located in the EMEA regions?",
+    "legacy_key": "custom.can_you_confirm_if_you_are",
+    "expected_key": "custom.can_you_confirm_if_you_are"
+  },
+  {
+    "platform": "ashby",
+    "label": "Can you work on-site in San Francisco during the week?",
+    "legacy_key": "work_mode_ok",
+    "expected_key": "work_mode_ok"
+  },
+  {
+    "platform": "ashby",
+    "label": "Consent to Third-Party Data Processing",
+    "legacy_key": "privacy_consent",
+    "expected_key": "privacy_consent"
+  },
+  {
+    "platform": "ashby",
+    "label": "Country of Residence",
+    "legacy_key": "custom.country_of_residence",
+    "expected_key": "custom.country_of_residence"
+  },
+  {
+    "platform": "ashby",
+    "label": "Course Title",
+    "legacy_key": "custom.course_title",
+    "expected_key": "custom.course_title"
+  },
+  {
+    "platform": "ashby",
+    "label": "Cover Letter",
+    "legacy_key": "cover_letter",
+    "expected_key": "cover_letter"
+  },
+  {
+    "platform": "ashby",
+    "label": "Coverletter",
+    "legacy_key": "custom.coverletter",
+    "expected_key": "custom.coverletter"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current Company",
+    "legacy_key": "current_company",
+    "expected_key": "current_company"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current Location",
+    "legacy_key": "location_current",
+    "expected_key": "location.current.city"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current or most recent employer",
+    "legacy_key": "custom.current_or_most_recent_employer",
+    "expected_key": "custom.current_or_most_recent_employer"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current/Last Company",
+    "legacy_key": "custom.current_last_company",
+    "expected_key": "custom.current_last_company"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current/Most Recent Company Name",
+    "legacy_key": "custom.current_most_recent_company_name",
+    "expected_key": "custom.current_most_recent_company_name"
+  },
+  {
+    "platform": "ashby",
+    "label": "Current/Most Recent Job Title",
+    "legacy_key": "custom.current_most_recent_job_title",
+    "expected_key": "custom.current_most_recent_job_title"
+  },
+  {
+    "platform": "ashby",
+    "label": "Customer Segment",
+    "legacy_key": "custom.customer_segment",
+    "expected_key": "custom.customer_segment"
+  },
+  {
+    "platform": "ashby",
+    "label": "Degree Type",
+    "legacy_key": "degree",
+    "expected_key": "education.degree_level"
+  },
+  {
+    "platform": "ashby",
+    "label": "Describe a time you had to learn a new tool or technology quickly to meet a deadline.",
+    "legacy_key": "custom.describe_a_time_you_had_to",
+    "expected_key": "custom.describe_a_time_you_had_to"
+  },
+  {
+    "platform": "ashby",
+    "label": "Describe an impactful security engineering project you led end-to-end at a Staff-level. What was your scope? Why was it impactful?",
+    "legacy_key": "custom.describe_an_impactful_security_engineering_project",
+    "expected_key": "custom.describe_an_impactful_security_engineering_project"
+  },
+  {
+    "platform": "ashby",
+    "label": "Describe the best engineer you've worked with, someone else in your top 5, and the difference between the two.",
+    "legacy_key": "custom.describe_the_best_engineer_you_ve",
+    "expected_key": "custom.describe_the_best_engineer_you_ve"
+  }
+]

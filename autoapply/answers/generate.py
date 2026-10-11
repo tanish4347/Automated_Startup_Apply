@@ -166,7 +166,7 @@ def check(draft: str, claims: list[dict[str, Any]] | None, ctx: list[dict[str, s
 class Generator:
     """Ollama chat with a JSON schema reply. Two separate calls: draft, then verify."""
 
-    def __init__(self, url: str = "http://localhost:11434", model: str = "qwen3:8b", timeout_s: float = 120,
+    def __init__(self, url: str = "http://localhost:11434", model: str = "qwen3:8b", timeout_s: float = 0.1,
                  transport: httpx.BaseTransport | None = None):
         from autoapply.answers.entail import Entailer
         self.model = model

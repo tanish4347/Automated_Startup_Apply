@@ -182,12 +182,12 @@ def test_intake_passes_order_resume_and_progress(seeded):
     cards = intake.build_cards(seeded)
     passes = [c.intake_pass for c in cards]
     assert passes == sorted(passes, key=intake.PASSES.index)          # a, b, c, d in order
-    assert {"cv", "gap", "policy", "story"} <= set(passes)
+    assert {"cv", "gap", "policy"} <= set(passes)  # story pass may be empty due to contextual filters
     assert not any(c.intake_pass != "policy" and c.id.startswith("answer:") and
                    seeded.get(VaultAnswer, int(c.id[7:])).canonical_key in ("notice_period", "salary_expectation")
                    for c in cards)                                      # asked as policy, not twice
     p = intake.progress(cards)
-    assert p["done"] == 0 and p["resume_at"] == 0 and all(x["minutes_left"] > 0 for x in p["passes"])
+    assert p["done"] == 0 and p["resume_at"] == 0 and all(x["minutes_left"] >= 0 for x in p["passes"])
 
     first, second = cards[0], cards[1]
     intake.apply(seeded, first.id, "confirm", {i["name"]: i["value"] for i in first.inputs})
@@ -276,3 +276,22 @@ def test_noise_and_employer_fields_not_in_intake(seeded):
     for c in cards:
         assert c.id != f'answer:{attach2.id}'
         assert c.question.lower() not in ('attach', 'submit', 'upload', 'continue', 'next', 'save')
+
+
+def test_contextual_questions_filtered(seeded):
+    """Ensure contextual questions are classified as CONTEXTUAL_APPLICATION_DECISION and excluded from intake."""
+    from autoapply.candidate.catalog import classify_card
+    from autoapply.candidate.intake import build_cards
+    
+    # Check classification
+    assert classify_card("internship_duration_preferred", "text", "custom", "") == "CONTEXTUAL_APPLICATION_DECISION"
+    assert classify_card("how_heard", "text", "sourcing", "") == "CONTEXTUAL_APPLICATION_DECISION"
+    assert classify_card("why_company", "textarea", "story", "") == "CONTEXTUAL_APPLICATION_DECISION"
+    
+    # Ensure they don't appear in cards
+    cards = build_cards(seeded)
+    for c in cards:
+        if c.kind == "answer":
+            a_id = int(c.id.split(":")[1])
+            a = seeded.query(VaultAnswer).get(a_id)
+            assert a.canonical_key not in {"internship_duration_preferred", "how_heard", "why_company"}

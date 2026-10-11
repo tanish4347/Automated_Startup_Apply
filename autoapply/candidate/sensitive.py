@@ -31,6 +31,7 @@ SENSITIVE_KEYS = {
     "visa_sponsorship", "work_authorization", "criminal_history",
     "gender", "race_ethnicity", "veteran_status", "disability_status", "pronouns",
     "gpa", "graduation_date", "salary_expectation", "notice_period", "start_date",
+    "compensation",
 }
 # custom.* clusters about criminal history / background checks are sensitive too
 _SENSITIVE_CUSTOM = re.compile(r"criminal|convict|felony|misdemeanou?r|background_check|arrest")

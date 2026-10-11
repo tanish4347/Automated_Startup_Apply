@@ -79,6 +79,11 @@ def _answer_inputs(a: VaultAnswer) -> list[dict[str, Any]]:
 
 
 def _answer_pass(a: VaultAnswer) -> str:
+    from autoapply.candidate.catalog import classify_card
+    if a.canonical_key:
+        cls = classify_card(a.canonical_key, a.field_type or "text", a.category or "custom", a.question or "")
+        if cls in ("INVALID_NOISE", "EMPLOYER_FORM_FIELD", "DOCUMENT", "CONTEXTUAL_APPLICATION_DECISION"):
+            return "none"
     if a.intake_pass == "cv" and (a.source == "CV" or a.suggested_answer):
         return "cv"
     return {"cv": "gap", "none": "none"}.get(a.intake_pass or "gap", a.intake_pass or "gap")
@@ -103,7 +108,10 @@ def build_cards(session: Session) -> list[Card]:
         cards.append(Card(f"education:{e.id}", "cv", "education", f"Education: {e.institution}", [
             {"name": "institution", "label": "Institution", "type": "text", "value": e.institution or ""},
             {"name": "degree", "label": "Degree", "type": "text", "value": e.degree or ""},
+            {"name": "degree_level", "label": "Degree level", "type": "text", "value": e.degree_level or ""},
+            {"name": "department", "label": "Department", "type": "text", "value": e.department or ""},
             {"name": "major", "label": "Branch / major", "type": "text", "value": e.major or ""},
+            {"name": "specialization", "label": "Specialization", "type": "text", "value": e.specialization or ""},
             {"name": "minor", "label": "Minor", "type": "text", "value": e.minor or ""},
             {"name": "start_date", "label": "Start", "type": "text", "value": e.start_date or ""},
             {"name": "end_date", "label": "Graduation (sensitive: you type it)", "type": "text", "value": e.end_date or ""},
@@ -200,6 +208,28 @@ def _apply_answer(session: Session, answer_id: int, action: str, value: Any) -> 
     if value != a.answer or a.sensitivity == SENSITIVE:
         a.source = USER
     a.answer, a.status = value, CONFIRMED
+    from autoapply.candidate.concepts import concept_for, metadata_for
+    meta = metadata_for(a.canonical_key)
+    a.value_type = meta["value_type"]
+    a.scope = meta["scope"]
+    a.conditions = meta["conditions"]
+    a.confidence = 1.0
+    a.confirmed_by_user = True
+    from datetime import datetime, timezone
+    a.confirmed_at = datetime.now(timezone.utc)
+    concept = concept_for(a.canonical_key)
+    if concept and concept.sensitivity == SENSITIVE:
+        a.sensitivity = SENSITIVE
+    if concept and concept.value_type == "money":
+        # Keep the amount as candidate-entered text; period is concept metadata and no currency
+        # is invented. Unparseable or qualified values remain intact in `answer`.
+        import re
+        amount = re.fullmatch(r"\s*([\d,]+(?:\.\d{1,2})?)\s*", value)
+        if amount:
+            a.value_json = {"amount": amount.group(1).replace(",", ""), "currency": None,
+                            "period": concept.period, "raw": value}
+        else:
+            a.value_json = {"raw": value, "period": concept.period}
     if a.identity_id is None:
         a.identity = _identity(session)
     col = IDENTITY_COLUMNS.get(a.canonical_key or "")
@@ -268,6 +298,14 @@ def _mirror_policy_answer(session: Session, key: str, value: dict[str, Any]) -> 
         return
     a.answer = json.dumps(value, sort_keys=True)
     a.source, a.status = USER, CONFIRMED
+    if key == "stipend_floor":
+        # Keep the historical display row for older dashboard/tests, but never resolve it as a
+        # generic salary fact. New lookups use compensation.minimum_stipend with explicit units.
+        a.scope = "legacy"
+        a.conditions = {"deprecated_mirror_of": "stipend_floor"}
+        a.value_json = None
+        a.value_type = "legacy"
+        a.confirmed_by_user = True
     if a.identity_id is None:
         a.identity = _identity(session)
 

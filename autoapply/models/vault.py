@@ -15,6 +15,8 @@ class VaultIdentity(Base):
     phone = Column(String(64))
     city = Column(String(128))
     country = Column(String(128))
+    permanent_city = Column(String(128))
+    permanent_country = Column(String(128))
     linkedin_url = Column(String(256))
     github_url = Column(String(256))
     portfolio_url = Column(String(256))
@@ -69,7 +71,8 @@ class VaultIdentity(Base):
             # Grades and graduation dates are SENSITIVE: never shown to a model (it could reword or
             # infer them); they reach forms only verbatim via "sensitive" below.
             "education": [compact({
-                "institution": e.institution, "degree": e.degree, "major": e.major,
+                "institution": e.institution, "degree": e.degree, "degree_level": e.degree_level,
+                "department": e.department, "major": e.major, "specialization": e.specialization,
                 "minor": e.minor, "start_date": e.start_date,
             }) for e in self.educations],
             "employment": [compact({
@@ -101,7 +104,10 @@ class VaultEducation(Base):
     identity_id = Column(Integer, ForeignKey("vault_identity.id"))
     institution = Column(String(256))
     degree = Column(String(128))
+    degree_level = Column(String(64))
     major = Column(String(128))
+    specialization = Column(String(128))
+    department = Column(String(128))
     minor = Column(String(128))
     start_date = Column(String(64))
     end_date = Column(String(64))
@@ -178,6 +184,17 @@ class VaultAnswer(Base):
     # A value read from the CV for a SENSITIVE key is only ever a suggestion shown at intake: the
     # answer itself is written by the candidate (see autoapply/candidate/sensitive.py).
     suggested_answer = Column(Text)
+    # Knowledge metadata. `answer` remains the backwards-compatible display value; `value_json`
+    # carries typed values (for example amount/currency/period) without collapsing units.
+    value_json = Column(JSON)
+    value_type = Column(String(32), default="text")
+    confidence = Column(Float)
+    valid_from = Column(DateTime(timezone=True))
+    valid_until = Column(DateTime(timezone=True))
+    scope = Column(String(32), default="candidate", nullable=False)  # candidate | application | legacy
+    conditions = Column(JSON)
+    confirmed_by_user = Column(Boolean, default=False, nullable=False)
+    confirmed_at = Column(DateTime(timezone=True))
     field_type = Column(String(32))        # from docs/QUESTIONS.md
     weight = Column(Float)                 # weighted volume from docs/QUESTIONS.md
     intake_pass = Column(String(16))       # cv | gap | policy | story

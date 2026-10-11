@@ -186,8 +186,20 @@ class AnswerEngine:
             seed_aliases(session)
 
     # tier 1a / 1b: which canonical question is this?
-    def identify(self, label: str) -> Resolution:
+    def identify(self, label: str, context: dict[str, Any] | str | None = None) -> Resolution:
         norm = normalize_label(label)
+        explicit = self.session.query(QuestionAlias).filter_by(alias=norm).first()
+        if explicit is not None and explicit.source in ("review", "manual", "test"):
+            explicit.hits += 1
+            explicit.last_used_at = datetime.now(timezone.utc)
+            return Resolution(canonical_key=explicit.canonical_key, tier="1a", confidence=1.0,
+                              matched=explicit.alias)
+        # Apply high-precision semantic rules before broad harvested aliases. This preserves
+        # distinctions (monthly vs annual pay, current vs permanent city) lost in older clusters.
+        from autoapply.candidate.concepts import map_question
+        semantic_key = map_question(label, context)
+        if semantic_key:
+            return Resolution(canonical_key=semantic_key, tier="semantic", confidence=1.0, matched=label)
         row = self.session.query(QuestionAlias).filter_by(alias=norm).first()
         if row is not None:
             row.hits += 1
@@ -211,48 +223,67 @@ class AnswerEngine:
         return Resolution(confidence=round(near[2], 3) if near else 0.0, matched=near[1] if near else None)
 
     # tier 1c: the candidate's own answer
-    def vault_value(self, key: str) -> tuple[str | None, bool]:
-        """(confirmed answer or None, is_sensitive). NEEDS REVIEW never counts."""
-        from autoapply.models.vault import VaultAnswer
-        keys = [key] + ([key.split(".")[0]] if "." in key and not key.startswith("custom.") else [])
-        sensitive = is_sensitive_key(key)
-        for k in keys:
-            a = self.session.query(VaultAnswer).filter_by(canonical_key=k).first()
-            if a is None:
-                continue
-            sensitive = sensitive or a.sensitivity == SENSITIVE
-            if a.answer and a.status == "CONFIRMED" and (not sensitive or a.source == "USER ENTERED"):
-                return a.answer, sensitive
-        return None, sensitive
+    def vault_value(self, key: str) -> tuple[Any, bool, str]:
+        """Returns (value, is_sensitive, provenance). NEEDS REVIEW never counts."""
+        from autoapply.answers.knowledge import CandidateKnowledgeBase
+        kb = CandidateKnowledgeBase(self.session)
+        entry = kb.resolve(key)
+        if entry is not None:
+            return entry.value, entry.sensitive, entry.source
+        return None, is_sensitive_key(key), "UNKNOWN"
 
     def resolve(self, label: str, field_type: str = "text", options: list[str] | None = None,
-                required: bool = False, job=None) -> Resolution:
+                required: bool = False, job=None, context: dict[str, Any] | str | None = None) -> Resolution:
         options = [o for o in options or [] if o and o.strip() and not re.match(r"^(select|choose)\b", o, re.I)]
-        ident = self.identify(label)
+        ident = self.identify(label, context=context)
         from autoapply.answers.generate import is_open_question
         open_q = job is not None and is_open_question(label, field_type, options)
         if open_q and ident.canonical_key in STORY_KEYS:
             r = self._tier3(label, field_type, ident, job)
             if r.value is not None:
                 return self._count(r)
+        
+        original_tier = ident.tier
         if ident.canonical_key:
-            value, sensitive = self.vault_value(ident.canonical_key)
+            value, sensitive, prov = self.vault_value(ident.canonical_key)
+            if value is None:
+                from autoapply.models.approved_answer import ApprovedAnswerCache
+                cache_hit = self.session.query(ApprovedAnswerCache).filter_by(canonical_concept=ident.canonical_key).order_by(ApprovedAnswerCache.id.desc()).first()
+                if cache_hit:
+                    value = cache_hit.answer
+                    ident.tier = "APPROVED_CACHE"
+                    sensitive = False
+            else:
+                ident.tier = prov
+            
             if value is not None:
+                from autoapply.candidate.concepts import render_value
+                value = render_value(value, ident.canonical_key, field_type, label)
+                if value is None:
+                    return self._count(Resolution(canonical_key=ident.canonical_key, tier=ident.tier,
+                                                  confidence=ident.confidence,
+                                                  park_reason="stored value has incompatible type or unit"))
                 if options:
-                    mapped = match_option(value, options)
+                    from autoapply.answers.type_adapter import match_dropdown_option, NeedsUserInputError
+                    try:
+                        mapped = match_dropdown_option(value, options)
+                    except NeedsUserInputError:
+                        mapped = None
                     if mapped is None:
                         return self._count(Resolution(canonical_key=ident.canonical_key, tier=ident.tier,
                                                       confidence=ident.confidence,
-                                                      park_reason="stored answer matches none of the form's options"))
+                                                      park_reason="ambiguous option match"))
                     value = mapped
-                self._learn(label, ident)
+                self._learn(label, original_tier, ident)
                 return self._count(Resolution(value, ident.canonical_key, ident.tier, ident.confidence,
-                                              matched=ident.matched))
+                                              matched=ident.matched), original_tier=original_tier)
             if sensitive:
                 # SENSITIVE resolves at tier 1 or not at all: never sent to a model.
                 raise ParkApplication(f"{ident.canonical_key}: no confirmed answer from the candidate")
         finite = options or (field_type in ("boolean", "checkbox") and ["Yes", "No"])
-        if finite:
+        from autoapply.candidate.concepts import concept_for
+        semantic_concept = concept_for(ident.canonical_key)
+        if finite and not (semantic_concept and semantic_concept.scope == "application"):
             r = self._tier2(label, list(finite), ident)
             if r is not None:
                 return self._count(r)
@@ -291,7 +322,7 @@ class AnswerEngine:
             return None
         if ident.canonical_key is None:
             self._new_question(label, "select", suggestion=answer)
-        return Resolution(answer, ident.canonical_key, "2", 0.7, matched="policy rules")
+        return Resolution(answer, ident.canonical_key, "LLM", 0.7, matched="policy rules")
 
     def _tier3(self, label: str, field_type: str, ident: Resolution, job) -> Resolution:
         from autoapply.answers.entail import SensitiveLeak
@@ -303,19 +334,19 @@ class AnswerEngine:
             g = generate_answer(self.session, label, key, job, self._generator, self.cfg)
         except SensitiveLeak as e:
             log.error("tier3_refused", reason=str(e))
-            return Resolution(canonical_key=key, tier="3", park_reason=f"tier 3 refused: {e}")
+            return Resolution(canonical_key=key, tier="LLM", park_reason=f"tier 3 refused: {e}")
         except Exception as e:
             log.warning("tier3_failed", error=str(e)[:200])
-            return Resolution(canonical_key=key, tier="3", park_reason=f"tier 3 failed: {type(e).__name__}")
+            return Resolution(canonical_key=key, tier="LLM", park_reason=f"tier 3 failed: {type(e).__name__}")
         if g.value is None:
-            return Resolution(canonical_key=key, tier="3", park_reason=g.park_reason, generated_id=g.generated_id)
-        return Resolution(g.value, key, "3", 0.5, matched="story bank + company brief",
+            return Resolution(canonical_key=key, tier="LLM", park_reason=g.park_reason, generated_id=g.generated_id)
+        return Resolution(g.value, key, "LLM", 0.5, matched="story bank + company brief",
                           needs_approval=g.status != "approved", generated_id=g.generated_id)
 
     # write-back
-    def _learn(self, label: str, ident: Resolution) -> None:
-        if self.writeback and ident.tier in ("1b", "1a-rule") and not is_sensitive_key(ident.canonical_key):
-            if _add_alias(self.session, label, ident.canonical_key, "embedding" if ident.tier == "1b" else "rule"):
+    def _learn(self, label: str, original_tier: str, ident: Resolution) -> None:
+        if self.writeback and original_tier in ("1b", "1a-rule") and not is_sensitive_key(ident.canonical_key):
+            if _add_alias(self.session, label, ident.canonical_key, "embedding" if original_tier == "1b" else "rule"):
                 self.stats["writeback_alias"] += 1
 
     def _new_question(self, label: str, field_type: str, suggestion: str | None = None) -> str | None:
@@ -333,8 +364,8 @@ class AnswerEngine:
         self.stats["writeback_new_question"] += 1
         return key
 
-    def _count(self, r: Resolution) -> Resolution:
-        self.stats["parked" if r.value is None else f"tier {r.tier}"] += 1
+    def _count(self, r: Resolution, original_tier: str | None = None) -> Resolution:
+        self.stats["parked" if r.value is None else f"tier {original_tier or r.tier}"] += 1
         return r
 
     def commit(self) -> None:
@@ -373,7 +404,11 @@ def harness_answerer(session: Session | None = None):
             sess = session or get_session_factory(engine_from_settings(get_settings().db.url))()
             state["engine"] = AnswerEngine(sess)
         eng = state["engine"]
-        r = eng.resolve(field.label, field.field_type, field.options, field.required, job=job)
+        context = getattr(field, "context", None) or {}
+        if isinstance(context, dict) and job is not None:
+            context = {**context, "company": getattr(job, "company_name", None),
+                       "job_title": getattr(job, "title", None)}
+        r = eng.resolve(field.label, field.field_type, field.options, field.required, job=job, context=context)
         eng.commit()
         return Answer(r.value, r.canonical_key, r.tier, r.confidence, r.park_reason, r.needs_approval, r.generated_id)
 

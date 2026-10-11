@@ -36,7 +36,37 @@ def _with_applier(session, status: ApplicationStatus, limit: int, skip: set[str]
 
 
 def run_application_engine(limit: int = 10) -> None:
-    from autoapply.appliers.harness import CapReached, NeedsLogin, load_config, pause, run_attempt
+    """Run sync Playwright safely even when called by an async web handler.
+
+    Playwright's sync API rejects execution in a thread with a running asyncio loop. The complete
+    engine owns its SessionLocal and therefore runs as one unit on a worker thread in that case.
+    """
+    import asyncio
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        _run_application_engine(limit)
+        return
+    import threading
+    errors: list[BaseException] = []
+
+    def worker() -> None:
+        try:
+            _run_application_engine(limit)
+        except BaseException as exc:
+            errors.append(exc)
+
+    thread = threading.Thread(target=worker, name="application-engine", daemon=True)
+    thread.start()
+    thread.join()
+    if errors:
+        raise errors[0]
+
+
+def _run_application_engine(limit: int = 10) -> None:
+    from autoapply.appliers.harness import (
+        CapReached, NeedsLogin, attempt_funnel_metrics, load_config, pause, recovery_metrics, run_attempt,
+    )
     from autoapply.appliers.resolve import reroute_known
     setup_appliers()
     settings = get_settings()
@@ -68,12 +98,27 @@ def run_application_engine(limit: int = 10) -> None:
                 skip.add(applier.platform)
                 print(f"{applier.platform}: skipped for this run - {e}")
                 continue
+            except Exception as e:
+                import traceback
+                log.error("application_failed", app_id=app.id, error=str(e), trace=traceback.format_exc())
+                app.status = ApplicationStatus.FAILED
+                app.error_message = str(e)
+                session.commit()
+                continue
             processed += 1
             if processed < len(queue):
                 pause(cfg, processed)
+        metrics = recovery_metrics(session)
+        log.info("application_recovery_metrics", **metrics)
+        funnel = attempt_funnel_metrics(session)
+        log.info("application_attempt_funnel", **funnel)
     eng = getattr(answerer, "state", {}).get("engine")
     tiers = dict(eng.stats) if eng else {}
     log.info("application_engine_finished", processed=processed, answer_tiers=tiers)
     print(f"Attempts this run: {processed}")
     if tiers:
         print("Fields per answer tier this run: " + ", ".join(f"{k}={v}" for k, v in sorted(tiers.items())))
+    print("Persisted recovery metrics: " + ", ".join(f"{k}={v:.3f}" if isinstance(v, float) else f"{k}={v}"
+                                                       for k, v in sorted(metrics.items())))
+    print("Persisted attempt funnel: " + ", ".join(f"{k}={v:.3f}" if isinstance(v, float) else f"{k}={v}"
+                                                    for k, v in sorted(funnel.items())))

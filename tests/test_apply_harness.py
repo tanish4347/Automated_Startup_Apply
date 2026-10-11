@@ -17,7 +17,7 @@ from autoapply.appliers.harness import (
     submit_mode,
 )
 from autoapply.models.application import Application, ApplicationStatus
-from autoapply.models.attempt import ApplicationAttempt, ApplicationClaim
+from autoapply.models.attempt import ApplicationAttempt, ApplicationAttemptEvent, ApplicationClaim
 from autoapply.models.base import Base
 from autoapply.models.job import Job
 from autoapply.services.application_service import reset_stalled_applications
@@ -127,7 +127,11 @@ def test_submit_mode_defaults_to_review_only():
     assert submit_mode("internshala", {"submit_mode": {"internshala": True}}) == "review_only"
     assert submit_mode("internshala", {"submit_mode": {"internshala": "live"}}) == "live"
     real = harness.load_config()
-    assert all(v == "review_only" for v in (real.get("submit_mode") or {}).values())
+    sm = real.get("submit_mode")
+    if isinstance(sm, dict):
+        assert all(v == "review_only" for v in sm.values())
+    else:
+        assert sm in (None, "review_only")
 
 
 def test_no_code_can_promote_submit_mode():
@@ -206,6 +210,13 @@ class FakeApplier(FormApplier):
 
     def fill(self, bs, field, value):
         bs.page.filled[field.label] = value
+        return self.verify_fill(bs, field, value)
+
+    def verify_fill(self, bs, field, value):
+        actual = bs.page.filled.get(field.label)
+        if actual != value:
+            raise ValueError(f"fake value verification failed for {field.label}")
+        return {"value": actual}
 
     def submit_control(self, bs):
         return FakeSubmit(bs.page)
@@ -239,6 +250,19 @@ def test_review_only_parks_with_full_evidence_and_never_clicks_submit(session, t
     assert a.unfilled_fields[0]["reason"] == "free text: parks in this phase"
     assert len(a.form_fingerprint) == 40 and a.blocked_requests
     assert app.status == ApplicationStatus.PARKED and app.last_attempt_at is not None
+
+
+def test_empty_form_discovery_is_an_explicit_failure_not_a_completed_form(session, tmp_path):
+    class EmptyApplier(FakeApplier):
+        def read_fields(self, bs):
+            return []
+
+    app = _app(session, n=198)
+    attempt = run_attempt(session, EmptyApplier(), app, answer_all, browser_factory=FakeBrowser.factory(),
+                          cfg={**CFG, "evidence_dir": str(tmp_path)}, now=NOW).attempt
+    assert attempt.outcome == "failed"
+    assert "form discovery empty" in attempt.error
+    assert not attempt.filled_fields and app.status == ApplicationStatus.FAILED
 
 
 def test_fingerprint_is_platform_plus_sorted_questions():
@@ -383,3 +407,55 @@ def test_resume_field_prefers_the_resume_over_a_photo_or_autofill_box():
     assert pick([FormField("Application", "file"), FormField("Cover Letter", "file"), FormField("CV", "file")]).label == "CV"
     assert pick([FormField("Attach", "file"), FormField("Attach", "file")]) is not None
     assert pick([FormField("Email", "email")]) is None
+
+
+def test_retryable_timeout_restarts_context_and_recovers_to_review_ready(session, tmp_path):
+    from playwright.sync_api import TimeoutError as PlaywrightTimeout
+
+    app = _app(session, n=908)
+    attempts = {"open": 0}
+
+    class OneTimeout(FakeApplier):
+        def open_form(self, bs, job):
+            attempts["open"] += 1
+            if attempts["open"] == 1:
+                raise PlaywrightTimeout("temporary navigation timeout")
+
+    made = []
+
+    def browser_factory(platform):
+        browser = FakeBrowser(FakePage())
+        made.append(browser)
+        return browser
+
+    result = run_attempt(session, OneTimeout(fields=[FormField("Email", "email", True, aa="email")]), app,
+                         lambda field, job: Answer("asha@example.edu", "email", "1a", 1),
+                         browser_factory=browser_factory, cfg={**CFG, "evidence_dir": str(tmp_path)}, now=NOW)
+    events = session.query(ApplicationAttemptEvent).join(ApplicationAttempt).filter(
+        ApplicationAttempt.application_id == app.id).all()
+    assert result.attempt.outcome == "parked"
+    assert len(made) == 2 and attempts["open"] == 2
+    assert any(e.action == "application_recovery" and e.strategy == "bounded_context_restart_reopen" for e in events)
+    assert any(e.stage == "REVIEW_READY" for e in events)
+    from autoapply.appliers.harness import attempt_funnel_metrics, recovery_metrics
+    metrics = recovery_metrics(session)
+    funnel = attempt_funnel_metrics(session)
+    assert metrics["recovery_success_rate"] == 1.0
+    assert metrics["final_review_ready_rate"] == 1.0
+    assert metrics["recovery_attempts_per_application"] == 1.0
+    assert funnel["attempted"] == 1 and funnel["opened"] == 1
+    assert funnel["review_ready"] == 1 and funnel["parked"] == 1 and funnel["failed"] == 0
+
+
+def test_recovery_metrics_separate_raw_and_recovered_readiness(session, tmp_path):
+    from autoapply.appliers.harness import recovery_metrics
+
+    raw = _app(session, n=909)
+    run_attempt(session, FakeApplier(fields=[FormField("Email", "email", True, aa="email")]), raw,
+                lambda field, job: Answer("asha@example.edu", "email", "1a", 1),
+                browser_factory=FakeBrowser.factory(), cfg={**CFG, "evidence_dir": str(tmp_path)}, now=NOW)
+    metrics = recovery_metrics(session)
+    assert metrics["attempted"] == 1
+    assert metrics["raw_success_rate"] == 1.0
+    assert metrics["final_review_ready_rate"] == 1.0
+    assert metrics["recovery_attempts_per_application"] == 0.0
