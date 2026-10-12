@@ -68,10 +68,16 @@ class AshbyApplier(AtsApplier):
     def read_fields(self, bs) -> list[FormField]:
         from autoapply.questions.harvest import clean_label
         fields = super().read_fields(bs)
+        yn_fields = []
         for g in bs.page.evaluate(YESNO_JS):
-            if clean_label(g["label"]):
-                fields.append(FormField(clean_label(g["label"]), "select", bool(g["required"]), g["options"],
-                                        g["option_aa"][0], "yesno", g["option_aa"]))
+            lbl = clean_label(g["label"])
+            if lbl:
+                yn_fields.append(FormField(lbl, "select", bool(g["required"]), g["options"],
+                                         g["option_aa"][0], "yesno", g["option_aa"]))
+        if yn_fields:
+            yn_labels = {f.label.lower() for f in yn_fields}
+            fields = [f for f in fields if not (f.label.lower() in yn_labels and f.field_type in ("multi_select", "checkbox") and f.options == ["on"])]
+            fields.extend(yn_fields)
         return fields
 
     def fill(self, bs, field: FormField, value):

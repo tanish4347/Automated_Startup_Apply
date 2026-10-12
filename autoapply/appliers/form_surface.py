@@ -73,7 +73,9 @@ _EXTRACT_JS = r"""(el, id) => {
     .map(x => root.getElementById ? root.getElementById(x) : document.getElementById(x)).map(txt).filter(Boolean).join(' ');
   const parentLabel = txt(el.closest('label'));
   const legend = txt(el.closest('fieldset')?.querySelector('legend'));
-  let label = labelled || by || el.getAttribute('aria-label') || parentLabel || legend ||
+  const container = el.closest('.ashby-application-form-field-entry, [class*="field-entry"], [class*="form-group"], [class*="form-field"], [role="group"]');
+  const containerLabel = container ? txt(container.querySelector('label, [class*="label"], [class*="title"], [class*="question"]')) : '';
+  let label = labelled || by || el.getAttribute('aria-label') || parentLabel || legend || containerLabel ||
     el.getAttribute('placeholder') || el.getAttribute('name') || '';
   const role = el.getAttribute('role') || ({INPUT: ({checkbox:'checkbox',radio:'radio',file:'button'}[(el.type||'').toLowerCase()] || 'textbox'),
     TEXTAREA:'textbox',SELECT:el.multiple?'listbox':'combobox'}[el.tagName]) || (el.isContentEditable?'textbox':'');
@@ -93,6 +95,7 @@ _EXTRACT_JS = r"""(el, id) => {
     [...root.querySelectorAll('input[name="'+CSS.escape(el.name)+'"]')].filter(x=>x.type===el.type) : [el];
   if (group.length > 1) {
     if (legend) label = legend;
+    else if (containerLabel) label = containerLabel;
     options = group.map(x => txt(x.closest('label')) || x.getAttribute('aria-label') || x.value).filter(Boolean);
     value = group.filter(x=>x.checked).map(x=>x.value);
   }

@@ -26,6 +26,9 @@ class Concept:
 CONCEPTS: dict[str, Concept] = {
     "location.current.city": Concept("location.current.city", "location", aliases=("current city", "city where you live", "present city")),
     "location.permanent.city": Concept("location.permanent.city", "location", aliases=("permanent city", "permanent residence city", "home town city")),
+    "location.country": Concept("location.country", "location", aliases=("country", "what country do you live in")),
+    "pronouns": Concept("pronouns", "demographic", aliases=("pronouns", "preferred pronouns", "your pronouns")),
+    "graduation_date": Concept("graduation_date", "education", "date", aliases=("graduation date", "graduation year", "year of graduation", "expected graduation")),
     "education.university": Concept("education.university", "education", aliases=("university", "college", "university name", "college name")),
     "education.department": Concept("education.department", "education", aliases=("academic department", "department of study", "department at university")),
     "education.degree_level": Concept("education.degree_level", "education", aliases=("degree level", "level of degree")),
@@ -50,6 +53,7 @@ CONCEPTS: dict[str, Concept] = {
 
 
 _RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("pronouns", re.compile(r"\b(preferred\s+)?pronouns?\b", re.I)),
     ("application.education_status", re.compile(r"\b(enrolled|currently a .* student|return to (?:the )?program)\b", re.I)),
     ("compensation.minimum_stipend", re.compile(r"\b(minimum|minimum acceptable|lowest|floor)\b.*\bstipend\b|\bstipend\b.*\b(minimum|lowest|floor)\b", re.I)),
     ("compensation.expected_ctc", re.compile(r"\b(expected|desired|target)\b.*\b(ctc|cost to company)\b|\b(ctc|cost to company)\b.*\b(expected|desired|target)\b", re.I)),
@@ -58,11 +62,12 @@ _RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("compensation.annual_salary", re.compile(r"\b(annual salary|yearly salary|salary per year|annual pay)\b", re.I)),
     ("compensation.stipend", re.compile(r"\b(stipend|internship allowance)\b", re.I)),
     ("location.permanent.city", re.compile(r"\b(permanent|home town|hometown)\b.*\b(city|location|address)\b|\b(city|location|address)\b.*\b(permanent|home town|hometown)\b", re.I)),
-    ("location.current.city", re.compile(r"\b(current|present|currently living)\b.*\b(city|location|address)\b|\b(city|location|address)\b.*\b(current|present)\b", re.I)),
+    ("location.current.city", re.compile(r"\b(current|present|currently living)\b.*\b(city|location|address)\b|\b(city|location|address)\b.*\b(current|present)\b|^location\s*\((?:city|town)\)", re.I)),
+    ("location.country", re.compile(r"^(?:your\s+)?country(?:\s*\(.*?\))?\s*\*?$", re.I)),
     ("education.degree_level", re.compile(r"\b(degree level|level of degree)\b", re.I)),
     ("education.degree_level", re.compile(r"\b(degree type|highest level of education|level of education completed)\b", re.I)),
-    ("education.degree_title", re.compile(r"\b(degree title|degree name|title of degree|what degree (?:are you|do you)\s+(?:currently )?pursuing)\b", re.I)),
-    ("graduation_date", re.compile(r"\bwhat year did you graduate (?:from )?(?:high )?school\b", re.I)),
+    ("education.degree_title", re.compile(r"\b(degree title|degree name|title of degree|what degree (?:are you|do you)\s+(?:currently )?pursuing|degree course(?: you are studying)?|what degree course)\b", re.I)),
+    ("graduation_date", re.compile(r"\b(what year did you graduate (?:from )?(?:high )?school|what year (?:does|did) your course finish|course finish(?:ing)? year|graduation (?:date|year)|year of graduation|expected graduation)\b", re.I)),
     ("education.specialization", re.compile(r"\b(speciali[sz]ation|area of focus)\b", re.I)),
     ("education.major", re.compile(r"\b(major|field of study)\b", re.I)),
     ("education.department", re.compile(r"\b(academic department|department of study|department at (?:the )?(?:university|college))\b", re.I)),

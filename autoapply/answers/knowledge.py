@@ -52,6 +52,8 @@ class CandidateKnowledgeBase:
             "github_url": "github_url",
             "portfolio_url": "portfolio_url",
             "resume": "resume_path",
+            "pronouns": "pronouns",
+            "demographic.pronouns": "pronouns",
         }
 
         # Handle simple facts
@@ -60,7 +62,30 @@ class CandidateKnowledgeBase:
             if val is not None:
                 return KnowledgeEntry(
                     canonical_key=canonical_key,
-                    category="identity",
+                    category="identity" if "pronoun" not in canonical_key else "demographic",
+                    value=val,
+                    value_type="string",
+                    source="FACT",
+                    confidence=1.0,
+                    sensitive=False,
+                    derivable=False
+                )
+
+        if canonical_key in ("location.country", "country"):
+            val = identity.country or identity.permanent_country
+            if not val:
+                nat_ans = self.session.query(VaultAnswer).filter(
+                    VaultAnswer.canonical_key.in_(["nationality", "citizenship"])
+                ).filter_by(status="CONFIRMED").first()
+                if nat_ans and nat_ans.answer:
+                    if nat_ans.answer.strip().lower() in ("indian", "india"):
+                        val = "India"
+                    else:
+                        val = nat_ans.answer.strip()
+            if val is not None:
+                return KnowledgeEntry(
+                    canonical_key=canonical_key,
+                    category="location",
                     value=val,
                     value_type="string",
                     source="FACT",
@@ -204,10 +229,14 @@ class CandidateKnowledgeBase:
                 if concept and concept.scope == "application":
                     continue
                 now = datetime.datetime.now(datetime.timezone.utc)
-                if a.valid_from and a.valid_from > now:
-                    continue
-                if a.valid_until and a.valid_until < now:
-                    continue
+                if a.valid_from:
+                    vf = a.valid_from.replace(tzinfo=datetime.timezone.utc) if a.valid_from.tzinfo is None else a.valid_from
+                    if vf > now:
+                        continue
+                if a.valid_until:
+                    vu = a.valid_until.replace(tzinfo=datetime.timezone.utc) if a.valid_until.tzinfo is None else a.valid_until
+                    if vu < now:
+                        continue
                 sensitive = is_sensitive_key(k) or a.sensitivity == SENSITIVE
                 if sensitive and a.source != USER:
                     continue # sensitive answers must be user entered

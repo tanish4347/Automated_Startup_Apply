@@ -95,11 +95,30 @@ def match_dropdown_option(candidate: Any, options: list[str]) -> str | None:
         if mapped_candidate == mapped_opt:
             return opt
 
+    # 3b. Binary Affirmation / Negation for Yes/No dropdowns
+    affirmatives = {"yes", "yeah", "yep", "sure", "definitely", "true", "y", "yeah i would", "i would", "yes i would", "yes i do", "i do", "yes please"}
+    negatives = {"no", "nah", "nope", "never", "false", "n", "i would not", "no i would not", "i don't", "no i do not"}
+    if candidate_lower in affirmatives and "yes" in options_lower:
+        return options_lower["yes"]
+    if candidate_lower in negatives and "no" in options_lower:
+        return options_lower["no"]
+
+    # 3c. Consent and agreement options (e.g. "Confirm" -> "Yes - I consent...")
+    if candidate_lower in ("confirm", "i agree", "agree", "consent", "i confirm"):
+        consent_opts = [
+            opt for opt in options
+            if re.search(r"\b(yes|consent|agree|confirm)\b", opt, re.I)
+            and not re.search(r"\b(no|do not|don't|not consent)\b", opt, re.I)
+        ]
+        if len(consent_opts) == 1:
+            return consent_opts[0]
+
     # 4. Fuzzy Similarity (Simple substring)
     matches = []
     for opt in options:
-         if candidate_lower in opt.lower() or opt.lower() in candidate_lower:
-              matches.append(opt)
+        opt_l = opt.lower()
+        if candidate_lower in opt_l or opt_l in candidate_lower:
+            matches.append(opt)
               
     if len(matches) == 1:
         return matches[0]
